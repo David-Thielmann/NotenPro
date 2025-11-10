@@ -1,0 +1,113 @@
+@page "/student/grades"
+@using HTLKrems.GradeManagement.Models
+@inject IGradeService GradeService
+
+<PageTitle>Meine Noten</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Meine Noten</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Outlined" Color="Color.Primary">
+        Exportieren
+    </MudButton>
+</div>
+
+@if (isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <MudCard Elevation="2" Class="mb-4">
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect @bind-Value="selectedSubject"
+                               Label="Fach"
+                               Variant="Variant.Outlined"
+                               T="string"
+                               Placeholder="Alle Fächer"
+                               Clearable="true">
+                        @foreach (var subject in subjects)
+                        {
+                            <MudSelectItem Value="@subject">@subject</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="searchString"
+                                  Label="Suchen"
+                                  Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" />
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+
+    <MudCard Elevation="2">
+        <MudCardContent>
+            <MudTable Items="@filteredGrades" Hover="true" Breakpoint="Breakpoint.Sm" Dense="@isMobile">
+                <HeaderContent>
+                    <MudTh>Fach</MudTh>
+                    <MudTh>Test</MudTh>
+                    <MudTh>Note</MudTh>
+                    <MudTh>Punkte</MudTh>
+                    <MudTh>Datum</MudTh>
+                    <MudTh>Lehrer</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
+                    <MudTd DataLabel="Test">@context.TestName</MudTd>
+                    <MudTd DataLabel="Note">
+                        <MudChip T="decimal" Value="@context.GradeValue" Color="@GetGradeColor(context.GradeValue)" Size="Size.Small">
+                            @context.GradeValue
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Punkte">
+                        @if (context.Points.HasValue && context.MaxPoints.HasValue)
+                        {
+                            <MudText>@context.Points/@context.MaxPoints</MudText>
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary">-</MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                    <MudTd DataLabel="Lehrer">@context.TeacherName</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+                </PagerContent>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool isMobile = false;
+    private List<Grade> grades = new();
+    private List<string> subjects = new();
+    private string selectedSubject = "";
+    private string searchString = "";
+
+    private IEnumerable<Grade> filteredGrades => grades
+        .Where(g => string.IsNullOrWhiteSpace(selectedSubject) || g.Subject == selectedSubject)
+        .Where(g => string.IsNullOrWhiteSpace(searchString) ||
+                    g.Subject.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                    g.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        grades = await GradeService.GetMyGradesAsync();
+        subjects = grades.Select(g => g.Subject).Distinct().OrderBy(s => s).ToList();
+        isLoading = false;
+    }
+
+    private Color GetGradeColor(decimal grade)
+    {
+        return grade <= 2.0m ? Color.Success : grade <= 3.5m ? Color.Warning : Color.Error;
+    }
+}

@@ -1,0 +1,151 @@
+@page "/login"
+@using MudBlazor
+@using HTLKrems.GradeManagement.Models
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@layout PublicLayout
+
+
+<PageTitle>Login - HTL Krems</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Style="margin-top: 10vh;">
+    <MudPaper Elevation="3" Class="pa-8">
+        <div class="d-flex flex-column align-center mb-6">
+            <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Primary" Size="Size.Large" Style="font-size: 64px;" />
+            <MudText Typo="Typo.h4" Color="Color.Primary" Class="mt-4">HTL Krems</MudText>
+            <MudText Typo="Typo.h6" Color="Color.Secondary">Notenverwaltung</MudText>
+        </div>
+
+        <MudForm @ref="form" Model="@loginModel">
+            <MudTextField @bind-Value="loginModel.Email"
+                          Label="E-Mail"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Email"
+                          Required="true"
+                          RequiredError="E-Mail ist erforderlich"
+                          Class="mb-4" />
+
+            <MudTextField @bind-Value="loginModel.Password"
+                          Label="Passwort"
+                          Variant="Variant.Outlined"
+                          InputType="@passwordInput"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@passwordIcon"
+                          OnAdornmentClick="TogglePasswordVisibility"
+                          Required="true"
+                          RequiredError="Passwort ist erforderlich"
+                          Class="mb-4" />
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large"
+                       OnClick="HandleLogin"
+                       Disabled="@isLoading"
+                       Class="mb-4">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                }
+                else
+                {
+                    <text>Anmelden</text>
+                }
+            </MudButton>
+        </MudForm>
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mb-2">
+            Demo-Zugänge zum Testen:
+        </MudText>
+
+        <MudGrid>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" OnClick="QuickLoginStudent">Schüler</MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" OnClick="QuickLoginTeacher">Lehrer</MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" OnClick="QuickLoginAdmin">Schuladmin</MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" OnClick="QuickLoginSysadmin">Sysadmin</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm? form;
+    private LoginRequest loginModel = new();
+    private bool isLoading = false;
+    private bool showPassword = false;
+    private InputType passwordInput = InputType.Password;
+    private string passwordIcon = Icons.Material.Filled.VisibilityOff;
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+        passwordIcon = showPassword ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+        passwordInput = showPassword ? InputType.Text : InputType.Password;
+    }
+
+    private async Task HandleLogin()
+    {
+        await form!.Validate();
+        if (!form.IsValid) return;
+
+        isLoading = true;
+        var result = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+        isLoading = false;
+
+        if (result.Success && result.User != null)
+        {
+            Snackbar.Add("Erfolgreich angemeldet!", Severity.Success);
+
+            // 1) returnUrl aus aktueller URL ziehen
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var returnUrl = query["returnUrl"];
+
+            // nur interne Pfade akzeptieren
+            if (!string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith("/"))
+            {
+                NavigationManager.NavigateTo(returnUrl, replace: true);
+                return;
+            }
+
+            // 2) sonst rollenbasiert
+            var role = result.User.Role?.ToString() ?? string.Empty;
+            var redirectUrl =
+                string.Equals(role, nameof(UserRole.Student), StringComparison.OrdinalIgnoreCase)     ? "/student" :
+                string.Equals(role, nameof(UserRole.Teacher), StringComparison.OrdinalIgnoreCase)     ? "/teacher" :
+                string.Equals(role, nameof(UserRole.SchoolAdmin), StringComparison.OrdinalIgnoreCase) ? "/admin"   :
+                string.Equals(role, nameof(UserRole.SystemAdmin), StringComparison.OrdinalIgnoreCase) ? "/sysadmin" :
+                "/";
+
+            NavigationManager.NavigateTo(redirectUrl, replace: true);
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Login fehlgeschlagen", Severity.Error);
+        }
+    }
+
+
+    private Task QuickLogin(string email, string password)
+    {
+        loginModel.Email = email;
+        loginModel.Password = password;
+        return HandleLogin();
+    }
+
+    private Task QuickLoginStudent()  => QuickLogin("student@htl-krems.at", "student");
+    private Task QuickLoginTeacher()  => QuickLogin("teacher@htl-krems.at", "teacher");
+    private Task QuickLoginAdmin()    => QuickLogin("admin@htl-krems.at",   "admin");
+    private Task QuickLoginSysadmin() => QuickLogin("sysadmin@htl-krems.at","sysadmin");
+}

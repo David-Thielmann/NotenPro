@@ -1,0 +1,28 @@
+@page "/"
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+
+<MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user is null)
+        {
+            // nicht eingeloggt → Login mit returnUrl=/
+            Navigation.NavigateTo("/login?returnUrl=%2F", replace: true);
+            return;
+        }
+
+        var role = user.Role?.ToString() ?? string.Empty;
+        var redirect =
+            string.Equals(role, nameof(UserRole.Student), StringComparison.OrdinalIgnoreCase)     ? "/student" :
+            string.Equals(role, nameof(UserRole.Teacher), StringComparison.OrdinalIgnoreCase)     ? "/teacher" :
+            string.Equals(role, nameof(UserRole.SchoolAdmin), StringComparison.OrdinalIgnoreCase) ? "/admin"   :
+            string.Equals(role, nameof(UserRole.SystemAdmin), StringComparison.OrdinalIgnoreCase) ? "/sysadmin" :
+            "/student"; // fallback
+
+        Navigation.NavigateTo(redirect, replace: true);
+    }
+}

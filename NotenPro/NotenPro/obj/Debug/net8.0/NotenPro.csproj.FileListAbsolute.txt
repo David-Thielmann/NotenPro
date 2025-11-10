@@ -2126,6 +2126,6 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\Note
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\refint\NotenPro.dll
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\NotenPro.pdb
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\ref\NotenPro.dll
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-imjcw3ofnb.gz
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-e0oyakhjjg.gz
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-ws1wyifo70.gz
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-p20o61n7eh.gz
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-qdxlp8gskb.gz
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-kzvmeauw7x.gz

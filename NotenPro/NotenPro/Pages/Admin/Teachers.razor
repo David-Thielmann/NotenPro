@@ -1,0 +1,142 @@
+@page "/admin/teachers"
+@using MudBlazor
+@using HTLKrems.GradeManagement.Models
+@using HTLKrems.GradeManagement.Pages.Admin.Components
+@inject ITeacherService TeacherService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Lehrerverwaltung</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Lehrerverwaltung</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               OnClick="OpenAddDialog">
+        Lehrer hinzufügen
+    </MudButton>
+</div>
+
+<MudCard Elevation="2">
+    <MudCardContent>
+        <MudTable Items="@teachers"
+                  Hover="true"
+                  Filter="new Func<Teacher,bool>(FilterFunc)"
+                  Dense="true">
+            <ToolBarContent>
+                <MudTextField @bind-Value="searchString"
+                              Placeholder="Suchen..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Class="mt-0" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Fächer</MudTh>
+                <MudTh>E-Mail</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh Style="text-align: right">Aktionen</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Fächer">@string.Join(", ", context.Subjects)</MudTd>
+                <MudTd DataLabel="E-Mail">@context.Email</MudTd>
+                <MudTd DataLabel="Status">
+                    <MudChip T="string"
+                             Value="@(context.IsActive ? "Aktiv" : "Inaktiv")"
+                             Color="@(context.IsActive ? Color.Success : Color.Default)"
+                             Size="Size.Small">
+                        @(context.IsActive ? "Aktiv" : "Inaktiv")
+                    </MudChip>
+                </MudTd>
+                <MudTd Style="text-align: right">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(async () => await DeleteTeacher(context.Id))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private List<Teacher> teachers = new();
+    private string searchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeachers();
+    }
+
+    private async Task LoadTeachers()
+    {
+        teachers = await TeacherService.GetAllTeachersAsync();
+    }
+
+    private bool FilterFunc(Teacher teacher)
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        if (teacher.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (teacher.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+
+        // Der Komponentenname reicht, Namespace-Using ist oben
+        var dialogRef = await DialogService.ShowAsync<AddTeacherDialog>("Neuen Lehrer hinzufügen", options: options);
+        var result = await dialogRef.Result;
+
+        if (!result.Canceled && result.Data is Teacher t)
+        {
+            var createResult = await TeacherService.CreateTeacherAsync(t);
+            if (createResult.Success)
+            {
+                Snackbar.Add("Lehrer erfolgreich hinzugefügt!", Severity.Success);
+                await LoadTeachers();
+            }
+            else
+            {
+                Snackbar.Add("Fehler beim Erstellen", Severity.Error);
+            }
+        }
+    }
+
+    private async Task DeleteTeacher(string id)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Bestätigung",
+            "Möchten Sie diesen Lehrer wirklich löschen?",
+            yesText: "Löschen",
+            cancelText: "Abbrechen");
+
+        if (confirm == true)
+        {
+            var deleteResult = await TeacherService.DeleteTeacherAsync(id);
+            if (deleteResult.Success)
+            {
+                await LoadTeachers();
+                Snackbar.Add("Lehrer gelöscht", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Fehler beim Löschen", Severity.Error);
+            }
+        }
+    }
+}

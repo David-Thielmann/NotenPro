@@ -1,0 +1,9 @@
+@inject NavigationManager NavigationManager
+@code {
+    protected override void OnInitialized()
+    {
+        var path = new Uri(NavigationManager.Uri).PathAndQuery;
+        if (!path.StartsWith("/login", StringComparison.OrdinalIgnoreCase))
+            NavigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(path)}", replace: true);
+    }
+}

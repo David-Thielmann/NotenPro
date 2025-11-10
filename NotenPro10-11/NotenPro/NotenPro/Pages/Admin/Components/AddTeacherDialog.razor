@@ -1,0 +1,56 @@
+@using MudBlazor
+@using HTLKrems.GradeManagement.Models
+@inherits ComponentBase
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Neuen Lehrer hinzufügen</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField @bind-Value="teacher.Name"
+                      Label="Name"
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      Class="mb-4" />
+
+        <MudTextField @bind-Value="teacher.Email"
+                      Label="E-Mail"
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      Class="mb-4" />
+
+        <MudTextField @bind-Value="subjectsInput"
+                      Label="Fächer (kommagetrennt)"
+                      Variant="Variant.Outlined"
+                      Class="mb-4" />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Save">Erstellen</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    // WICHTIG: Dialog-Instanz reinholen, sonst funktionieren Cancel/Close nicht
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private Teacher teacher = new();
+    private string subjectsInput = string.Empty;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Save()
+    {
+        if (!string.IsNullOrWhiteSpace(subjectsInput))
+        {
+            teacher.Subjects = subjectsInput
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToList();
+        }
+
+        MudDialog.Close(DialogResult.Ok(teacher));
+    }
+}
