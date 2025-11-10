@@ -1,0 +1,145 @@
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+
+@inject IAuthService AuthService
+@inject INotificationService NotificationService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<MudLayout>
+    <!-- Desktop/Tablet Header -->
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudAppBar Elevation="1" Color="Color.Primary">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+            <MudText Typo="Typo.h6">HTL Krems</MudText>
+            <MudSpacer />
+            <MudBadge Content="@unreadCount" Color="Color.Error" Overlap="true" Visible="@(unreadCount > 0)">
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" OnClick="@GoToNotifications" />
+            </MudBadge>
+            <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <MudMenuItem>
+                    <div class="d-flex align-center">
+                        <MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-2">
+                            @GetInitials()
+                        </MudAvatar>
+                        <div>
+                            <MudText Typo="Typo.body2">@currentUser?.Name</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Schüler</MudText>
+                        </div>
+                    </div>
+                </MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Person" OnClick="@GoToProfile">Profil</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Settings" OnClick="@GoToSettings">Einstellungen</MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="@HandleLogout">Abmelden</MudMenuItem>
+            </MudMenu>
+        </MudAppBar>
+
+        <MudDrawer @bind-Open="@_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+            <MudDrawerHeader>
+                <div class="d-flex align-center">
+                    <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Primary" Size="Size.Large" Class="mr-2" />
+                    <MudText Typo="Typo.h6" Color="Color.Primary">HTL Krems</MudText>
+                </div>
+            </MudDrawerHeader>
+            <MudNavMenu>
+                <MudNavLink Href="/student" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+                <MudNavLink Href="/student/grades" Icon="@Icons.Material.Filled.School">Meine Noten</MudNavLink>
+                <MudNavLink Href="/student/notifications" Icon="@Icons.Material.Filled.Notifications">
+                    <div class="d-flex justify-space-between align-center" style="width: 100%;">
+                        <span>Benachrichtigungen</span>
+                        @if (unreadCount > 0)
+                        {
+                            <MudChip T="int" Size="Size.Small" Color="Color.Error">@unreadCount</MudChip>
+                        }
+                    </div>
+                </MudNavLink>
+                <MudNavLink Href="/student/map" Icon="@Icons.Material.Filled.Map">Raumfinder</MudNavLink>
+            </MudNavMenu>
+        </MudDrawer>
+    </MudHidden>
+
+    <!-- Mobile Header -->
+    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+        <MudAppBar Elevation="1" Color="Color.Primary" Fixed="true">
+            <MudText Typo="Typo.h6">HTL Krems</MudText>
+            <MudSpacer />
+            <MudBadge Content="@unreadCount" Color="Color.Error" Overlap="true" Visible="@(unreadCount > 0)">
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" OnClick="@GoToNotifications" />
+            </MudBadge>
+        </MudAppBar>
+    </MudHidden>
+
+    <MudMainContent Class="mobile-bottom-padding">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-4">
+            @ChildContent
+        </MudContainer>
+    </MudMainContent>
+
+    <!-- Mobile Bottom Navigation -->
+    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+        <MudPaper Square="true" Elevation="3" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;">
+            <!-- Kein bind-Attribut: vermeidet RZ9991. Value wird gesetzt und Click handled Navigation -->
+            <MudBottomNavigation Value="@selectedPage" Color="Color.Primary">
+                <MudBottomNavigationItem Text="Dashboard" Icon="@Icons.Material.Filled.Dashboard" Value="dashboard" OnClick="@GoToDashboard" />
+                <MudBottomNavigationItem Text="Noten" Icon="@Icons.Material.Filled.School" Value="grades" OnClick="@GoToGrades" />
+                <MudBottomNavigationItem Text="Nachrichten" Icon="@Icons.Material.Filled.Notifications" Value="notifications" OnClick="@GoToNotifications" />
+                <MudBottomNavigationItem Text="Raumfinder" Icon="@Icons.Material.Filled.Map" Value="map" OnClick="@GoToMap" />
+            </MudBottomNavigation>
+        </MudPaper>
+    </MudHidden>
+</MudLayout>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _drawerOpen = true;
+    private User? currentUser;
+    private int unreadCount = 0;
+    private string selectedPage = "dashboard";
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        unreadCount = await NotificationService.GetUnreadCountAsync();
+
+        // SelectedPage aus aktueller URL ableiten
+        var path = new Uri(NavigationManager.Uri).AbsolutePath;
+        if (path.Contains("/grades"))
+            selectedPage = "grades";
+        else if (path.Contains("/notifications"))
+            selectedPage = "notifications";
+        else if (path.Contains("/map"))
+            selectedPage = "map";
+        else
+            selectedPage = "dashboard";
+    }
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    // Navigation: getrennte Methoden, damit Razor keine Probleme mit verschachtelten Quotes bekommt
+    private void GoToDashboard() => NavigationManager.NavigateTo("/student");
+    private void GoToGrades() => NavigationManager.NavigateTo("/student/grades");
+    private void GoToNotifications() => NavigationManager.NavigateTo("/student/notifications");
+    private void GoToMap() => NavigationManager.NavigateTo("/student/map");
+    private void GoToProfile() => NavigationManager.NavigateTo("/student/profile");
+    private void GoToSettings() => NavigationManager.NavigateTo("/student/settings");
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private string GetInitials()
+    {
+        if (currentUser == null) return "";
+        var parts = currentUser.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant();
+        return currentUser.Name.Length >= 2
+            ? currentUser.Name.Substring(0, 2).ToUpperInvariant()
+            : currentUser.Name.ToUpperInvariant();
+    }
+}

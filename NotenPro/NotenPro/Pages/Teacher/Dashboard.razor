@@ -1,0 +1,121 @@
+@using MudBlazor
+@page "/teacher"
+@inject ITestService TestService
+
+<PageTitle>Dashboard - Lehrer</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-6">Lehrer Dashboard</MudText>
+
+<!-- Statistics Cards -->
+<MudGrid Class="mb-6">
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2" Class="hover-card">
+            <MudCardContent>
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">Tests diese Woche</MudText>
+                        <MudText Typo="Typo.h4">5</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Primary" Size="Size.Large" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2" Class="hover-card">
+            <MudCardContent>
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">Ausstehende Benotungen</MudText>
+                        <MudText Typo="Typo.h4">12</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Grade" Color="Color.Warning" Size="Size.Large" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2" Class="hover-card">
+            <MudCardContent>
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">Meine Klassen</MudText>
+                        <MudText Typo="Typo.h4">3</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Class" Color="Color.Success" Size="Size.Large" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2" Class="hover-card">
+            <MudCardContent>
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">Frühwarnungen</MudText>
+                        <MudText Typo="Typo.h4">2</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Large" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+<!-- Quick Actions -->
+<MudCard Elevation="2" Class="mb-6">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Schnellaktionen</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <div class="d-flex gap-3 flex-wrap">
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" Href="/teacher/tests">
+                Neuer Test
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Primary" Href="/teacher/grades">
+                Noten eintragen
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Warning" Variant="Variant.Outlined" Color="Color.Warning" Href="/teacher/warnings">
+                Frühwarnung erstellen
+            </MudButton>
+        </div>
+    </MudCardContent>
+</MudCard>
+
+<!-- Upcoming Tests -->
+<MudCard Elevation="2">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Anstehende Tests</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudTable Items="@upcomingTests" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Fach</MudTh>
+                <MudTh>Klasse</MudTh>
+                <MudTh>Datum</MudTh>
+                <MudTh>Typ</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Fach">@context.Subject</MudTd>
+                <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
+                <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                <MudTd DataLabel="Typ"><MudChip T="string" Size="Size.Small">@context.Type</MudChip></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private List<Test> upcomingTests = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allTests = await TestService.GetMyTestsAsync();
+        upcomingTests = allTests.Where(t => t.Date >= DateTime.Now).OrderBy(t => t.Date).ToList();
+    }
+}

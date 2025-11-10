@@ -1,0 +1,170 @@
+@page "/admin/teachers"
+@inject ITeacherService TeacherService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Lehrerverwaltung</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Lehrerverwaltung</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" 
+               Variant="Variant.Filled" 
+               Color="Color.Primary"
+               OnClick="OpenAddDialog">
+        Lehrer hinzufügen
+    </MudButton>
+</div>
+
+<MudCard Elevation="2">
+    <MudCardContent>
+        <MudTable Items="@teachers" 
+                  Hover="true" 
+                  Filter="new Func<Teacher,bool>(FilterFunc)"
+                  Dense="true">
+            <ToolBarContent>
+                <MudTextField @bind-Value="searchString" 
+                              Placeholder="Suchen..." 
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" 
+                              IconSize="Size.Medium" 
+                              Class="mt-0" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Fächer</MudTh>
+                <MudTh>E-Mail</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh Style="text-align: right">Aktionen</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Fächer">@string.Join(", ", context.Subjects)</MudTd>
+                <MudTd DataLabel="E-Mail">@context.Email</MudTd>
+                <MudTd DataLabel="Status">
+                    <MudChip T="string"
+                             Value="@(context.IsActive ? "Aktiv" : "Inaktiv")"
+                             Color="@(context.IsActive ? Color.Success : Color.Default)"
+                             Size="Size.Small">
+                        @(context.IsActive ? "Aktiv" : "Inaktiv")
+                    </MudChip>
+                </MudTd>
+                <MudTd Style="text-align: right">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                   Size="Size.Small" 
+                                   Color="Color.Error"
+                                   OnClick="@(async () => await DeleteTeacher(context.Id))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudCardContent>
+</MudCard>
+
+<MudDialog @bind-IsVisible="isDialogOpen">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Neuen Lehrer hinzufügen</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="newTeacher.Name" 
+                      Label="Name" 
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      Class="mb-4" />
+        <MudTextField @bind-Value="newTeacher.Email" 
+                      Label="E-Mail" 
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      Class="mb-4" />
+        <MudTextField @bind-Value="subjectsInput" 
+                      Label="Fächer (kommagetrennt)" 
+                      Variant="Variant.Outlined"
+                      Class="mb-4" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" OnClick="HandleCreate">Erstellen</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<Teacher> teachers = new();
+    private string searchString = "";
+    private bool isDialogOpen = false;
+    private Teacher newTeacher = new();
+    private string subjectsInput = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeachers();
+    }
+
+    private async Task LoadTeachers()
+    {
+        teachers = await TeacherService.GetAllTeachersAsync();
+    }
+
+    private bool FilterFunc(Teacher teacher)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (teacher.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (teacher.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private void OpenAddDialog()
+    {
+        newTeacher = new Teacher();
+        subjectsInput = "";
+        isDialogOpen = true;
+    }
+
+    private void CloseDialog()
+    {
+        isDialogOpen = false;
+    }
+
+    private async Task HandleCreate()
+    {
+        if (!string.IsNullOrWhiteSpace(subjectsInput))
+        {
+            newTeacher.Subjects = subjectsInput.Split(',').Select(s => s.Trim()).ToList();
+        }
+
+        var result = await TeacherService.CreateTeacherAsync(newTeacher);
+        
+        if (result.Success)
+        {
+            Snackbar.Add("Lehrer erfolgreich hinzugefügt!", Severity.Success);
+            await LoadTeachers();
+            CloseDialog();
+        }
+        else
+        {
+            Snackbar.Add("Fehler beim Erstellen", Severity.Error);
+        }
+    }
+
+    private async Task DeleteTeacher(string id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Bestätigung",
+            "Möchten Sie diesen Lehrer wirklich löschen?",
+            yesText: "Löschen", cancelText: "Abbrechen");
+        
+        if (result == true)
+        {
+            var deleteResult = await TeacherService.DeleteTeacherAsync(id);
+            if (deleteResult.Success)
+            {
+                await LoadTeachers();
+                Snackbar.Add("Lehrer gelöscht", Severity.Success);
+            }
+        }
+    }
+}
