@@ -2117,9 +2117,6 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\comp
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\xs7njz78p1-tptq2av103.gz
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\cjbhusvmkn-lfu7j35m59.gz
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\aiv22fxcfw-oyz0vx2fzb.gz
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-is10v66xag.gz
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-bq0uz5ip7y.gz
-C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-av7sxhod8l.gz
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\staticwebassets.development.json
@@ -2129,3 +2126,6 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\Note
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\refint\NotenPro.dll
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\NotenPro.pdb
 C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\ref\NotenPro.dll
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-imjcw3ofnb.gz
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-e0oyakhjjg.gz
+C:\Users\David\Documents\GitHub\NotenPro\NotenPro\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-ws1wyifo70.gz
