@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj": {}
+    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj": {}
   },
   "projects": {
-    "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj": {
+    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj",
+        "projectUniqueName": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj",
         "projectName": "NotenPro",
-        "projectPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj",
-        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenPro\\NotenPro\\obj\\",
+        "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenPro\\NotenPro\\NotenPro.csproj",
+        "packagesPath": "C:\\Users\\diese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenPro\\NotenPro\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\diese\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -56,6 +56,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.WebUtilities": {
+              "target": "Package",
+              "version": "[8.0.1, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
@@ -112,7 +116,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\David\\.dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {

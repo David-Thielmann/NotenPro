@@ -1,11 +1,11 @@
 @page "/login"
 @using MudBlazor
 @using HTLKrems.GradeManagement.Models
+@using Microsoft.AspNetCore.WebUtilities
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @layout PublicLayout
-
 
 <PageTitle>Login - HTL Krems</PageTitle>
 
@@ -96,21 +96,32 @@
 
     private async Task HandleLogin()
     {
-        await form!.Validate();
-        if (!form.IsValid) return;
+        if (form is null)
+            return;
+
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            Snackbar.Add("Bitte alle Felder korrekt ausfüllen.", Severity.Warning);
+            return;
+        }
 
         isLoading = true;
+        StateHasChanged();
+
         var result = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+
         isLoading = false;
 
         if (result.Success && result.User != null)
         {
             Snackbar.Add("Erfolgreich angemeldet!", Severity.Success);
 
-            // 1) returnUrl aus aktueller URL ziehen
-            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var returnUrl = query["returnUrl"];
+            // 1) returnUrl aus aktueller URL ziehen (Blazor-kompatibel)
+            var uri = new Uri(NavigationManager.Uri);
+            var query = QueryHelpers.ParseQuery(uri.Query);
+            query.TryGetValue("returnUrl", out var returnUrlValues);
+            var returnUrl = returnUrlValues.FirstOrDefault();
 
             // nur interne Pfade akzeptieren
             if (!string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith("/"))
@@ -135,7 +146,6 @@
             Snackbar.Add(result.ErrorMessage ?? "Login fehlgeschlagen", Severity.Error);
         }
     }
-
 
     private Task QuickLogin(string email, string password)
     {

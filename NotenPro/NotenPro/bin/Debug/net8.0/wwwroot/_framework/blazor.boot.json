@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "NotenPro",
   "resources": {
-    "hash": "sha256-JRQVunicGZRuOC7CSWsZ9ogDzGYZ4PrOG44LfvomiBc=",
+    "hash": "sha256-gRByrjz2Ox+OlRomldJMZxzAo/Qp+x6qb6Khh7M0NnE=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-D0bzod5lwwSzPR43JC8TTCcZKw+3jIHOk8CZFCRj5is="
     },
@@ -26,6 +26,7 @@
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-nlZiwSbZpMVqGJeD62dVo/h4C08w3B9e28OTn+axSYk=",
       "Microsoft.AspNetCore.Components.WebAssembly.wasm": "sha256-GDJfIU7XS7MlmrwWZh/CD4wNkm+PPO7FFLZ4Qo0jCPU=",
       "Microsoft.AspNetCore.Metadata.wasm": "sha256-WRtYKmT2sKtl1zuD8t8PG9hqpsNTxwYEw2c/oHknGVo=",
+      "Microsoft.AspNetCore.WebUtilities.wasm": "sha256-pg2tQNiOI6rN+WK4E1VtoOlar0bRJVBC6ZDyCbfycvs=",
       "Microsoft.Extensions.Configuration.wasm": "sha256-UDGEQR7J3WTfzYMgOzxVIBwFQtKEeJvO8UgrWagypdE=",
       "Microsoft.Extensions.Configuration.Abstractions.wasm": "sha256-yNdqbqDWGiJo943D7LPak5xryCBEsNH0wtdiuU1R9VE=",
       "Microsoft.Extensions.Configuration.Binder.wasm": "sha256-z4rx/oKV4Rmj1LLt/A3F+PhCEg3wcLXSWHjstLQm5Q4=",
@@ -44,6 +45,7 @@
       "Microsoft.Extensions.Primitives.wasm": "sha256-pVrYOTfjb2ITls3LKIByW1t8jwOAWFhmkIVDewtJ1GE=",
       "Microsoft.JSInterop.wasm": "sha256-Io6aK2hSUL4m2prTnsWGWosE7cw/c/7mj3BAxlDuDjY=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-3wQR1/VN+SB8r7Gkqf93l8O4F1aSbaghQWV2PoaJByI=",
+      "Microsoft.Net.Http.Headers.wasm": "sha256-8I6HUpeEnIlXRtSjcB3DaeGVsfbOvZqXD76f87aqiIY=",
       "MudBlazor.wasm": "sha256-WiCw2YuFDqK4VctgA+hcJGChHJE8ldkCMqtwyyNTsic=",
       "MudBlazor.Markdown.wasm": "sha256-xPzr3hHA4oIrxr2Csh1rNwUI9d+JY8gZvQFoD22xKrs=",
       "System.IO.Pipelines.wasm": "sha256-JqVBy6SV+3qk+IK3VJiyIDt9CsVk6b1/ytTXmrI4mTM=",
@@ -215,10 +217,10 @@
       "mscorlib.wasm": "sha256-8qWtIcy8fV43tlcx4DxsF45RlkcfK6588vVoxF7be2E=",
       "netstandard.wasm": "sha256-eOgz2RiO4YaPLOMIGgVLNrcfsQhmLQJzR0N7Pu2teXc=",
       "System.Private.CoreLib.wasm": "sha256-F8T63QCIbMPXPQPqTcuyBAw+oVvZSrWjy88j7fiJQZ4=",
-      "NotenPro.wasm": "sha256-Ymr9BihjCymYXrUy6MQAZd2Ih1eA8I06kqkjsfRG5ds="
+      "NotenPro.wasm": "sha256-yvOUpzbgYJSpcqEWqatt5zYedI6C2jdhY/tjrdLyxc0="
     },
     "pdb": {
-      "NotenPro.pdb": "sha256-kqZUWTP2nRR/jENVfVK3EiHF7CK+EWuYd59xFdtbcZU="
+      "NotenPro.pdb": "sha256-rWWpVX0On26n74NyRSYrnM8AdVj+xKu/2QGPL9GCB8w="
     }
   },
   "cacheBootResources": true,
