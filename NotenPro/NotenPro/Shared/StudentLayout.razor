@@ -1,9 +1,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
-
+@inherits LayoutComponentBase
 @inject IAuthService AuthService
 @inject INotificationService NotificationService
 @inject NavigationManager NavigationManager
+<MudMainContent Class="p-4">
+    @Body
+</MudMainContent>
 <MudLayout>
     <!-- Desktop/Tablet Header -->
     <MudHidden Breakpoint="Breakpoint.SmAndDown">

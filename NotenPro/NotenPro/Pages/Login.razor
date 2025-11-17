@@ -119,9 +119,14 @@
 
             // 1) returnUrl aus aktueller URL ziehen (Blazor-kompatibel)
             var uri = new Uri(NavigationManager.Uri);
-            var query = QueryHelpers.ParseQuery(uri.Query);
-            query.TryGetValue("returnUrl", out var returnUrlValues);
-            var returnUrl = returnUrlValues.FirstOrDefault();
+            var qs = uri.Query;
+
+            string? returnUrl = null;
+
+            if (qs.StartsWith("?returnUrl="))
+            {
+                returnUrl = Uri.UnescapeDataString(qs.Replace("?returnUrl=", ""));
+            }
 
             // nur interne Pfade akzeptieren
             if (!string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith("/"))

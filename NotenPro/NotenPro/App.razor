@@ -3,28 +3,21 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(StudentLayout)">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(MainLayout)">
                 <NotAuthorized>
                     <RedirectToLogin />
                 </NotAuthorized>
+
                 <Authorizing>
                     <MudProgressCircular Indeterminate="true" Class="m-6" />
                 </Authorizing>
             </AuthorizeRouteView>
         </Found>
+
         <NotFound>
-            <LayoutView Layout="typeof(StudentLayout)">
+            <LayoutView Layout="typeof(MainLayout)">
                 <MudAlert Severity="Severity.Warning">Seite nicht gefunden.</MudAlert>
             </LayoutView>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
-@inject NavigationManager NavigationManager
-@code {
-    protected override void OnInitialized()
-    {
-        var path = new Uri(NavigationManager.Uri).PathAndQuery;
-        if (!path.StartsWith("/login", StringComparison.OrdinalIgnoreCase))
-            NavigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(path)}", replace: true);
-    }
-}

@@ -22,10 +22,10 @@ namespace HTLKrems.GradeManagement.Services
         // Demo-User, E-Mails passend zu QuickLogin
         private readonly List<User> _users = new()
         {
-            new User { Email = "student@htl-krems.at", Name = "Max Mustermann", Role = nameof(UserRole.Student) },
-            new User { Email = "teacher@htl-krems.at", Name = "Anna Lehrer",    Role = nameof(UserRole.Teacher) },
-            new User { Email = "admin@htl-krems.at",   Name = "Admin Boss",     Role = nameof(UserRole.SchoolAdmin) },
-            new User { Email = "sysadmin@htl-krems.at",Name = "Sysadmin",       Role = nameof(UserRole.SystemAdmin) }
+            new User { Email = "student@htl-krems.at",  Name = "Max Mustermann", Role = "Student" },
+            new User { Email = "teacher@htl-krems.at",  Name = "Anna Lehrer",    Role = "Teacher" },
+            new User { Email = "admin@htl-krems.at",    Name = "Admin Boss",     Role = "SchoolAdmin" },
+            new User { Email = "sysadmin@htl-krems.at", Name = "Sysadmin",       Role = "SystemAdmin" },
         };
 
         public AuthService(AuthenticationStateProvider authProvider)
