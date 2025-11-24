@@ -1,4 +1,4 @@
-@page "/login"
+@page "/"
 @using MudBlazor
 @using HTLKrems.GradeManagement.Models
 @using Microsoft.AspNetCore.WebUtilities
@@ -138,10 +138,10 @@
             // 2) sonst rollenbasiert
             var role = result.User.Role?.ToString() ?? string.Empty;
             var redirectUrl =
-                string.Equals(role, nameof(UserRole.Student), StringComparison.OrdinalIgnoreCase)     ? "/student" :
-                string.Equals(role, nameof(UserRole.Teacher), StringComparison.OrdinalIgnoreCase)     ? "/teacher" :
-                string.Equals(role, nameof(UserRole.SchoolAdmin), StringComparison.OrdinalIgnoreCase) ? "/admin"   :
-                string.Equals(role, nameof(UserRole.SystemAdmin), StringComparison.OrdinalIgnoreCase) ? "/sysadmin" :
+                string.Equals(role, nameof(UserRole.Student), StringComparison.OrdinalIgnoreCase)     ? "/student/dashboard" :
+                string.Equals(role, nameof(UserRole.Teacher), StringComparison.OrdinalIgnoreCase)     ? "/teacher/dashboard" :
+                string.Equals(role, nameof(UserRole.SchoolAdmin), StringComparison.OrdinalIgnoreCase) ? "/admin/dashboard"   :
+                string.Equals(role, nameof(UserRole.SystemAdmin), StringComparison.OrdinalIgnoreCase) ? "/sysadmin/dashboard" :
                 "/";
 
             NavigationManager.NavigateTo(redirectUrl, replace: true);

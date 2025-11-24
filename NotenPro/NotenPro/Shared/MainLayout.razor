@@ -1,6 +1,8 @@
 @inherits LayoutComponentBase
 @using MudBlazor
 @using HTLKrems.GradeManagement.Models
+@inject NavigationManager NavigationManager
+
 
 <MudThemeProvider Theme="@_theme" />
 <MudDialogProvider />
@@ -32,15 +34,15 @@ else
                 <MudNavMenu>
                     @if (currentUser.Role == "Teacher")
                     {
-                        <MudNavLink Href="/teacher" Icon="@Icons.Material.Filled.School">Lehrer-Dashboard</MudNavLink>
+                        <MudNavLink Href="/teacher/dashboard" Icon="@Icons.Material.Filled.School">Lehrer-Dashboard</MudNavLink>
                     }
                     else if (currentUser.Role == "SchoolAdmin")
                     {
-                        <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.AdminPanelSettings">Admin-Dashboard</MudNavLink>
+                        <MudNavLink Href="/admin/dashboard" Icon="@Icons.Material.Filled.AdminPanelSettings">Admin-Dashboard</MudNavLink>
                     }
                     else if (currentUser.Role == "SystemAdmin")
                     {
-                        <MudNavLink Href="/sysadmin" Icon="@Icons.Material.Filled.Terminal">Sysadmin-Dashboard</MudNavLink>
+                        <MudNavLink Href="/sysadmin/dashboard" Icon="@Icons.Material.Filled.Terminal">Sysadmin-Dashboard</MudNavLink>
                     }
                 </MudNavMenu>
             </MudDrawer>
@@ -80,6 +82,7 @@ else
     private void Logout()
     {
         currentUser = null;
-        StateHasChanged();
+        NavigationManager.NavigateTo("/", true);
     }
+
 }

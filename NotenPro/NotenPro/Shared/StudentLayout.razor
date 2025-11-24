@@ -130,7 +130,7 @@
     private async Task HandleLogout()
     {
         await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login");
+        NavigationManager.NavigateTo("/");
     }
 
     private string GetInitials()

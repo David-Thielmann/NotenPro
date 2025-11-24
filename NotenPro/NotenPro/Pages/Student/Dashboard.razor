@@ -1,173 +1,174 @@
 @page "/student/dashboard"
-@inject ITeacherService TeacherService
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@inject IStudentService StudentService
+@inject IGradeService GradeService
+@inject INotificationService NotificationService
 
-<PageTitle>Lehrerverwaltung</PageTitle>
+<PageTitle>Dashboard - Schüler</PageTitle>
 
-<div class="d-flex justify-space-between align-center mb-6">
-    <MudText Typo="Typo.h4">Lehrerverwaltung</MudText>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" 
-               Variant="Variant.Filled" 
-               Color="Color.Primary"
-               OnClick="OpenAddDialog">
-        Lehrer hinzufügen
-    </MudButton>
-</div>
+<MudText Typo="Typo.h4" Class="mb-6">Dashboard</MudText>
 
-<MudCard Elevation="2">
-    <MudCardContent>
-        <MudTable Items="@teachers" 
-                  Hover="true" 
-                  Filter="new Func<Teacher,bool>(FilterFunc)"
-                  Dense="true">
-            <ToolBarContent>
-                <MudTextField @bind-Value="searchString" 
-                              Placeholder="Suchen..." 
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search" 
-                              IconSize="Size.Medium" 
-                              Class="mt-0" />
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh>Fächer</MudTh>
-                <MudTh>E-Mail</MudTh>
-                <MudTh>Status</MudTh>
-                <MudTh Style="text-align: right">Aktionen</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Name">@context.Name</MudTd>
-                <MudTd DataLabel="Fächer">@string.Join(", ", context.Subjects)</MudTd>
-                <MudTd DataLabel="E-Mail">@context.Email</MudTd>
-                <MudTd DataLabel="Status">
-                    <MudChip T="string"
-                             Value="@(context.IsActive ? "Aktiv" : "Inaktiv")"
-                             Color="@(context.IsActive ? Color.Success : Color.Default)"
-                             Size="Size.Small">
-                        @(context.IsActive ? "Aktiv" : "Inaktiv")
-                    </MudChip>
+@if (isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <!-- Statistics Cards -->
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Notendurchschnitt
+                            </MudText>
+                            <MudText Typo="Typo.h4">@stats.AverageGrade.ToString("F1")</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Primary" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-                </MudTd>
-                <MudTd Style="text-align: right">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                   Size="Size.Small" 
-                                   Color="Color.Error"
-                                   OnClick="@(async () => await DeleteTeacher(context.Id))" />
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    </MudCardContent>
-</MudCard>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Unbenotete Tests
+                            </MudText>
+                            <MudText Typo="Typo.h4">@stats.UngradedTests</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Color="Color.Warning" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<MudDialog @bind-Visible="isDialogOpen">
-    <TitleContent>
-        <MudText Typo="Typo.h6">Neuen Lehrer hinzufügen</MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="newTeacher.Name" 
-                      Label="Name" 
-                      Variant="Variant.Outlined"
-                      Required="true"
-                      Class="mb-4" />
-        <MudTextField @bind-Value="newTeacher.Email" 
-                      Label="E-Mail" 
-                      Variant="Variant.Outlined"
-                      Required="true"
-                      Class="mb-4" />
-        <MudTextField @bind-Value="subjectsInput" 
-                      Label="Fächer (kommagetrennt)" 
-                      Variant="Variant.Outlined"
-                      Class="mb-4" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
-        <MudButton Color="Color.Primary" OnClick="HandleCreate">Erstellen</MudButton>
-    </DialogActions>
-</MudDialog>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Benachrichtigungen
+                            </MudText>
+                            <MudText Typo="Typo.h4">@stats.UnreadNotifications</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Info" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Klasse
+                            </MudText>
+                            <MudText Typo="Typo.h4">@stats.ClassName</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Success" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Recent Grades -->
+    <MudCard Elevation="2" Class="mb-6">
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Letzte Noten</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTable Items="@recentGrades" Hover="true" Dense="true">
+                <HeaderContent>
+                    <MudTh>Fach</MudTh>
+                    <MudTh>Test</MudTh>
+                    <MudTh>Note</MudTh>
+                    <MudTh>Datum</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
+                    <MudTd DataLabel="Test">@context.TestName</MudTd>
+                    <MudTd DataLabel="Note">
+                        <MudChip T="decimal" Color="@GetGradeColor(context.GradeValue)" Size="Size.Small">
+                            @context.GradeValue
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Subject Overview -->
+    <MudCard Elevation="2">
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Fächer-Übersicht</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                @foreach (var subject in subjectAverages)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudCard Outlined="true">
+                            <MudCardContent>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <MudText Typo="Typo.body1">@subject.Name</MudText>
+                                    <MudChip T="decimal" Color="@GetGradeColor(subject.Average)" Size="Size.Small">
+                                        @subject.Average.ToString("F1")
+                                    </MudChip>
+                                </div>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @subject.TestCount Test(s)
+                                </MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
-    private List<Teacher> teachers = new();
-    private string searchString = "";
-    private bool isDialogOpen = false;
-    private Teacher newTeacher = new();
-    private string subjectsInput = "";
+    private bool isLoading = true;
+    private Services.StudentDashboardStats stats = new();
+    private List<Grade> recentGrades = new();
+    private List<Services.SubjectAverage> subjectAverages = new();
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadTeachers();
+        isLoading = true;
+        stats = await StudentService.GetDashboardStatsAsync();
+        recentGrades = await GradeService.GetRecentGradesAsync(5);
+        subjectAverages = await GradeService.GetSubjectAveragesAsync();
+        isLoading = false;
     }
 
-    private async Task LoadTeachers()
+    private Color GetGradeColor(decimal grade)
     {
-        teachers = await TeacherService.GetAllTeachersAsync();
+        return grade <= 2.0m ? Color.Success : grade <= 3.5m ? Color.Warning : Color.Error;
     }
 
-    private bool FilterFunc(Teacher teacher)
+    public class StudentDashboardStats
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (teacher.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (teacher.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
+        public decimal AverageGrade { get; set; } = 2.1m;
+        public int UngradedTests { get; set; } = 3;
+        public int UnreadNotifications { get; set; } = 5;
+        public string ClassName { get; set; } = "3AHIF";
     }
 
-    private void OpenAddDialog()
+    public class SubjectAverage
     {
-        newTeacher = new Teacher();
-        subjectsInput = "";
-        isDialogOpen = true;
-    }
-
-    private void CloseDialog()
-    {
-        isDialogOpen = false;
-    }
-
-    private async Task HandleCreate()
-    {
-        if (!string.IsNullOrWhiteSpace(subjectsInput))
-        {
-            newTeacher.Subjects = subjectsInput.Split(',')
-                                               .Select(s => s.Trim())
-                                               .ToList();
-        }
-
-        var result = await TeacherService.CreateTeacherAsync(newTeacher);
-        
-        if (result.Success)
-        {
-            Snackbar.Add("Lehrer erfolgreich hinzugefügt!", Severity.Success);
-            await LoadTeachers();
-            CloseDialog();
-        }
-        else
-        {
-            Snackbar.Add("Fehler beim Erstellen", Severity.Error);
-        }
-    }
-
-    private async Task DeleteTeacher(string id)
-    {
-        bool? result = await DialogService.ShowMessageBox(
-            "Bestätigung",
-            "Möchten Sie diesen Lehrer wirklich löschen?",
-            yesText: "Löschen", cancelText: "Abbrechen");
-        
-        if (result == true)
-        {
-            var deleteResult = await TeacherService.DeleteTeacherAsync(id);
-            if (deleteResult.Success)
-            {
-                await LoadTeachers();
-                Snackbar.Add("Lehrer gelöscht", Severity.Success);
-            }
-        }
+        public string Name { get; set; } = "";
+        public decimal Average { get; set; }
+        public int TestCount { get; set; }
     }
 }
