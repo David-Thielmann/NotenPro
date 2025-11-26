@@ -1,0 +1,33 @@
+# ============================
+# Docker & MySQL Runtime Files
+# ============================
+
+# Gesamter MySQL-Datenordner
+Docker/db/
+
+# Falls du Struktur behalten willst:
+# Docker/db/*
+# !Docker/db/.gitkeep
+
+# MySQL typische Laufzeitdateien (falls woanders auftauchen)
+*.pid
+*.sock
+*.cnf~
+*.err
+*.log
+*.lock
+
+# Allgemeine Docker-Artefakte
+**/logs/
+*.bak
+*.tmp
+*.swp
+
+# ============================
+# OS / Editor-Müll
+# ============================
+.DS_Store
+Thumbs.db
+
+# VSCode Settings
+.vscode/

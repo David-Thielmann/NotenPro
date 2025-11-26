@@ -1,0 +1,22 @@
+# externes Netz 'lan1' muss existieren
+# docker network create --driver bridge lan1
+name: NotenPro
+services:
+  mysql:
+    image: mysql:8.4.2
+    container_name: NotenPro
+    #command: --default-authentication-plugin=mysql_native_password
+    #restart: unless-stopped
+    restart: no
+    env_file: .env
+    volumes:
+      - ./db:/var/lib/mysql
+    ports:
+      - 3312:3306
+    networks:
+      - lan1
+
+networks:
+  lan1:
+    name: lan1
+    external: true

@@ -1,0 +1,222 @@
+@inherits LayoutComponentBase
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@if (currentUser == null)
+{
+    <div>@Body</div>
+}
+else
+{
+    @if (currentUser.Role == UserRole.Student)
+    {
+        <StudentLayout OnDarkModeChanged="OnDarkModeChanged">
+            @Body
+        </StudentLayout>
+    }
+    else
+    {
+        <MudLayout>
+            <MudAppBar Elevation="1" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                               Edge="Edge.Start"
+                               Style="color: white;"
+                               OnClick="@ToggleDrawer" />
+
+                <MudText Typo="Typo.h6" Style="color: white;">
+                    NotenPro
+                </MudText>
+
+                <MudSpacer />
+
+                <!-- Notifications -->
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications"
+                               Style="color: white;" />
+
+                <!-- Avatar + Menü + Logout wie im StudentLayout -->
+                <div class="d-flex align-center ml-2">
+
+                    <!-- User Menu wie beim StudentLayout: Avatar + Name als Trigger -->
+                    <MudMenu Color="Color.Inherit"
+                             AnchorOrigin="Origin.BottomRight"
+                             TransformOrigin="Origin.TopRight">
+
+                        <ActivatorContent>
+                            <div class="d-flex align-center mr-1" style="cursor: pointer;">
+                                <MudAvatar Color="Color.Secondary"
+                                           Size="Size.Medium"
+                                           Class="mr-2">
+                                    @GetInitials(currentUser.Name)
+                                </MudAvatar>
+
+                                <MudText Typo="Typo.body2" Style="color: white;">
+                                    @currentUser.Name
+                                </MudText>
+                            </div>
+                        </ActivatorContent>
+
+                        <ChildContent>
+                            <MudMenuItem>
+                                <div class="d-flex align-center">
+                                    <MudAvatar Color="Color.Primary"
+                                               Size="Size.Small"
+                                               Class="mr-2">
+                                        @GetInitials(currentUser.Name)
+                                    </MudAvatar>
+                                    <div>
+                                        <MudText Typo="Typo.body2">@currentUser.Name</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            @GetRoleName(currentUser.Role)
+                                        </MudText>
+                                    </div>
+                                </div>
+                            </MudMenuItem>
+
+                            <MudDivider />
+
+                            <MudMenuItem Icon="@Icons.Material.Filled.Person">
+                                Profil
+                            </MudMenuItem>
+
+                            <MudMenuItem Icon="@Icons.Material.Filled.Settings">
+                                Einstellungen
+                            </MudMenuItem>
+
+                            <MudDivider />
+
+                            <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                                         OnClick="HandleLogout">
+                                Abmelden
+                            </MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+
+                    <!-- Logout IconButton direkt neben dem Avatar -->
+                    <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                                   Class="ml-2"
+                                   Style="color: white;"
+                                   OnClick="HandleLogout" />
+                </div>
+            </MudAppBar>
+
+            <MudDrawer @bind-Open="@_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+                <MudDrawerHeader>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.School"
+                                 Color="Color.Primary"
+                                 Size="Size.Large"
+                                 Class="mr-2" />
+                        <MudText Typo="Typo.h6" Color="Color.Primary">HTL Krems</MudText>
+                    </div>
+                </MudDrawerHeader>
+                <MudNavMenu>
+                    @if (currentUser.Role == UserRole.Teacher)
+                    {
+                        <MudNavLink Href="/teacher" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+                        <MudNavLink Href="/teacher/tests" Icon="@Icons.Material.Filled.Assignment">Tests</MudNavLink>
+                        <MudNavLink Href="/teacher/grades" Icon="@Icons.Material.Filled.Grade">Noten</MudNavLink>
+                        <MudNavLink Href="/teacher/warnings" Icon="@Icons.Material.Filled.Warning">Frühwarnungen</MudNavLink>
+                        <MudNavLink Href="/teacher/classes" Icon="@Icons.Material.Filled.Class">Klassen</MudNavLink>
+                    }
+                    else if (currentUser.Role == UserRole.SchoolAdmin)
+                    {
+                        <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+                        <MudNavLink Href="/admin/teachers" Icon="@Icons.Material.Filled.Person">Lehrer</MudNavLink>
+                        <MudNavLink Href="/admin/classes" Icon="@Icons.Material.Filled.Class">Klassen</MudNavLink>
+                        <MudNavLink Href="/admin/subjects" Icon="@Icons.Material.Filled.MenuBook">Fächer</MudNavLink>
+                        <MudNavLink Href="/admin/maps" Icon="@Icons.Material.Filled.Map">Raumpläne</MudNavLink>
+                        <MudNavLink Href="/admin/backups" Icon="@Icons.Material.Filled.Backup">Backups</MudNavLink>
+                        <MudNavLink Href="/admin/audit" Icon="@Icons.Material.Filled.History">Audit-Log</MudNavLink>
+                    }
+                    else if (currentUser.Role == UserRole.SystemAdmin)
+                    {
+                        <MudNavLink Href="/sysadmin" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+                        <MudNavLink Href="/sysadmin/schools" Icon="@Icons.Material.Filled.School">Schulen</MudNavLink>
+                        <MudNavLink Href="/sysadmin/admins" Icon="@Icons.Material.Filled.AdminPanelSettings">Administratoren</MudNavLink>
+                        <MudNavLink Href="/sysadmin/monitoring" Icon="@Icons.Material.Filled.Insights">System-Überwachung</MudNavLink>
+                        <MudNavLink Href="/sysadmin/settings" Icon="@Icons.Material.Filled.Settings">Einstellungen</MudNavLink>
+                    }
+                </MudNavMenu>
+            </MudDrawer>
+
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4 mb-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    }
+}
+
+@code {
+    private bool _drawerOpen = true;
+    private User? currentUser;
+    private bool _isDarkMode;
+
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary          = "#29aae3",
+            Secondary        = "#BDBDBD",   // Grey 400
+            Background       = "#FAFAFA",   // Grey 50
+            AppbarBackground = "#29aae3",
+            DrawerBackground = "#ffffff",
+            Success          = Colors.Green.Default,
+            Warning          = Colors.Orange.Default,
+            Error            = Colors.Red.Default
+        }
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        
+        if (currentUser == null && !NavigationManager.Uri.Contains("/login"))
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login", replace: true);
+    }
+
+    private Task OnDarkModeChanged(bool value)
+    {
+        _isDarkMode = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private string GetInitials(string name)
+    {
+        var parts = name.Split(' ');
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return name.Length >= 2 ? name.Substring(0, 2).ToUpper() : name.ToUpper();
+    }
+
+    private string GetRoleName(UserRole role)
+    {
+        return role switch
+        {
+            UserRole.Student     => "Schüler",
+            UserRole.Teacher     => "Lehrer",
+            UserRole.SchoolAdmin => "Schuladministrator",
+            UserRole.SystemAdmin => "Systemverwalter",
+            _                    => ""
+        };
+    }
+}
