@@ -108,6 +108,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Teacher>> GetAllTeachersAsync();
         Task<ApiResponse<Teacher>> CreateTeacherAsync(Teacher teacher);
         Task<ApiResponse<bool>> DeleteTeacherAsync(string id);
+        Task<List<Teacher>> GetTeachersAsync();
     }
 
     public class TeacherService : ITeacherService
@@ -133,6 +134,11 @@ namespace HTLKrems.GradeManagement.Services
             _mockTeachers.RemoveAll(t => t.Id == id);
             return Task.FromResult(new ApiResponse<bool> { Success = true, Data = true });
         }
+
+        public async Task<List<Teacher>> GetTeachersAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // ==================== CLASS SERVICE ====================
@@ -141,6 +147,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Class>> GetAllClassesAsync();
         Task<List<Class>> GetMyClassesAsync();
         Task<ApiResponse<Class>> CreateClassAsync(Class cls);
+        Task<List<Class>> GetClassesAsync();
     }
 
     public class ClassService : IClassService
@@ -161,6 +168,11 @@ namespace HTLKrems.GradeManagement.Services
             _mockClasses.Add(cls);
             return new ApiResponse<Class> { Success = true, Data = cls };
         }
+
+        public async Task<List<Class>> GetClassesAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // ==================== SUBJECT SERVICE ====================
@@ -170,6 +182,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Subject>> GetMySubjectsAsync();
         Task<ApiResponse<Subject>> CreateSubjectAsync(Subject subject);
         Task<ApiResponse<bool>> DeleteSubjectAsync(string id);
+        Task<object> GetSubjectsAsync();
     }
 
     public class SubjectService : ISubjectService
@@ -196,6 +209,11 @@ namespace HTLKrems.GradeManagement.Services
         {
             _mockSubjects.RemoveAll(s => s.Id == id);
             return Task.FromResult(new ApiResponse<bool> { Success = true, Data = true });
+        }
+
+        public async Task<object> GetSubjectsAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 

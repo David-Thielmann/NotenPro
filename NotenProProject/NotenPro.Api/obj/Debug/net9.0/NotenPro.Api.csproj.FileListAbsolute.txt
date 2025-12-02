@@ -142,3 +142,6 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.pdb
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.genruntimeconfig.cache
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\ref\NotenPro.Api.dll
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.dll
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\refint\NotenPro.Api.dll
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.pdb

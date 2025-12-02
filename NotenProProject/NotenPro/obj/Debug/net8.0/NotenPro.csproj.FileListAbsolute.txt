@@ -1053,3 +1053,14 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net8
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-x26nen71nb.gz
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-ay3ggkjtdx.gz
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-wfdds5etgp.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.csproj.AssemblyReference.cache
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.AssemblyInfoInputs.cache
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.AssemblyInfo.cs
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.csproj.CoreCompileInputs.cache
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.sourcelink.json
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.dll
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\refint\NotenPro.dll
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.pdb

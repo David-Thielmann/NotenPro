@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj": {}
+    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj": {
+    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
+        "projectUniqueName": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
         "projectName": "NotenPro.Api",
-        "projectPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
-        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro.Api\\obj\\",
+        "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
+        "packagesPath": "C:\\Users\\diese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\diese\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -26,8 +26,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
-                "projectPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj"
+              "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
+                "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj"
               }
             }
           }
@@ -106,21 +106,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\David\\.dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
+    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
+        "projectUniqueName": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
         "projectName": "NotenPro",
-        "projectPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
-        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\David\\Documents\\GitHub\\NotenPro\\NotenProProject\\NotenPro\\obj\\",
+        "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
+        "packagesPath": "C:\\Users\\diese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\diese\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -214,7 +214,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\David\\.dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
