@@ -1,0 +1,404 @@
+@page "/admin/audit"
+@inject ISnackbar Snackbar
+
+<PageTitle>Audit-Log</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Audit-Log</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Download" 
+               Variant="Variant.Outlined" 
+               Color="Color.Primary"
+               OnClick="ExportLog">
+        Exportieren
+    </MudButton>
+</div>
+
+<!-- Filters -->
+<MudCard Elevation="2" Class="mb-4">
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="filterUser" 
+                           Label="Benutzer" 
+                           Clearable="true"
+                           Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("")">Alle Benutzer</MudSelectItem>
+                    @foreach (var user in uniqueUsers)
+                    {
+                        <MudSelectItem Value="@user">@user</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="filterAction" 
+                           Label="Aktion" 
+                           Clearable="true"
+                           Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("")">Alle Aktionen</MudSelectItem>
+                    <MudSelectItem Value="@("CREATE")">Erstellt</MudSelectItem>
+                    <MudSelectItem Value="@("UPDATE")">Aktualisiert</MudSelectItem>
+                    <MudSelectItem Value="@("DELETE")">Gelöscht</MudSelectItem>
+                    <MudSelectItem Value="@("LOGIN")">Anmeldung</MudSelectItem>
+                    <MudSelectItem Value="@("LOGOUT")">Abmeldung</MudSelectItem>
+                    <MudSelectItem Value="@("EXPORT")">Export</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker @bind-Date="filterDateFrom" 
+                               Label="Von Datum" 
+                               Variant="Variant.Outlined"
+                               Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker @bind-Date="filterDateTo" 
+                               Label="Bis Datum" 
+                               Variant="Variant.Outlined"
+                               Clearable="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="searchText"
+                              Label="Details durchsuchen"
+                              Placeholder="Suchbegriff eingeben..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Variant="Variant.Outlined"
+                              Immediate="true" />
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<!-- Statistics -->
+<MudGrid Class="mb-4">
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Einträge gesamt</MudText>
+                <MudText Typo="Typo.h5">@auditLogs.Count</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Heute</MudText>
+                <MudText Typo="Typo.h5">@auditLogs.Count(l => l.Timestamp.Date == DateTime.Today)</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Aktive Benutzer (24h)</MudText>
+                <MudText Typo="Typo.h5">@uniqueUsers.Count</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Änderungen (7 Tage)</MudText>
+                <MudText Typo="Typo.h5">
+                    @auditLogs.Count(l => l.Timestamp >= DateTime.Now.AddDays(-7) && 
+                        (l.Action == "CREATE" || l.Action == "UPDATE" || l.Action == "DELETE"))
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+<!-- Audit Log Table -->
+<MudCard Elevation="2">
+    <MudCardContent>
+        @if (loading)
+        {
+            <div class="d-flex justify-center pa-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudTable Items="@FilteredLogs" 
+                      Hover="true" 
+                      Dense="false"
+                      Breakpoint="Breakpoint.Sm"
+                      RowsPerPage="15">
+                <HeaderContent>
+                    <MudTh>Zeitstempel</MudTh>
+                    <MudTh>Benutzer</MudTh>
+                    <MudTh>Rolle</MudTh>
+                    <MudTh>Aktion</MudTh>
+                    <MudTh>Modul</MudTh>
+                    <MudTh>Details</MudTh>
+                    <MudTh>IP-Adresse</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Zeitstempel">
+                        <div>
+                            <MudText>@context.Timestamp.ToString("dd.MM.yyyy")</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @context.Timestamp.ToString("HH:mm:ss")
+                            </MudText>
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Benutzer">
+                        <div class="d-flex align-center gap-2">
+                            <MudAvatar Size="Size.Small" Color="Color.Primary">
+                                @context.UserName.Substring(0, 1).ToUpper()
+                            </MudAvatar>
+                            <MudText>@context.UserName</MudText>
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Rolle">
+                        <MudChip Size="Size.Small" Color="@GetRoleColor(context.UserRole)">
+                            @context.UserRole
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Aktion">
+                        <MudChip Size="Size.Small" 
+                                 Icon="@GetActionIcon(context.Action)"
+                                 Color="@GetActionColor(context.Action)">
+                            @GetActionLabel(context.Action)
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Modul">@context.Module</MudTd>
+                    <MudTd DataLabel="Details">
+                        <MudText Style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+                            @context.Details
+                        </MudText>
+                    </MudTd>
+                    <MudTd DataLabel="IP-Adresse">
+                        <MudText Typo="Typo.caption" Style="font-family: monospace;">
+                            @context.IpAddress
+                        </MudText>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private List<AuditLogEntry> auditLogs = new();
+    
+    private string filterUser = "";
+    private string filterAction = "";
+    private DateTime? filterDateFrom;
+    private DateTime? filterDateTo;
+    private string searchText = "";
+    
+    private bool loading = true;
+    
+    private List<string> uniqueUsers => auditLogs.Select(l => l.UserName).Distinct().ToList();
+
+    private IEnumerable<AuditLogEntry> FilteredLogs
+    {
+        get
+        {
+            var filtered = auditLogs.AsEnumerable();
+            
+            if (!string.IsNullOrEmpty(filterUser))
+                filtered = filtered.Where(l => l.UserName == filterUser);
+            
+            if (!string.IsNullOrEmpty(filterAction))
+                filtered = filtered.Where(l => l.Action == filterAction);
+            
+            if (filterDateFrom.HasValue)
+                filtered = filtered.Where(l => l.Timestamp.Date >= filterDateFrom.Value.Date);
+            
+            if (filterDateTo.HasValue)
+                filtered = filtered.Where(l => l.Timestamp.Date <= filterDateTo.Value.Date);
+            
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.ToLowerInvariant();
+                filtered = filtered.Where(l => 
+                    l.Details.ToLowerInvariant().Contains(search) ||
+                    l.Module.ToLowerInvariant().Contains(search));
+            }
+            
+            return filtered.OrderByDescending(l => l.Timestamp);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuditLogs();
+    }
+
+    private async Task LoadAuditLogs()
+    {
+        loading = true;
+        
+        // Simulate loading
+        await Task.Delay(500);
+        
+        // Mock data
+        auditLogs = new List<AuditLogEntry>
+        {
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddMinutes(-5),
+                UserName = "Max Mustermann",
+                UserRole = "Admin",
+                Action = "CREATE",
+                Module = "Lehrer",
+                Details = "Neuer Lehrer 'Prof. Schmidt' erstellt",
+                IpAddress = "192.168.1.105"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddMinutes(-15),
+                UserName = "Max Mustermann",
+                UserRole = "Admin",
+                Action = "UPDATE",
+                Module = "Klassen",
+                Details = "Klasse '1AHIF' aktualisiert - Klassenvorstand geändert",
+                IpAddress = "192.168.1.105"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddHours(-1),
+                UserName = "Prof. Huber",
+                UserRole = "Lehrer",
+                Action = "CREATE",
+                Module = "Tests",
+                Details = "Neuer Test 'Mathematik SA1' für Klasse 2AHIF erstellt",
+                IpAddress = "192.168.1.87"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddHours(-2),
+                UserName = "Prof. Huber",
+                UserRole = "Lehrer",
+                Action = "UPDATE",
+                Module = "Noten",
+                Details = "25 Noten für Test 'Programmieren Test 3' eingetragen",
+                IpAddress = "192.168.1.87"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddHours(-3),
+                UserName = "Anna Schmidt",
+                UserRole = "Schüler",
+                Action = "LOGIN",
+                Module = "Authentifizierung",
+                Details = "Benutzer angemeldet",
+                IpAddress = "192.168.1.234"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddHours(-4),
+                UserName = "Max Mustermann",
+                UserRole = "Admin",
+                Action = "DELETE",
+                Module = "Fächer",
+                Details = "Fach 'Alte Technologie' gelöscht",
+                IpAddress = "192.168.1.105"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddDays(-1),
+                UserName = "Max Mustermann",
+                UserRole = "Admin",
+                Action = "EXPORT",
+                Module = "Backups",
+                Details = "Vollständiges Backup erstellt (485 MB)",
+                IpAddress = "192.168.1.105"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddDays(-1).AddHours(-5),
+                UserName = "Prof. Wagner",
+                UserRole = "Lehrer",
+                Action = "CREATE",
+                Module = "Frühwarnungen",
+                Details = "Frühwarnung für Schüler 'Ben Schmidt' erstellt",
+                IpAddress = "192.168.1.92"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddDays(-2),
+                UserName = "Max Mustermann",
+                UserRole = "Admin",
+                Action = "UPDATE",
+                Module = "Raumpläne",
+                Details = "Raumplan für Stockwerk '1.OG' hochgeladen",
+                IpAddress = "192.168.1.105"
+            },
+            new AuditLogEntry
+            {
+                Timestamp = DateTime.Now.AddDays(-3),
+                UserName = "System Admin",
+                UserRole = "SysAdmin",
+                Action = "UPDATE",
+                Module = "Schulen",
+                Details = "Schule 'HTL Krems' - Einstellungen aktualisiert",
+                IpAddress = "192.168.1.1"
+            }
+        };
+        
+        loading = false;
+    }
+
+    private void ExportLog()
+    {
+        Snackbar.Add("Audit-Log wird als CSV exportiert...", Severity.Info);
+    }
+
+    private string GetActionLabel(string action) => action switch
+    {
+        "CREATE" => "Erstellt",
+        "UPDATE" => "Aktualisiert",
+        "DELETE" => "Gelöscht",
+        "LOGIN" => "Anmeldung",
+        "LOGOUT" => "Abmeldung",
+        "EXPORT" => "Export",
+        _ => action
+    };
+
+    private string GetActionIcon(string action) => action switch
+    {
+        "CREATE" => Icons.Material.Filled.Add,
+        "UPDATE" => Icons.Material.Filled.Edit,
+        "DELETE" => Icons.Material.Filled.Delete,
+        "LOGIN" => Icons.Material.Filled.Login,
+        "LOGOUT" => Icons.Material.Filled.Logout,
+        "EXPORT" => Icons.Material.Filled.Download,
+        _ => Icons.Material.Filled.Info
+    };
+
+    private Color GetActionColor(string action) => action switch
+    {
+        "CREATE" => Color.Success,
+        "UPDATE" => Color.Info,
+        "DELETE" => Color.Error,
+        "LOGIN" => Color.Primary,
+        "LOGOUT" => Color.Default,
+        "EXPORT" => Color.Warning,
+        _ => Color.Default
+    };
+
+    private Color GetRoleColor(string role) => role switch
+    {
+        "SysAdmin" => Color.Error,
+        "Admin" => Color.Primary,
+        "Lehrer" => Color.Info,
+        "Schüler" => Color.Success,
+        _ => Color.Default
+    };
+
+    private class AuditLogEntry
+    {
+        public DateTime Timestamp { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserRole { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
+        public string Module { get; set; } = string.Empty;
+        public string Details { get; set; } = string.Empty;
+        public string IpAddress { get; set; } = string.Empty;
+    }
+}

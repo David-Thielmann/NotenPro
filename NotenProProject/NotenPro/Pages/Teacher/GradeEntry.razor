@@ -1,0 +1,363 @@
+@page "/teacher/grades/{TestId}"
+@inject ITestService TestService
+@inject IGradeService GradeService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>Noten eintragen</PageTitle>
+
+@if (loading)
+{
+    <div class="d-flex justify-center align-center" style="min-height: 400px;">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else if (test == null)
+{
+    <MudAlert Severity="Severity.Error">Test nicht gefunden</MudAlert>
+}
+else
+{
+    <!-- Test Info Header -->
+    <MudCard Elevation="2" Class="mb-4">
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="12" md="8">
+                    <MudText Typo="Typo.h4" Class="mb-2">@test.Name</MudText>
+                    <div class="d-flex gap-4 flex-wrap">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Fach</MudText>
+                            <MudText>@test.Subject</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Klasse</MudText>
+                            <MudText>@test.ClassName</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Datum</MudText>
+                            <MudText>@test.Date.ToString("dd.MM.yyyy")</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Max. Punkte</MudText>
+                            <MudText>@test.MaxPoints</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Typ</MudText>
+                            <MudChip Size="Size.Small" Color="@GetTestTypeColor(test.Type)">
+                                @test.Type
+                            </MudChip>
+                        </div>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" md="4" Class="d-flex align-center justify-end">
+                    <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" 
+                               Variant="Variant.Outlined" 
+                               Color="Color.Default"
+                               OnClick="@(() => Navigation.NavigateTo("/teacher/tests"))">
+                        Zurück
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Statistics -->
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Schüler gesamt</MudText>
+                    <MudText Typo="Typo.h5">@studentGrades.Count</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Benotet</MudText>
+                    <MudText Typo="Typo.h5" Color="Color.Success">@gradedCount</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Ausstehend</MudText>
+                    <MudText Typo="Typo.h5" Color="Color.Warning">@pendingCount</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Durchschnitt</MudText>
+                    <MudText Typo="Typo.h5">@averageGrade.ToString("F2")</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Grade Entry Table -->
+    <MudCard Elevation="2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Notenerfassung</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudButton StartIcon="@Icons.Material.Filled.Save" 
+                           Variant="Variant.Filled" 
+                           Color="Color.Primary"
+                           OnClick="SaveAllGrades"
+                           Disabled="saving">
+                    @if (saving)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                        <span class="ml-2">Speichern...</span>
+                    }
+                    else
+                    {
+                        <span>Alle speichern</span>
+                    }
+                </MudButton>
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTable Items="@studentGrades" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Schüler</MudTh>
+                    <MudTh>Punkte</MudTh>
+                    <MudTh>Note</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Kommentar</MudTh>
+                    <MudTh>Aktion</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Schüler">@context.StudentName</MudTd>
+                    <MudTd DataLabel="Punkte">
+                        <MudNumericField @bind-Value="context.Points" 
+                                         Min="0" 
+                                         Max="@test.MaxPoints"
+                                         Variant="Variant.Outlined"
+                                         Dense="true"
+                                         Style="max-width: 100px;"
+                                         OnValueChanged="@(() => CalculateGrade(context))" />
+                    </MudTd>
+                    <MudTd DataLabel="Note">
+                        <MudNumericField @bind-Value="context.GradeValue" 
+                                         Min="1" 
+                                         Max="5"
+                                         Step="0.5M"
+                                         Variant="Variant.Outlined"
+                                         Dense="true"
+                                         Style="max-width: 100px;" />
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudSelect @bind-Value="context.Status" 
+                                   Variant="Variant.Outlined" 
+                                   Dense="true"
+                                   Style="max-width: 150px;">
+                            <MudSelectItem Value="GradeStatus.Graded">Benotet</MudSelectItem>
+                            <MudSelectItem Value="GradeStatus.Pending">Ausstehend</MudSelectItem>
+                            <MudSelectItem Value="GradeStatus.Absent">Abwesend</MudSelectItem>
+                        </MudSelect>
+                    </MudTd>
+                    <MudTd DataLabel="Kommentar">
+                        <MudTextField @bind-Value="context.Comment" 
+                                      Variant="Variant.Outlined"
+                                      Dense="true"
+                                      Placeholder="Optional" />
+                    </MudTd>
+                    <MudTd DataLabel="Aktion">
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" 
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       Title="Speichern"
+                                       OnClick="@(() => SaveSingleGrade(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public string TestId { get; set; } = string.Empty;
+
+    private Test? test;
+    private List<GradeEntryModel> studentGrades = new();
+    
+    private bool loading = true;
+    private bool saving = false;
+
+    private int gradedCount => studentGrades.Count(g => g.Status == GradeStatus.Graded);
+    private int pendingCount => studentGrades.Count(g => g.Status == GradeStatus.Pending);
+    private decimal averageGrade => gradedCount > 0 
+        ? studentGrades.Where(g => g.Status == GradeStatus.Graded).Average(g => g.GradeValue) 
+        : 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        
+        // Load test info
+        var allTests = await TestService.GetMyTestsAsync();
+        test = allTests.FirstOrDefault(t => t.Id == TestId);
+        
+        if (test != null)
+        {
+            // Load existing grades or create empty entries for all students
+            var existingGrades = await GradeService.GetGradesByTestAsync(TestId);
+            
+            // Mock student list - in production, fetch from ClassService
+            var students = GetMockStudents(test.ClassId);
+            
+            studentGrades = students.Select(student =>
+            {
+                var existingGrade = existingGrades.FirstOrDefault(g => g.StudentId == student.Id);
+                
+                return new GradeEntryModel
+                {
+                    StudentId = student.Id,
+                    StudentName = student.Name,
+                    GradeValue = existingGrade?.GradeValue ?? 4,
+                    Points = existingGrade?.Points,
+                    Status = existingGrade?.Status ?? GradeStatus.Pending,
+                    Comment = existingGrade?.Comment
+                };
+            }).ToList();
+        }
+        
+        loading = false;
+    }
+
+    private void CalculateGrade(GradeEntryModel gradeEntry)
+    {
+        if (gradeEntry.Points.HasValue && test != null)
+        {
+            var percentage = (decimal)gradeEntry.Points.Value / test.MaxPoints * 100;
+            
+            gradeEntry.GradeValue = percentage switch
+            {
+                >= 90 => 1,
+                >= 80 => 2,
+                >= 70 => 3,
+                >= 60 => 4,
+                _ => 5
+            };
+        }
+    }
+
+    private async Task SaveSingleGrade(GradeEntryModel gradeEntry)
+    {
+        if (test == null) return;
+
+        var grade = new Grade
+        {
+            StudentId = gradeEntry.StudentId,
+            TestId = TestId,
+            GradeValue = gradeEntry.GradeValue,
+            Points = gradeEntry.Points,
+            MaxPoints = test.MaxPoints,
+            Status = gradeEntry.Status,
+            Comment = gradeEntry.Comment,
+            Subject = test.Subject,
+            TestName = test.Name,
+            Date = test.Date
+        };
+
+        var result = await GradeService.SaveGradeAsync(grade);
+        
+        if (result.Success)
+        {
+            Snackbar.Add($"Note für {gradeEntry.StudentName} gespeichert", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"Fehler beim Speichern: {result.Message}", Severity.Error);
+        }
+    }
+
+    private async Task SaveAllGrades()
+    {
+        if (test == null) return;
+
+        saving = true;
+
+        var grades = studentGrades.Select(g => new Grade
+        {
+            StudentId = g.StudentId,
+            TestId = TestId,
+            GradeValue = g.GradeValue,
+            Points = g.Points,
+            MaxPoints = test.MaxPoints,
+            Status = g.Status,
+            Comment = g.Comment,
+            Subject = test.Subject,
+            TestName = test.Name,
+            Date = test.Date
+        }).ToList();
+
+        var result = await GradeService.SaveGradesBulkAsync(grades);
+        
+        if (result.Success)
+        {
+            Snackbar.Add("Alle Noten gespeichert", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"Fehler beim Speichern: {result.Message}", Severity.Error);
+        }
+
+        saving = false;
+    }
+
+    private Color GetTestTypeColor(TestType type)
+    {
+        return type switch
+        {
+            TestType.Schularbeit => Color.Error,
+            TestType.Test => Color.Primary,
+            TestType.Mitarbeit => Color.Success,
+            TestType.Hausübung => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    // Mock data - in production, fetch from ClassService
+    private List<Student> GetMockStudents(string classId)
+    {
+        return new List<Student>
+        {
+            new Student { Id = "s1", Name = "Anna Müller" },
+            new Student { Id = "s2", Name = "Ben Schmidt" },
+            new Student { Id = "s3", Name = "Clara Weber" },
+            new Student { Id = "s4", Name = "David Fischer" },
+            new Student { Id = "s5", Name = "Emma Wagner" },
+            new Student { Id = "s6", Name = "Felix Bauer" },
+            new Student { Id = "s7", Name = "Greta Hoffmann" },
+            new Student { Id = "s8", Name = "Hans Schneider" }
+        };
+    }
+
+    private class GradeEntryModel
+    {
+        public string StudentId { get; set; } = string.Empty;
+        public string StudentName { get; set; } = string.Empty;
+        public decimal GradeValue { get; set; } = 4;
+        public int? Points { get; set; }
+        public GradeStatus Status { get; set; } = GradeStatus.Pending;
+        public string? Comment { get; set; }
+    }
+
+    private class Student
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+}

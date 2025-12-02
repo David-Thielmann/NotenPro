@@ -104,9 +104,7 @@
                 <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
                 <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
                 <MudTd DataLabel="Typ">
-                    <MudChip T="string" Size="Size.Small">
-                        @context.Type
-                    </MudChip>
+                    <MudChip Size="Size.Small">@context.Type</MudChip>
                 </MudTd>
             </RowTemplate>
         </MudTable>

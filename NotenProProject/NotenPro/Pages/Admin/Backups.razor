@@ -1,0 +1,451 @@
+@page "/admin/backups"
+@inject ISnackbar Snackbar
+
+<PageTitle>Backup-Verwaltung</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Backup-Verwaltung</MudText>
+</div>
+
+<!-- Create Backup Card -->
+<MudCard Elevation="2" Class="mb-4">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Neues Backup erstellen</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudSelect @bind-Value="backupType" 
+                           Label="Backup-Typ" 
+                           Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("full")">Vollständiges Backup</MudSelectItem>
+                    <MudSelectItem Value="@("incremental")">Inkrementelles Backup</MudSelectItem>
+                    <MudSelectItem Value="@("database")">Nur Datenbank</MudSelectItem>
+                    <MudSelectItem Value="@("files")">Nur Dateien</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="backupDescription"
+                              Label="Beschreibung"
+                              Variant="Variant.Outlined"
+                              Placeholder="Optional" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info" Dense="true">
+                    Das Backup wird im sicheren Speicher abgelegt und kann später wiederhergestellt werden.
+                </MudAlert>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-end">
+                <MudButton StartIcon="@Icons.Material.Filled.Backup" 
+                           Variant="Variant.Filled" 
+                           Color="Color.Primary"
+                           OnClick="CreateBackup"
+                           Loading="creatingBackup">
+                    Backup erstellen
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<!-- Backup Settings -->
+<MudCard Elevation="2" Class="mb-4">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Automatische Backup-Einstellungen</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudSwitch @bind-Checked="autoBackupEnabled" 
+                           Color="Color.Primary"
+                           Label="Automatisches Backup aktivieren" />
+            </MudItem>
+            
+            @if (autoBackupEnabled)
+            {
+                <MudItem xs="12" md="4">
+                    <MudSelect @bind-Value="autoBackupFrequency" 
+                               Label="Häufigkeit" 
+                               Variant="Variant.Outlined">
+                        <MudSelectItem Value="@("daily")">Täglich</MudSelectItem>
+                        <MudSelectItem Value="@("weekly")">Wöchentlich</MudSelectItem>
+                        <MudSelectItem Value="@("monthly")">Monatlich</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudTimePicker @bind-Time="autoBackupTime" 
+                                   Label="Uhrzeit" 
+                                   Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudNumericField @bind-Value="retentionDays" 
+                                     Label="Aufbewahrungsdauer (Tage)" 
+                                     Min="1"
+                                     Max="365"
+                                     Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end">
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Success"
+                               OnClick="SaveBackupSettings">
+                        Einstellungen speichern
+                    </MudButton>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<!-- Backup List -->
+<MudCard Elevation="2">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Vorhandene Backups</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Refresh" 
+                           Color="Color.Default"
+                           OnClick="LoadBackups" />
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (loading)
+        {
+            <div class="d-flex justify-center pa-4">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else if (!backups.Any())
+        {
+            <MudAlert Severity="Severity.Info">
+                Noch keine Backups vorhanden. Erstellen Sie Ihr erstes Backup!
+            </MudAlert>
+        }
+        else
+        {
+            <MudTable Items="@backups" Hover="true" Dense="false">
+                <HeaderContent>
+                    <MudTh>Datum/Uhrzeit</MudTh>
+                    <MudTh>Typ</MudTh>
+                    <MudTh>Beschreibung</MudTh>
+                    <MudTh>Größe</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Aktionen</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Datum/Uhrzeit">
+                        <div>
+                            <MudText>@context.CreatedDate.ToString("dd.MM.yyyy")</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @context.CreatedDate.ToString("HH:mm:ss")
+                            </MudText>
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Typ">
+                        <MudChip Size="Size.Small" 
+                                 Icon="@GetBackupTypeIcon(context.Type)"
+                                 Color="@GetBackupTypeColor(context.Type)">
+                            @GetBackupTypeLabel(context.Type)
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Beschreibung">
+                        @if (!string.IsNullOrEmpty(context.Description))
+                        {
+                            <MudText>@context.Description</MudText>
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary" Typo="Typo.caption">
+                                @(context.IsAutomatic ? "Automatisches Backup" : "-")
+                            </MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Größe">@FormatFileSize(context.Size)</MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudChip Size="Size.Small" Color="@GetStatusColor(context.Status)">
+                            @context.Status
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Aktionen">
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
+                            <MudMenuItem Icon="@Icons.Material.Filled.Info" 
+                                         OnClick="@(() => ShowBackupInfo(context))">
+                                Details
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Download" 
+                                         OnClick="@(() => DownloadBackup(context))">
+                                Herunterladen
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.RestorePage" 
+                                         OnClick="@(() => RestoreBackup(context))">
+                                Wiederherstellen
+                            </MudMenuItem>
+                            <MudDivider />
+                            <MudMenuItem Icon="@Icons.Material.Filled.Delete" 
+                                         IconColor="Color.Error"
+                                         OnClick="@(() => DeleteBackup(context))">
+                                Löschen
+                            </MudMenuItem>
+                        </MudMenu>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+<!-- Backup Info Dialog -->
+<MudDialog @bind-IsVisible="showInfoDialog" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
+            Backup Details
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (selectedBackup != null)
+        {
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Erstellt am</MudText>
+                    <MudText>@selectedBackup.CreatedDate.ToString("dd.MM.yyyy HH:mm:ss")</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Typ</MudText>
+                    <MudText>@GetBackupTypeLabel(selectedBackup.Type)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Größe</MudText>
+                    <MudText>@FormatFileSize(selectedBackup.Size)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Status</MudText>
+                    <MudText>@selectedBackup.Status</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Beschreibung</MudText>
+                    <MudText>
+                        @(string.IsNullOrEmpty(selectedBackup.Description) ? "-" : selectedBackup.Description)
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Automatisch</MudText>
+                    <MudText>@(selectedBackup.IsAutomatic ? "Ja" : "Nein")</MudText>
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudDivider Class="my-2" />
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Enthaltene Daten</MudText>
+                    <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Storage">
+                        Datenbank: 245 MB
+                    </MudChip>
+                    <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Folder">
+                        Dateien: @FormatFileSize(selectedBackup.Size - (245 * 1024 * 1024))
+                    </MudChip>
+                </MudItem>
+            </MudGrid>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseInfoDialog">Schließen</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<BackupInfo> backups = new();
+    
+    private string backupType = "full";
+    private string backupDescription = "";
+    private bool creatingBackup = false;
+    
+    private bool autoBackupEnabled = true;
+    private string autoBackupFrequency = "daily";
+    private TimeSpan? autoBackupTime = new TimeSpan(2, 0, 0); // 2:00 AM
+    private int retentionDays = 30;
+    
+    private bool loading = false;
+    private bool showInfoDialog = false;
+    private BackupInfo? selectedBackup;
+    
+    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBackups();
+    }
+
+    private async Task LoadBackups()
+    {
+        loading = true;
+        
+        // Simulate loading
+        await Task.Delay(500);
+        
+        // Mock data
+        backups = new List<BackupInfo>
+        {
+            new BackupInfo
+            {
+                Id = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.Now.AddHours(-2),
+                Type = "full",
+                Description = "Manuelles Backup vor Update",
+                Size = 1024L * 1024 * 500,
+                Status = "Erfolgreich",
+                IsAutomatic = false
+            },
+            new BackupInfo
+            {
+                Id = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.Now.AddDays(-1).Date.AddHours(2),
+                Type = "full",
+                Description = "",
+                Size = 1024L * 1024 * 485,
+                Status = "Erfolgreich",
+                IsAutomatic = true
+            },
+            new BackupInfo
+            {
+                Id = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.Now.AddDays(-2).Date.AddHours(2),
+                Type = "incremental",
+                Description = "",
+                Size = 1024L * 1024 * 125,
+                Status = "Erfolgreich",
+                IsAutomatic = true
+            },
+            new BackupInfo
+            {
+                Id = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.Now.AddDays(-7),
+                Type = "database",
+                Description = "Vor Datenmigration",
+                Size = 1024L * 1024 * 280,
+                Status = "Erfolgreich",
+                IsAutomatic = false
+            }
+        };
+        
+        loading = false;
+    }
+
+    private async Task CreateBackup()
+    {
+        creatingBackup = true;
+        
+        // Simulate backup creation
+        await Task.Delay(2000);
+        
+        var newBackup = new BackupInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreatedDate = DateTime.Now,
+            Type = backupType,
+            Description = backupDescription,
+            Size = 1024L * 1024 * new Random().Next(400, 600),
+            Status = "Erfolgreich",
+            IsAutomatic = false
+        };
+        
+        backups.Insert(0, newBackup);
+        
+        Snackbar.Add("Backup erfolgreich erstellt", Severity.Success);
+        
+        backupDescription = "";
+        creatingBackup = false;
+    }
+
+    private void SaveBackupSettings()
+    {
+        Snackbar.Add("Backup-Einstellungen gespeichert", Severity.Success);
+    }
+
+    private void ShowBackupInfo(BackupInfo backup)
+    {
+        selectedBackup = backup;
+        showInfoDialog = true;
+    }
+
+    private void CloseInfoDialog()
+    {
+        showInfoDialog = false;
+        selectedBackup = null;
+    }
+
+    private void DownloadBackup(BackupInfo backup)
+    {
+        Snackbar.Add($"Backup vom {backup.CreatedDate:dd.MM.yyyy} wird heruntergeladen...", Severity.Info);
+    }
+
+    private void RestoreBackup(BackupInfo backup)
+    {
+        Snackbar.Add($"Wiederherstellung von Backup vom {backup.CreatedDate:dd.MM.yyyy} gestartet...", Severity.Warning);
+    }
+
+    private void DeleteBackup(BackupInfo backup)
+    {
+        backups.Remove(backup);
+        Snackbar.Add("Backup gelöscht", Severity.Success);
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private string GetBackupTypeLabel(string type) => type switch
+    {
+        "full" => "Vollständig",
+        "incremental" => "Inkrementell",
+        "database" => "Datenbank",
+        "files" => "Dateien",
+        _ => type
+    };
+
+    private string GetBackupTypeIcon(string type) => type switch
+    {
+        "full" => Icons.Material.Filled.Storage,
+        "incremental" => Icons.Material.Filled.Update,
+        "database" => Icons.Material.Filled.Database,
+        "files" => Icons.Material.Filled.Folder,
+        _ => Icons.Material.Filled.Backup
+    };
+
+    private Color GetBackupTypeColor(string type) => type switch
+    {
+        "full" => Color.Primary,
+        "incremental" => Color.Info,
+        "database" => Color.Success,
+        "files" => Color.Warning,
+        _ => Color.Default
+    };
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "Erfolgreich" => Color.Success,
+        "Fehlgeschlagen" => Color.Error,
+        "In Bearbeitung" => Color.Info,
+        _ => Color.Default
+    };
+
+    private class BackupInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public DateTime CreatedDate { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public long Size { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public bool IsAutomatic { get; set; }
+    }
+}
