@@ -1,0 +1,330 @@
+@page "/admin/classes"
+@inject IClassService ClassService
+@inject ITeacherService TeacherService
+@inject ISnackbar Snackbar
+
+<PageTitle>Klassenverwaltung</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <MudText Typo="Typo.h4">Klassenverwaltung</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" 
+               Variant="Variant.Filled" 
+               Color="Color.Primary"
+               OnClick="OpenCreateDialog">
+        Neue Klasse
+    </MudButton>
+</div>
+
+<!-- Search and Filter -->
+<MudCard Elevation="2" Class="mb-4">
+    <MudCardContent>
+        <MudTextField @bind-Value="searchText"
+                      Label="Suche"
+                      Placeholder="Klasse suchen..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true" />
+    </MudCardContent>
+</MudCard>
+
+<!-- Classes Table -->
+<MudCard Elevation="2">
+    <MudCardContent>
+        @if (loading)
+        {
+            <div class="d-flex justify-center pa-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudTable Items="@FilteredClasses" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Klassenvorstand</MudTh>
+                    <MudTh>Schüleranzahl</MudTh>
+                    <MudTh>Schuljahr</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Aktionen</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        <div>
+                            <MudText>@context.Name</MudText>
+                            @if (!string.IsNullOrEmpty(context.Description))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Description</MudText>
+                            }
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Klassenvorstand">
+                        @if (!string.IsNullOrEmpty(context.ClassTeacherId))
+                        {
+                            <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Person">
+                                @GetTeacherName(context.ClassTeacherId)
+                            </MudChip>
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary" Typo="Typo.caption">Nicht zugewiesen</MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Schüleranzahl">@context.StudentCount</MudTd>
+                    <MudTd DataLabel="Schuljahr">@context.SchoolYear</MudTd>
+                    <MudTd DataLabel="Status">
+                        @if (context.IsActive)
+                        {
+                            <MudChip Size="Size.Small" Color="Color.Success">Aktiv</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip Size="Size.Small" Color="Color.Default">Inaktiv</MudChip>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Aktionen">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => OpenEditDialog(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="@(() => DeleteClass(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+<!-- Create/Edit Dialog -->
+<MudDialog @bind-IsVisible="showDialog" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@(isEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
+            @(isEditMode ? "Klasse bearbeiten" : "Neue Klasse")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="editingClass.Name"
+                              Label="Klassenname"
+                              Required="true"
+                              Variant="Variant.Outlined"
+                              Placeholder="z.B. 1AHIF" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="editingClass.SchoolYear"
+                              Label="Schuljahr"
+                              Variant="Variant.Outlined"
+                              Placeholder="z.B. 2024/25" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="editingClass.Description"
+                              Label="Beschreibung"
+                              Lines="2"
+                              Variant="Variant.Outlined"
+                              Placeholder="Optional" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect @bind-Value="editingClass.ClassTeacherId"
+                           Label="Klassenvorstand"
+                           Variant="Variant.Outlined"
+                           Clearable="true">
+                    @foreach (var teacher in teachers)
+                    {
+                        <MudSelectItem Value="@teacher.Id">@teacher.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField @bind-Value="editingClass.StudentCount"
+                                 Label="Schüleranzahl"
+                                 Min="0"
+                                 Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudSwitch @bind-Checked="editingClass.IsActive" 
+                           Color="Color.Primary"
+                           Label="Klasse ist aktiv" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="SaveClass">
+            @(isEditMode ? "Speichern" : "Erstellen")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<ClassModel> classes = new();
+    private List<Teacher> teachers = new();
+    
+    private string searchText = "";
+    private bool loading = true;
+    
+    private bool showDialog = false;
+    private bool isEditMode = false;
+    private ClassModel editingClass = new();
+    
+    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+    private IEnumerable<ClassModel> FilteredClasses
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+                return classes;
+            
+            var search = searchText.ToLowerInvariant();
+            return classes.Where(c => 
+                c.Name.ToLowerInvariant().Contains(search) ||
+                (c.Description?.ToLowerInvariant().Contains(search) ?? false));
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        
+        var classesData = await ClassService.GetClassesAsync();
+        teachers = await TeacherService.GetTeachersAsync();
+        
+        // Convert to ClassModel with additional properties
+        classes = classesData.Select(c => new ClassModel
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Description = "",
+            ClassTeacherId = "",
+            StudentCount = 0,
+            SchoolYear = "2024/25",
+            IsActive = true
+        }).ToList();
+        
+        // Add mock data
+        if (classes.Count > 0)
+        {
+            classes[0].StudentCount = 25;
+            classes[0].Description = "Informatik Abteilung";
+            classes[0].ClassTeacherId = teachers.FirstOrDefault()?.Id ?? "";
+        }
+        
+        loading = false;
+    }
+
+    private void OpenCreateDialog()
+    {
+        isEditMode = false;
+        editingClass = new ClassModel
+        {
+            SchoolYear = "2024/25",
+            IsActive = true,
+            StudentCount = 0
+        };
+        showDialog = true;
+    }
+
+    private void OpenEditDialog(ClassModel classModel)
+    {
+        isEditMode = true;
+        editingClass = new ClassModel
+        {
+            Id = classModel.Id,
+            Name = classModel.Name,
+            Description = classModel.Description,
+            ClassTeacherId = classModel.ClassTeacherId,
+            StudentCount = classModel.StudentCount,
+            SchoolYear = classModel.SchoolYear,
+            IsActive = classModel.IsActive
+        };
+        showDialog = true;
+    }
+
+    private void CloseDialog()
+    {
+        showDialog = false;
+    }
+
+    private async Task SaveClass()
+    {
+        if (string.IsNullOrWhiteSpace(editingClass.Name))
+        {
+            Snackbar.Add("Bitte geben Sie einen Klassennamen ein", Severity.Warning);
+            return;
+        }
+
+        if (isEditMode)
+        {
+            var existingClass = classes.FirstOrDefault(c => c.Id == editingClass.Id);
+            if (existingClass != null)
+            {
+                existingClass.Name = editingClass.Name;
+                existingClass.Description = editingClass.Description;
+                existingClass.ClassTeacherId = editingClass.ClassTeacherId;
+                existingClass.StudentCount = editingClass.StudentCount;
+                existingClass.SchoolYear = editingClass.SchoolYear;
+                existingClass.IsActive = editingClass.IsActive;
+            }
+            Snackbar.Add("Klasse aktualisiert", Severity.Success);
+        }
+        else
+        {
+            var result = await ClassService.CreateClassAsync(editingClass.Name);
+            if (result.Success)
+            {
+                editingClass.Id = Guid.NewGuid().ToString();
+                classes.Add(new ClassModel
+                {
+                    Id = editingClass.Id,
+                    Name = editingClass.Name,
+                    Description = editingClass.Description,
+                    ClassTeacherId = editingClass.ClassTeacherId,
+                    StudentCount = editingClass.StudentCount,
+                    SchoolYear = editingClass.SchoolYear,
+                    IsActive = editingClass.IsActive
+                });
+                Snackbar.Add("Klasse erstellt", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
+                return;
+            }
+        }
+
+        CloseDialog();
+    }
+
+    private async Task DeleteClass(ClassModel classModel)
+    {
+        classes.Remove(classModel);
+        Snackbar.Add("Klasse gelöscht", Severity.Success);
+    }
+
+    private string GetTeacherName(string teacherId)
+    {
+        return teachers.FirstOrDefault(t => t.Id == teacherId)?.Name ?? "Unbekannt";
+    }
+
+    private class ClassModel
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ClassTeacherId { get; set; } = string.Empty;
+        public int StudentCount { get; set; }
+        public string SchoolYear { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+    }
+}
