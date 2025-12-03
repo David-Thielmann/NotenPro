@@ -43,7 +43,8 @@ else
                         </div>
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Typ</MudText>
-                            <MudChip Size="Size.Small" Color="@GetTestTypeColor(test.Type)">
+                            <MudChip T="bool"
+                                Size="Size.Small" Color="@GetTestTypeColor(test.Type)">
                                 @test.Type
                             </MudChip>
                         </div>

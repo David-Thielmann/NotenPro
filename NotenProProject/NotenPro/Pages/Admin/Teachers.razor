@@ -41,7 +41,8 @@
                 <MudTd DataLabel="Fächer">@string.Join(", ", context.Subjects)</MudTd>
                 <MudTd DataLabel="E-Mail">@context.Email</MudTd>
                 <MudTd DataLabel="Status">
-                    <MudChip Color="@(context.IsActive ? Color.Success : Color.Default)" Size="Size.Small">
+                    <MudChip T="bool"
+                        Color="@(context.IsActive ? Color.Success : Color.Default)" Size="Size.Small">
                         @(context.IsActive ? "Aktiv" : "Inaktiv")
                     </MudChip>
                 </MudTd>

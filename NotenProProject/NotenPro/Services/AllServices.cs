@@ -64,7 +64,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Test>> GetMyTestsAsync();
         Task<Test?> GetTestByIdAsync(string id);
         Task<ApiResponse<Test>> CreateTestAsync(CreateTestRequest request);
-        Task<bool> DeleteTestAsync(string id);
+        Task<ApiResponse<bool>> DeleteTestAsync(string id);
     }
 
     public class TestService : ITestService
@@ -95,10 +95,15 @@ namespace HTLKrems.GradeManagement.Services
             return new ApiResponse<Test> { Success = true, Data = test };
         }
 
-        public Task<bool> DeleteTestAsync(string id)
+        public Task<ApiResponse<bool>> DeleteTestAsync(string id)
         {
             _mockTests.RemoveAll(t => t.Id == id);
-            return Task.FromResult(true);
+            return Task.FromResult(new ApiResponse<bool>
+            {
+                Success = true,
+                Data = true,
+                Message = "Test gelöscht"
+            });
         }
     }
 
@@ -182,7 +187,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Subject>> GetMySubjectsAsync();
         Task<ApiResponse<Subject>> CreateSubjectAsync(Subject subject);
         Task<ApiResponse<bool>> DeleteSubjectAsync(string id);
-        Task<object> GetSubjectsAsync();
+        Task<List<Subject>> GetSubjectsAsync();
     }
 
     public class SubjectService : ISubjectService
@@ -211,7 +216,7 @@ namespace HTLKrems.GradeManagement.Services
             return Task.FromResult(new ApiResponse<bool> { Success = true, Data = true });
         }
 
-        public async Task<object> GetSubjectsAsync()
+        public async Task<List<Subject>> GetSubjectsAsync()
         {
             throw new NotImplementedException();
         }

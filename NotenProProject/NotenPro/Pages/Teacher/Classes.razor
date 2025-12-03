@@ -28,9 +28,9 @@ else
                             </MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" 
-                                           Color="Color.Default" 
-                                           OnClick="@(() => ToggleClassDetails(classInfo.Id))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.MoreVert"
+                                           Color="Color.Default"
+                                           OnClick="@(() => ToggleClassDetails(classInfo.Id))"/>
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
@@ -44,20 +44,24 @@ else
                                 <MudText Typo="Typo.h6">@classInfo.AverageGrade.ToString("F2")</MudText>
                             </MudItem>
                         </MudGrid>
-                        
+
                         @if (expandedClassId == classInfo.Id)
                         {
-                            <MudDivider Class="my-4" />
-                            
+                            <MudDivider Class="my-4"/>
+
                             <!-- Class Statistics -->
                             <MudText Typo="Typo.subtitle2" Class="mb-2">Notenverteilung</MudText>
                             <div class="d-flex gap-2 mb-4">
-                                <MudChip Size="Size.Small" Color="Color.Success">Sehr gut: @classInfo.GradeDistribution.Count(g => g == 1)</MudChip>
-                                <MudChip Size="Size.Small" Color="Color.Info">Gut: @classInfo.GradeDistribution.Count(g => g == 2)</MudChip>
-                                <MudChip Size="Size.Small" Color="Color.Warning">Befriedigend: @classInfo.GradeDistribution.Count(g => g == 3)</MudChip>
-                                <MudChip Size="Size.Small" Color="Color.Error">Nicht genügend: @classInfo.GradeDistribution.Count(g => g >= 4)</MudChip>
+                                <MudChip T="bool"
+                                         Size="Size.Small" Color="Color.Success">Sehr gut: @classInfo.GradeDistribution.Count(g => g == 1)</MudChip>
+                                <MudChip T="bool"
+                                         Size="Size.Small" Color="Color.Info">Gut: @classInfo.GradeDistribution.Count(g => g == 2)</MudChip>
+                                <MudChip T="bool"
+                                         Size="Size.Small" Color="Color.Warning">Befriedigend: @classInfo.GradeDistribution.Count(g => g == 3)</MudChip>
+                                <MudChip T="bool"
+                                         Size="Size.Small" Color="Color.Error">Nicht genügend: @classInfo.GradeDistribution.Count(g => g >= 4)</MudChip>
                             </div>
-                            
+
                             <!-- Student List -->
                             <MudText Typo="Typo.subtitle2" Class="mb-2">Schülerliste</MudText>
                             <MudTable Items="@classInfo.Students" Dense="true" Hover="true" Elevation="0">
@@ -69,22 +73,23 @@ else
                                 <RowTemplate>
                                     <MudTd DataLabel="Name">@context.Name</MudTd>
                                     <MudTd DataLabel="Durchschnitt">
-                                        <MudChip Size="Size.Small" Color="@GetGradeColor(context.Average)">
+                                        <MudChip T="bool"
+                                                 Size="Size.Small" Color="@GetGradeColor(context.Average)">
                                             @context.Average.ToString("F2")
                                         </MudChip>
                                     </MudTd>
                                     <MudTd DataLabel="Status">
                                         @if (context.Average >= 4.5m)
                                         {
-                                            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Small" Title="Gefährdet" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Small" Title="Gefährdet"/>
                                         }
                                         else if (context.Average >= 3.5m)
                                         {
-                                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Warning" Size="Size.Small" Title="Beobachten" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Warning" Size="Size.Small" Title="Beobachten"/>
                                         }
                                         else
                                         {
-                                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" Title="Gut" />
+                                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" Title="Gut"/>
                                         }
                                     </MudTd>
                                 </RowTemplate>
@@ -92,7 +97,7 @@ else
                         }
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton Variant="Variant.Text" 
+                        <MudButton Variant="Variant.Text"
                                    Color="Color.Primary"
                                    OnClick="@(() => ToggleClassDetails(classInfo.Id))">
                             @(expandedClassId == classInfo.Id ? "Weniger anzeigen" : "Details anzeigen")
@@ -109,6 +114,7 @@ else
             Sie sind derzeit keinen Klassen zugeordnet. Bitte wenden Sie sich an Ihren Administrator.
         </MudAlert>
     }
+
 }
 
 @code {
@@ -124,11 +130,9 @@ else
     private async Task LoadData()
     {
         loading = true;
-        
-        // In production, fetch only classes where current user is teacher
+
         var allClasses = await ClassService.GetClassesAsync();
-        
-        // Mock data for class overviews
+
         myClasses = new List<ClassOverview>
         {
             new ClassOverview
@@ -180,7 +184,7 @@ else
                 }
             }
         };
-        
+
         loading = false;
     }
 
@@ -191,14 +195,12 @@ else
 
     private Color GetGradeColor(decimal grade)
     {
-        return grade switch
-        {
-            < 2.0m => Color.Success,
-            < 3.0m => Color.Info,
-            < 4.0m => Color.Warning,
-            _ => Color.Error
-        };
+        if (grade < 2.0m) return Color.Success;
+        if (grade < 3.0m) return Color.Info;
+        if (grade < 4.0m) return Color.Warning;
+        return Color.Error;
     }
+
 
     private class ClassOverview
     {
@@ -217,3 +219,4 @@ else
         public decimal Average { get; set; }
     }
 }
+

@@ -39,10 +39,10 @@
             <MudItem xs="12" md="4">
                 <MudSelect T="string" Label="Typ" @bind-Value="selectedTestType" Clearable="true">
                     <MudSelectItem T="string" Value="@("")">Alle Typen</MudSelectItem>
-                    <MudSelectItem T="string" Value="Test">Test</MudSelectItem>
-                    <MudSelectItem T="string" Value="Schularbeit">Schularbeit</MudSelectItem>
-                    <MudSelectItem T="string" Value="Mitarbeit">Mitarbeit</MudSelectItem>
-                    <MudSelectItem T="string" Value="Hausübung">Hausübung</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Test")">Test</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Schularbeit")">Schularbeit</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Mitarbeit")">Mitarbeit</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Hausübung")">Hausübung</MudSelectItem>
                 </MudSelect>
             </MudItem>
         </MudGrid>
@@ -76,7 +76,8 @@
                     <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
                     <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
                     <MudTd DataLabel="Typ">
-                        <MudChip Size="Size.Small" Color="@GetTestTypeColor(context.Type)">
+                        <MudChip T="bool"
+                            Size="Size.Small" Color="@GetTestTypeColor(context.Type)">
                             @context.Type
                         </MudChip>
                     </MudTd>
@@ -203,6 +204,8 @@
             return filtered.OrderByDescending(t => t.Date);
         }
     }
+
+   
 
     protected override async Task OnInitializedAsync()
     {

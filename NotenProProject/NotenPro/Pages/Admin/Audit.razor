@@ -150,12 +150,14 @@
                         </div>
                     </MudTd>
                     <MudTd DataLabel="Rolle">
-                        <MudChip Size="Size.Small" Color="@GetRoleColor(context.UserRole)">
+                        <MudChip T="bool"
+                            Size="Size.Small" Color="@GetRoleColor(context.UserRole)">
                             @context.UserRole
                         </MudChip>
                     </MudTd>
                     <MudTd DataLabel="Aktion">
-                        <MudChip Size="Size.Small" 
+                        <MudChip T="bool"
+                                 Size="Size.Small" 
                                  Icon="@GetActionIcon(context.Action)"
                                  Color="@GetActionColor(context.Action)">
                             @GetActionLabel(context.Action)

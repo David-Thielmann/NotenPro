@@ -1,4 +1,5 @@
 @page "/admin/classes"
+@using HTLKrems.GradeManagement.Models
 @inject IClassService ClassService
 @inject ITeacherService TeacherService
 @inject ISnackbar Snackbar
@@ -60,7 +61,8 @@
                     <MudTd DataLabel="Klassenvorstand">
                         @if (!string.IsNullOrEmpty(context.ClassTeacherId))
                         {
-                            <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Person">
+                            <MudChip T="bool"
+                                Size="Size.Small" Icon="@Icons.Material.Filled.Person">
                                 @GetTeacherName(context.ClassTeacherId)
                             </MudChip>
                         }
@@ -74,11 +76,13 @@
                     <MudTd DataLabel="Status">
                         @if (context.IsActive)
                         {
-                            <MudChip Size="Size.Small" Color="Color.Success">Aktiv</MudChip>
+                            <MudChip T="bool"
+                                Size="Size.Small" Color="Color.Success">Aktiv</MudChip>
                         }
                         else
                         {
-                            <MudChip Size="Size.Small" Color="Color.Default">Inaktiv</MudChip>
+                            <MudChip T="bool"
+                                Size="Size.Small" Color="Color.Default">Inaktiv</MudChip>
                         }
                     </MudTd>
                     <MudTd DataLabel="Aktionen">
@@ -145,7 +149,8 @@
                                  Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked="editingClass.IsActive" 
+                <MudSwitch T="bool"
+                           @bind-Checked="editingClass.IsActive" 
                            Color="Color.Primary"
                            Label="Klasse ist aktiv" />
             </MudItem>
@@ -269,31 +274,42 @@
             var existingClass = classes.FirstOrDefault(c => c.Id == editingClass.Id);
             if (existingClass != null)
             {
-                existingClass.Name = editingClass.Name;
-                existingClass.Description = editingClass.Description;
+                existingClass.Name           = editingClass.Name;
+                existingClass.Description    = editingClass.Description;
                 existingClass.ClassTeacherId = editingClass.ClassTeacherId;
-                existingClass.StudentCount = editingClass.StudentCount;
-                existingClass.SchoolYear = editingClass.SchoolYear;
-                existingClass.IsActive = editingClass.IsActive;
+                existingClass.StudentCount   = editingClass.StudentCount;
+                existingClass.SchoolYear     = editingClass.SchoolYear;
+                existingClass.IsActive       = editingClass.IsActive;
             }
+
             Snackbar.Add("Klasse aktualisiert", Severity.Success);
         }
         else
         {
-            var result = await ClassService.CreateClassAsync(editingClass.Name);
+            // Domain-Objekt für den Service bauen
+            var newClass = new HTLKrems.GradeManagement.Models.Class
+            {
+                Name = editingClass.Name!
+                // falls deine Domain-Class mehr Felder hat, hier ergänzen
+            };
+
+            var result = await ClassService.CreateClassAsync(newClass);
+
             if (result.Success)
             {
                 editingClass.Id = Guid.NewGuid().ToString();
+
                 classes.Add(new ClassModel
                 {
-                    Id = editingClass.Id,
-                    Name = editingClass.Name,
-                    Description = editingClass.Description,
+                    Id             = editingClass.Id,
+                    Name           = editingClass.Name,
+                    Description    = editingClass.Description,
                     ClassTeacherId = editingClass.ClassTeacherId,
-                    StudentCount = editingClass.StudentCount,
-                    SchoolYear = editingClass.SchoolYear,
-                    IsActive = editingClass.IsActive
+                    StudentCount   = editingClass.StudentCount,
+                    SchoolYear     = editingClass.SchoolYear,
+                    IsActive       = editingClass.IsActive
                 });
+
                 Snackbar.Add("Klasse erstellt", Severity.Success);
             }
             else
@@ -305,6 +321,7 @@
 
         CloseDialog();
     }
+
 
     private async Task DeleteClass(ClassModel classModel)
     {

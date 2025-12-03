@@ -8,6 +8,9 @@ namespace HTLKrems.GradeManagement.Services
         Task<List<Grade>> GetRecentGradesAsync(int count);
         Task<List<SubjectAverage>> GetSubjectAveragesAsync();
         Task<ApiResponse<bool>> SaveGradesAsync(string testId, List<StudentGradeEntry> grades);
+        Task<List<Grade>> GetGradesByTestAsync(string testId);
+        Task<ApiResponse<Grade>> SaveGradeAsync(Grade grade);
+        Task<ApiResponse<List<Grade>>> SaveGradesBulkAsync(List<Grade> grades);
     }
 
     public class GradeService : IGradeService
@@ -100,6 +103,21 @@ namespace HTLKrems.GradeManagement.Services
         {
             await Task.Delay(500); // Simulate API call
             return new ApiResponse<bool> { Success = true, Data = true };
+        }
+
+        public async Task<List<Grade>> GetGradesByTestAsync(string testId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<Grade>> SaveGradeAsync(Grade grade)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<List<Grade>>> SaveGradesBulkAsync(List<Grade> grades)
+        {
+            throw new NotImplementedException();
         }
     }
 

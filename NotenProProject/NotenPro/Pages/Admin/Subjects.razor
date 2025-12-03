@@ -60,7 +60,8 @@ else
                             }
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudSwitch @bind-Checked="subject.IsActive" 
+                            <MudSwitch T="bool"
+                                       @bind-Checked="subject.IsActive" 
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        ThumbIcon="@(subject.IsActive ? Icons.Material.Filled.Check : Icons.Material.Filled.Close)"
@@ -77,13 +78,15 @@ else
                         <div class="d-flex gap-2 flex-wrap mt-2">
                             @if (subject.HoursPerWeek > 0)
                             {
-                                <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Schedule">
+                                <MudChip T="bool"
+                                    Size="Size.Small" Icon="@Icons.Material.Filled.Schedule">
                                     @subject.HoursPerWeek Std./Woche
                                 </MudChip>
                             }
                             @if (!string.IsNullOrEmpty(subject.Department))
                             {
-                                <MudChip Size="Size.Small" Color="Color.Info">
+                                <MudChip T="bool"
+                                    Size="Size.Small" Color="Color.Info">
                                     @subject.Department
                                 </MudChip>
                             }
@@ -162,7 +165,8 @@ else
                                  Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked="editingSubject.IsActive" 
+                <MudSwitch T="bool"
+                           @bind-Checked="editingSubject.IsActive" 
                            Color="Color.Primary"
                            Label="Fach ist aktiv" />
             </MudItem>
@@ -274,54 +278,71 @@ else
     }
 
     private async Task SaveSubject()
+{
+    if (string.IsNullOrWhiteSpace(editingSubject.Name))
     {
-        if (string.IsNullOrWhiteSpace(editingSubject.Name))
+        Snackbar.Add("Bitte geben Sie eine Fachbezeichnung ein", Severity.Warning);
+        return;
+    }
+
+    if (isEditMode)
+    {
+        var existingSubject = subjects.FirstOrDefault(s => s.Id == editingSubject.Id);
+        if (existingSubject != null)
         {
-            Snackbar.Add("Bitte geben Sie eine Fachbezeichnung ein", Severity.Warning);
-            return;
+            existingSubject.Name         = editingSubject.Name;
+            existingSubject.Code         = editingSubject.Code;
+            existingSubject.Description  = editingSubject.Description;
+            existingSubject.Department   = editingSubject.Department;
+            existingSubject.HoursPerWeek = editingSubject.HoursPerWeek;
+            existingSubject.IsActive     = editingSubject.IsActive;
         }
 
-        if (isEditMode)
+        Snackbar.Add("Fach aktualisiert", Severity.Success);
+    }
+    else
+    {
+        // Domain-Subject für den Service bauen
+        var newSubject = new HTLKrems.GradeManagement.Models.Subject
         {
-            var existingSubject = subjects.FirstOrDefault(s => s.Id == editingSubject.Id);
-            if (existingSubject != null)
+            Name         = editingSubject.Name!,
+            Code         = editingSubject.Code,
+            Description  = editingSubject.Description,
+            Department   = editingSubject.Department,
+            HoursPerWeek = editingSubject.HoursPerWeek,
+            IsActive     = editingSubject.IsActive
+        };
+
+        var result = await SubjectService.CreateSubjectAsync(newSubject);
+
+        if (result.Success)
+        {
+            // Falls dein ApiResponse<Subject> die echte Id liefert: result.Data?.Id verwenden
+            editingSubject.Id ??= Guid.NewGuid().ToString();
+
+            subjects.Add(new SubjectModel
             {
-                existingSubject.Name = editingSubject.Name;
-                existingSubject.Code = editingSubject.Code;
-                existingSubject.Description = editingSubject.Description;
-                existingSubject.Department = editingSubject.Department;
-                existingSubject.HoursPerWeek = editingSubject.HoursPerWeek;
-                existingSubject.IsActive = editingSubject.IsActive;
-            }
-            Snackbar.Add("Fach aktualisiert", Severity.Success);
+                Id           = editingSubject.Id,
+                Name         = editingSubject.Name,
+                Code         = editingSubject.Code,
+                Description  = editingSubject.Description,
+                Department   = editingSubject.Department,
+                HoursPerWeek = editingSubject.HoursPerWeek,
+                IsActive     = editingSubject.IsActive
+            });
+
+            Snackbar.Add("Fach erstellt", Severity.Success);
         }
         else
         {
-            var result = await SubjectService.CreateSubjectAsync(editingSubject.Name);
-            if (result.Success)
-            {
-                editingSubject.Id = Guid.NewGuid().ToString();
-                subjects.Add(new SubjectModel
-                {
-                    Id = editingSubject.Id,
-                    Name = editingSubject.Name,
-                    Code = editingSubject.Code,
-                    Description = editingSubject.Description,
-                    Department = editingSubject.Department,
-                    HoursPerWeek = editingSubject.HoursPerWeek,
-                    IsActive = editingSubject.IsActive
-                });
-                Snackbar.Add("Fach erstellt", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
-                return;
-            }
+            Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
+            return;
         }
-
-        CloseDialog();
     }
+
+    CloseDialog();
+}
+
 
     private async Task DeleteSubject(SubjectModel subject)
     {

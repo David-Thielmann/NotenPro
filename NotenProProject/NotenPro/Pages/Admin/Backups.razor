@@ -56,7 +56,8 @@
     <MudCardContent>
         <MudGrid>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked="autoBackupEnabled" 
+                <MudSwitch T="bool"
+                           @bind-Checked="autoBackupEnabled" 
                            Color="Color.Primary"
                            Label="Automatisches Backup aktivieren" />
             </MudItem>
@@ -142,7 +143,8 @@
                         </div>
                     </MudTd>
                     <MudTd DataLabel="Typ">
-                        <MudChip Size="Size.Small" 
+                        <MudChip T="bool"
+                                 Size="Size.Small" 
                                  Icon="@GetBackupTypeIcon(context.Type)"
                                  Color="@GetBackupTypeColor(context.Type)">
                             @GetBackupTypeLabel(context.Type)
@@ -162,7 +164,8 @@
                     </MudTd>
                     <MudTd DataLabel="Größe">@FormatFileSize(context.Size)</MudTd>
                     <MudTd DataLabel="Status">
-                        <MudChip Size="Size.Small" Color="@GetStatusColor(context.Status)">
+                        <MudChip T="bool" 
+                            Size="Size.Small" Color="@GetStatusColor(context.Status)">
                             @context.Status
                         </MudChip>
                     </MudTd>
@@ -236,10 +239,12 @@
                 <MudItem xs="12">
                     <MudDivider Class="my-2" />
                     <MudText Typo="Typo.subtitle2" Class="mb-2">Enthaltene Daten</MudText>
-                    <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Storage">
+                    <MudChip T="bool"
+                        Size="Size.Small" Icon="@Icons.Material.Filled.Storage">
                         Datenbank: 245 MB
                     </MudChip>
-                    <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.Folder">
+                    <MudChip T="bool"
+                        Size="Size.Small" Icon="@Icons.Material.Filled.Folder">
                         Dateien: @FormatFileSize(selectedBackup.Size - (245 * 1024 * 1024))
                     </MudChip>
                 </MudItem>

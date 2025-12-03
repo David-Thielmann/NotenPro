@@ -62,7 +62,8 @@
                     <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
                     <MudTd DataLabel="Fach">@context.Subject</MudTd>
                     <MudTd DataLabel="Durchschnitt">
-                        <MudChip Size="Size.Small" Color="@GetAverageColor(context.Average)">
+                        <MudChip T="bool"
+                            Size="Size.Small" Color="@GetAverageColor(context.Average)">
                             @context.Average.ToString("F2")
                         </MudChip>
                     </MudTd>
@@ -70,11 +71,13 @@
                     <MudTd DataLabel="Status">
                         @if (context.WarningSent)
                         {
-                            <MudChip Size="Size.Small" Color="Color.Success">Gesendet</MudChip>
+                            <MudChip T="bool"
+                                Size="Size.Small" Color="Color.Success">Gesendet</MudChip>
                         }
                         else
                         {
-                            <MudChip Size="Size.Small" Color="Color.Warning">Ausstehend</MudChip>
+                            <MudChip T="bool"
+                                Size="Size.Small" Color="Color.Warning">Ausstehend</MudChip>
                         }
                     </MudTd>
                     <MudTd DataLabel="Aktion">
@@ -161,7 +164,8 @@
                                   Placeholder="Bitte geben Sie einen Kommentar zur Frühwarnung ein..." />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudCheckBox @bind-Checked="notifyParents" Color="Color.Primary">
+                    <MudCheckBox T="bool"
+                        @bind-Checked="notifyParents" Color="Color.Primary">
                         Eltern per E-Mail benachrichtigen
                     </MudCheckBox>
                 </MudItem>

@@ -125,7 +125,8 @@
                         </MudAvatar>
                     </MudTd>
                     <MudTd DataLabel="Stockwerk">
-                        <MudChip Size="Size.Small" Color="Color.Primary">@context.Floor</MudChip>
+                        <MudChip T="bool"
+                            Size="Size.Small" Color="Color.Primary">@context.Floor</MudChip>
                     </MudTd>
                     <MudTd DataLabel="Beschreibung">
                         @if (!string.IsNullOrEmpty(context.Description))
