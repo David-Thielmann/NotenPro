@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
 using NotenPro.Api.Data.Entities;
 using NotenPro.Api.DTOs;
+using HTLKrems.GradeManagement.Api.Services;
+using NotenPro.Api.DTOs;
+
+using HTLKrems.GradeManagement.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotenPro.Api.Controllers;
 
@@ -12,12 +17,19 @@ public class GradesController : ControllerBase
 {
     private readonly NotenProDbContext _context;
     private readonly ILogger<GradesController> _logger;
+    private readonly IPdfExportService _pdfExport;
 
-    public GradesController(NotenProDbContext context, ILogger<GradesController> logger)
+    public GradesController(
+        NotenProDbContext context,
+        ILogger<GradesController> logger,
+        IPdfExportService pdfExport)
     {
         _context = context;
         _logger = logger;
+        _pdfExport = pdfExport;
     }
+
+    // ================== GET: api/grades ==================
 
     [HttpGet]
     public async Task<ActionResult<List<GradeDto>>> GetAllGrades()
@@ -46,6 +58,8 @@ public class GradesController : ControllerBase
         return Ok(grades);
     }
 
+    // ============ GET: api/grades/student/{studentId} ============
+
     [HttpGet("student/{studentId}")]
     public async Task<ActionResult<List<GradeDto>>> GetStudentGrades(string studentId)
     {
@@ -54,6 +68,7 @@ public class GradesController : ControllerBase
                 .ThenInclude(t => t.Subject)
             .Include(g => g.Test)
                 .ThenInclude(t => t.Teacher)
+            .Include(g => g.Student)
             .Where(g => g.StudentId == studentId)
             .Select(g => new GradeDto
             {
@@ -75,6 +90,11 @@ public class GradesController : ControllerBase
 
         return Ok(grades);
     }
+
+    // ====== NEU: GET: api/grades/student/{studentId}/export ======
+
+    
+    // ============ GET: api/grades/test/{testId} ============
 
     [HttpGet("test/{testId}")]
     public async Task<ActionResult<List<GradeDto>>> GetTestGrades(string testId)
@@ -104,6 +124,8 @@ public class GradesController : ControllerBase
 
         return Ok(grades);
     }
+
+    // ============ GET: api/grades/{id} ============
 
     [HttpGet("{id}")]
     public async Task<ActionResult<GradeDto>> GetGrade(string id)
@@ -135,6 +157,8 @@ public class GradesController : ControllerBase
 
         return Ok(grade);
     }
+
+    // ============ POST: api/grades ============
 
     [HttpPost]
     public async Task<ActionResult<GradeDto>> CreateGrade([FromBody] CreateGradeRequest request)
@@ -194,6 +218,8 @@ public class GradesController : ControllerBase
             return StatusCode(500, "Error creating grade");
         }
     }
+
+    // ============ POST: api/grades/bulk ============
 
     [HttpPost("bulk")]
     public async Task<ActionResult> CreateBulkGrades([FromBody] BulkGradeRequest request)
@@ -276,6 +302,8 @@ public class GradesController : ControllerBase
         }
     }
 
+    // ============ PUT: api/grades/{id} ============
+
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateGrade(string id, [FromBody] UpdateGradeRequest request)
     {
@@ -302,6 +330,8 @@ public class GradesController : ControllerBase
         }
     }
 
+    // ============ DELETE: api/grades/{id} ============
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteGrade(string id)
     {
@@ -322,4 +352,41 @@ public class GradesController : ControllerBase
             return StatusCode(500, "Error deleting grade");
         }
     }
+    [HttpGet("export/student/{studentId}")]
+    [Authorize] // falls du Auth verwendest
+    public async Task<IActionResult> ExportStudentGrades(string studentId)
+    {
+        var grades = await _context.Grades
+            .Include(g => g.Test).ThenInclude(t => t.Subject)
+            .Include(g => g.Student)
+            .Where(g => g.StudentId == studentId)
+            .Select(g => new GradeDto
+            {
+                Id = g.Id,
+                StudentId = g.StudentId,
+                StudentName = g.Student.Name,
+                TestId = g.TestId,
+                TestName = g.Test.Name,
+                Subject = g.Test.Subject.Name,
+                GradeValue = g.GradeValue,
+                Points = g.Points,
+                MaxPoints = g.MaxPoints,
+                Status = g.Status.ToString(),
+                Comment = g.Comment,
+                Date = g.Test.Date
+            })
+            .OrderByDescending(g => g.Date)
+            .ToListAsync();
+
+        if (!grades.Any())
+            return BadRequest("Keine Noten zum Exportieren gefunden.");
+
+        var pdfBytes = _pdfExport.CreateGradesPdf(grades);
+        var fileName = $"Noten_{studentId}_{DateTime.Now:yyyyMMddHHmm}.pdf";
+
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
 }
+
+

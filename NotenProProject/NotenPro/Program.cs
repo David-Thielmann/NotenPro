@@ -28,6 +28,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 
 //chattinger login bugfix
 ;

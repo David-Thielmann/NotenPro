@@ -1,3 +1,4 @@
+using HTLKrems.GradeManagement.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
 
@@ -26,6 +27,7 @@ Console.WriteLine("========================================");
 
 // Controller (klassische Web-API)
 builder.Services.AddControllers();
+builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 
 // Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();

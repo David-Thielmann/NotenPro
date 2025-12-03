@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "w8SM6lxUys8=",
+  "dgSpecHash": "dDBvMbNpbOM=",
   "success": true,
   "projectFilePath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
   "expectedPackageFiles": [
@@ -34,6 +34,7 @@
     "C:\\Users\\diese\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.20\\microsoft.net.illink.tasks.8.0.20.nupkg.sha512",
     "C:\\Users\\diese\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.9\\microsoft.net.sdk.webassembly.pack.9.0.9.nupkg.sha512",
     "C:\\Users\\diese\\.nuget\\packages\\mudblazor\\7.0.0\\mudblazor.7.0.0.nupkg.sha512",
+    "C:\\Users\\diese\\.nuget\\packages\\questpdf\\2025.7.4\\questpdf.2025.7.4.nupkg.sha512",
     "C:\\Users\\diese\\.nuget\\packages\\system.io.pipelines\\8.0.0\\system.io.pipelines.8.0.0.nupkg.sha512",
     "C:\\Users\\diese\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\diese\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
