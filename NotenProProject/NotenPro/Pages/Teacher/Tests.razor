@@ -4,13 +4,21 @@
 @inject ISubjectService SubjectService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject IDialogService DialogService
+
 
 <PageTitle>Tests verwalten</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-6">
     <MudText Typo="Typo.h4">Meine Tests</MudText>
     <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreateDialog">
-        Neuer Test
+        <div class="d-flex justify-start gap-3 mb-4">
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="OpenNewTestDialog">
+            </MudButton>
+        </div>
     </MudButton>
 </div>
 
@@ -289,5 +297,39 @@
             TestType.Hausübung => Color.Info,
             _ => Color.Default
         };
+    }
+    
+    private async Task OpenNewTestDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Model"] = new NewTestModel
+            {
+                Date = DateTime.Today,
+                MaxPoints = 100,
+                WeightPercentage = 100
+            }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<NewTestDialog>("Neuen Test anlegen", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is NewTestModel model)
+        {
+            // TODO: hier an dein Backend schicken
+            // await GradeService.CreateTestAsync(model);
+
+            Snackbar.Add($"Test \"{model.Title}\" wurde erstellt.", Severity.Success);
+
+            // Optional: Noten neu laden
+            // await OnInitializedAsync();  // oder eigene Reload-Methode
+        }
     }
 }

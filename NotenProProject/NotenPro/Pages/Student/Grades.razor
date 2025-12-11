@@ -6,6 +6,8 @@
 @inject NavigationManager Navigation
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
+@inject IDialogService DialogService
+@using MudBlazor
 
 <PageTitle>Meine Noten</PageTitle>
 
@@ -17,9 +19,8 @@
                OnClick="ExportPdf">
         Exportieren
     </MudButton>
-
-
 </div>
+
 
 @if (isLoading)
 {
@@ -27,12 +28,89 @@
 }
 else
 {
+    <!-- ================== DASHBOARD OBEN ================== -->
+    <MudGrid Class="mb-4">
+        <!-- großer Card mit Durchschnitt + Fortschritt -->
+        <MudItem xs="12">
+            <MudCard Elevation="2">
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="12" md="8">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                                Aktueller Notendurchschnitt
+                            </MudText>
+                            <MudText Typo="Typo.h3" Class="mt-1">
+                                @averageGrade.ToString("0.00")
+                            </MudText>
+
+                            <MudText Typo="Typo.caption" Class="mt-4 mb-1">
+                                Gesamtleistung
+                            </MudText>
+                            <MudProgressLinear Value="@overallPerformancePercent"
+                                               Rounded="true"
+                                               Color="Color.Primary" />
+                        </MudItem>
+
+                        <MudItem xs="12" md="4" Class="d-flex flex-column align-end justify-center">
+                            <MudIcon Icon="@Icons.Material.Filled.EmojiEvents"
+                                     Size="Size.Large"
+                                     Class="mb-2" />
+                            <MudText Typo="Typo.subtitle1">
+                                @($"{overallPerformancePercent:0}%")
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- kleinere Info-Cards -->
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="mt-4">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Success">
+                        Beste Note
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">
+                        @bestGrade.ToString("0.0")
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="mt-4">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption">
+                        Fächer
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">
+                        @subjectCount
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="mt-4">
+                <MudCardContent>
+                    <MudText Typo="Typo.caption" Color="Color.Error">
+                        Tests
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">
+                        @testCount
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+    <!-- ================== /DASHBOARD OBEN ================== -->
+
     <!-- Filters -->
     <MudCard Elevation="2" Class="mb-4">
         <MudCardContent>
             <MudGrid>
                 <MudItem xs="12" sm="6" md="4">
-
                     <!-- Dropdown Fächer -->
                     <MudSelect T="string"
                                @bind-Value="selectedSubject"
@@ -41,7 +119,6 @@ else
                                Clearable="true">
 
                         <MudSelectItem T="string" Value="@string.Empty">Alle Fächer</MudSelectItem>
-                        @* alternativ: Value="@("")" *@
 
                         @foreach (var subject in subjects)
                         {
@@ -108,19 +185,21 @@ else
 }
 
 @code {
-    
-   
-
-    
-    
     private bool isLoading = true;
     private bool isMobile = false;
 
     private List<Grade> grades = new();
-    private List<string> subjects = new();   // wichtig: string-Liste für Dropdown
+    private List<string> subjects = new();
 
     private string selectedSubject = "";
     private string searchString = "";
+
+    // Dashboard-Properties
+    private decimal averageGrade;
+    private decimal bestGrade;
+    private int subjectCount;
+    private int testCount;
+    private double overallPerformancePercent;
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,14 +214,42 @@ else
             .OrderBy(s => s)
             .ToList();
 
+        CalculateStats();
+
         isLoading = false;
+    }
+
+    private void CalculateStats()
+    {
+        if (!grades.Any())
+        {
+            averageGrade = 0;
+            bestGrade = 0;
+            subjectCount = 0;
+            testCount = 0;
+            overallPerformancePercent = 0;
+            return;
+        }
+
+        averageGrade = Math.Round(grades.Average(g => g.GradeValue), 2);
+        bestGrade = grades.Min(g => g.GradeValue);
+        subjectCount = subjects.Count;
+        testCount = grades.Count; // oder distinct Testnamen
+
+        // Performance in % (1 = beste Note, 5 = schlechteste)
+        const decimal bestPossible = 1m;
+        const decimal worstPossible = 5m;
+        var normalized = (worstPossible - averageGrade) / (worstPossible - bestPossible);
+
+        if (normalized < 0) normalized = 0;
+        if (normalized > 1) normalized = 1;
+
+        overallPerformancePercent = (double)(normalized * 100m);
     }
 
     private IEnumerable<Grade> filteredGrades =>
         grades
-            // Filter nach Fach
             .Where(g => string.IsNullOrWhiteSpace(selectedSubject) || g.Subject == selectedSubject)
-            // Suchfilter
             .Where(g =>
                 string.IsNullOrWhiteSpace(searchString) ||
                 g.Subject.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
@@ -156,14 +263,12 @@ else
                 ? Color.Warning
                 : Color.Error;
     }
-    // TODO: hier deine echte StudentId einsetzen (z.B. aus Login / Claims)
+
     private async Task ExportPdf()
     {
         try
         {
-            // Relativer Pfad zur API – Http ist derselbe wie für deine anderen Services
             var studentId = grades.FirstOrDefault()?.StudentId;
-
 
             if (string.IsNullOrWhiteSpace(studentId))
             {
@@ -171,7 +276,6 @@ else
                 return;
             }
 
-            // Relativer Pfad zur API
             var response = await Http.GetAsync($"api/grades/export/student/{studentId}");
 
             if (!response.IsSuccessStatusCode)
@@ -197,7 +301,5 @@ else
         }
     }
 
-
-
-
+    
 }

@@ -2,6 +2,7 @@ using HTLKrems.GradeManagement.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------------------------------------
@@ -10,12 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (string.IsNullOrWhiteSpace(connectionString))
+builder.Services.AddDbContext<NotenProDbContext>(options =>
 {
-    throw new InvalidOperationException(
-        "Connection string 'DefaultConnection' not found in configuration."
-    );
-}
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString));
+});
 
 Console.WriteLine("=== DB CONNECTION STRING USED BY API ===");
 Console.WriteLine(connectionString);
@@ -33,16 +34,7 @@ builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// DbContext konfigurieren (MySQL, Pomelo)
-builder.Services.AddDbContext<NotenProDbContext>(options =>
-{
-    options.UseMySql(
-        connectionString,
-        // feste Version statt AutoDetect, damit die Verbindung
-        // nicht schon beim Erkennen der Version abraucht
-        new MySqlServerVersion(new Version(8, 4, 2)) // ggf. an deine Version anpassen
-    );
-});
+
 
 // CORS – Blazor-Client erlauben (für Entwicklung erstmal offen)
 builder.Services.AddCors(options =>

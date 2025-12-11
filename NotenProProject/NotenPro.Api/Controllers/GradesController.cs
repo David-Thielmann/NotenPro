@@ -9,6 +9,7 @@ using NotenPro.Api.DTOs;
 using HTLKrems.GradeManagement.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 
+
 namespace NotenPro.Api.Controllers;
 
 [ApiController]

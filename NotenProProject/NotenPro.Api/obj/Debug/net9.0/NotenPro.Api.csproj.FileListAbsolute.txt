@@ -328,4 +328,4 @@ C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\bin\Debug
 C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\bin\Debug\net9.0\runtimes\win-x86\native\qpdf.dll
 C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\bin\Debug\net9.0\runtimes\win-x86\native\zlib1.dll
 C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\compressed\4nuhthwwsf-3stc68w43x.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\compressed\un81qywkl4-77w82fihqh.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\compressed\un81qywkl4-cinbg0yeda.gz

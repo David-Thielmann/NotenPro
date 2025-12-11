@@ -1,0 +1,144 @@
+@using MudBlazor
+@inherits ComponentBase
+
+<MudDialogContent Class="px-4 pt-4 pb-2">
+    <!-- Header mit Icon + Text -->
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+
+        <!-- Avatar links -->
+        <MudAvatar Icon="@Icons.Material.Filled.EditNote"
+                   Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   Size="Size.Medium"
+                   Class="mr-2" />
+
+        <!-- Titel + Untertitel rechts -->
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h6">Neuen Test anlegen</MudText>
+
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Geben Sie die Details für den neuen Test ein
+            </MudText>
+        </MudStack>
+
+    </MudStack>
+
+    <MudDivider Class="my-3" />
+
+    <MudForm @ref="_form" Model="@Model">
+        <!-- Titel -->
+        <MudTextField @bind-Value="Model.Title"
+                      Label="Titel"
+                      Placeholder="z.B. Schularbeit 1"
+                      Required="true"
+                      For="@(() => Model.Title)"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Class="mb-2" />
+
+        <!-- Fach + Datum nebeneinander -->
+        <MudGrid Class="mb-1">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Model.Subject"
+                              Label="Fach"
+                              Placeholder="z.B. Mathematik"
+                              Required="true"
+                              For="@(() => Model.Subject)"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudDatePicker Date="Model.Date"
+                               DateChanged="@(d => Model.Date = d)"
+                               Label="Datum"
+                               DateFormat="dd.MM.yyyy"
+                               PickerVariant="PickerVariant.Dialog"
+                               OpenTo="OpenTo.Date"
+                               Required="true"
+                               For="@(() => Model.Date)"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Class="w-100" />
+            </MudItem>
+        </MudGrid>
+
+        <!-- Punkte + Gewichtung -->
+        <MudGrid Class="mb-2">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Model.MaxPoints"
+                              Label="Max. Punkte"
+                              Placeholder="100"
+                              InputType="InputType.Number"
+                              Required="true"
+                              For="@(() => Model.MaxPoints)"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Adornment="Adornment.Start"
+                              />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Model.WeightPercentage"
+                              Label="Gewichtung (%)"
+                              Placeholder="100"
+                              InputType="InputType.Number"
+                              Required="true"
+                              For="@(() => Model.WeightPercentage)"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Adornment="Adornment.End"
+                              AdornmentText="%" />
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1">
+            @_validationMessage
+        </MudText>
+    </MudForm>
+</MudDialogContent>
+
+<MudDialogActions Class="px-4 pb-3 pt-1">
+    <MudButton Color="Color.Default"
+               Variant="Variant.Text"
+               OnClick="Cancel">
+        Abbrechen
+    </MudButton>
+
+    <MudButton Color="Color.Primary"
+               Variant="Variant.Filled"
+               OnClick="Submit">
+        Test erstellen
+    </MudButton>
+</MudDialogActions>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public NewTestModel Model { get; set; } = new();
+
+    private MudForm _form = default!;
+    private string? _validationMessage;
+
+    private async Task Submit()
+    {
+        _validationMessage = null;
+
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            _validationMessage = "Bitte alle Pflichtfelder korrekt ausfüllen.";
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(Model));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

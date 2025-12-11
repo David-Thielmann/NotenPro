@@ -4,18 +4,19 @@ using NotenPro.Api.Data;
 using NotenPro.Api.Data.Entities;
 using NotenPro.Api.DTOs;
 
+
 namespace NotenPro.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly NotenProDbContext _context;
+    private readonly NotenProDbContext _dbContext;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(NotenProDbContext context, ILogger<AuthController> logger)
+    public AuthController(NotenProDbContext dbContext, ILogger<AuthController> logger)
     {
-        _context = context;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
@@ -24,7 +25,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _context.Users
+            var user = await _dbContext.Users
                 .Include(u => u.School)
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -90,7 +91,7 @@ public class AuthController : ControllerBase
         try
         {
             // Check if email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (await _dbContext.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return Ok(new LoginResponse
                 {
@@ -118,8 +119,8 @@ public class AuthController : ControllerBase
                 UpdatedAt = DateTime.UtcNow
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
 
             var userDto = new UserDto
             {
@@ -162,7 +163,7 @@ public class AuthController : ControllerBase
             // Extract user ID from token (in production, validate real JWT)
             var userId = token.Replace("Bearer ", "").Replace("mock-jwt-token-", "");
 
-            var user = await _context.Users
+            var user = await _dbContext.Users
                 .Include(u => u.School)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 

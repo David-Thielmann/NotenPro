@@ -1,5 +1,7 @@
 @page "/teacher"
 @inject ITestService TestService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Dashboard - Lehrer</PageTitle>
 
@@ -70,17 +72,27 @@
         <MudText Typo="Typo.h6">Schnellaktionen</MudText>
     </MudCardHeader>
     <MudCardContent>
-        <div class="d-flex gap-3 flex-wrap">
-            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" Href="/teacher/tests">
-                Neuer Test
+        <div class="d-flex justify-start gap-3 mb-4">
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="OpenNewTestDialog">
+                NEUER TEST
             </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Primary" Href="/teacher/grades">
-                Noten eintragen
+
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Edit">
+                NOTEN EINTRAGEN
             </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Warning" Variant="Variant.Outlined" Color="Color.Warning" Href="/teacher/warnings">
-                Frühwarnung erstellen
+
+            <MudButton Color="Color.Warning"
+                       Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Warning">
+                FRÜHWARNUNG ERSTELLEN
             </MudButton>
         </div>
+
     </MudCardContent>
 </MudCard>
 
@@ -120,4 +132,40 @@
         var allTests = await TestService.GetMyTestsAsync();
         upcomingTests = allTests.Where(t => t.Date >= DateTime.Now).OrderBy(t => t.Date).ToList();
     }
+    
+    private async Task OpenNewTestDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Model"] = new NewTestModel
+            {
+                Date = DateTime.Today,
+                MaxPoints = 100,
+                WeightPercentage = 100
+            }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<NewTestDialog>("Neuen Test anlegen", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is NewTestModel model)
+        {
+            // TODO: hier an dein Backend schicken
+            // await GradeService.CreateTestAsync(model);
+
+            Snackbar.Add($"Test \"{model.Title}\" wurde erstellt.", Severity.Success);
+
+            // Optional: Noten neu laden
+            // await OnInitializedAsync();  // oder eigene Reload-Methode
+        }
+    }
+
+    
 }

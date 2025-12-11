@@ -4,25 +4,26 @@ using NotenPro.Api.Data;
 using NotenPro.Api.Data.Entities;
 using NotenPro.Api.DTOs;
 
+
 namespace NotenPro.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ClassesController : ControllerBase
 {
-    private readonly NotenProDbContext _context;
+    private readonly NotenProDbContext _dbContext;
     private readonly ILogger<ClassesController> _logger;
 
-    public ClassesController(NotenProDbContext context, ILogger<ClassesController> logger)
+    public ClassesController(NotenProDbContext dbContext, ILogger<ClassesController> logger)
     {
-        _context = context;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<ClassDto>>> GetAllClasses([FromQuery] string? schoolId = null)
     {
-        var query = _context.Classes
+        var query = _dbContext.Classes
             .Include(c => c.ClassTeacher)
             .Include(c => c.StudentClasses)
                 .ThenInclude(sc => sc.Student)
@@ -60,7 +61,7 @@ public class ClassesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ClassDto>> GetClass(string id)
     {
-        var classEntity = await _context.Classes
+        var classEntity = await _dbContext.Classes
             .Include(c => c.ClassTeacher)
             .Include(c => c.StudentClasses)
                 .ThenInclude(sc => sc.Student)
@@ -93,7 +94,7 @@ public class ClassesController : ControllerBase
     [HttpGet("{id}/students")]
     public async Task<ActionResult<List<UserDto>>> GetClassStudents(string id)
     {
-        var students = await _context.StudentClasses
+        var students = await _dbContext.StudentClasses
             .Include(sc => sc.Student)
             .Where(sc => sc.ClassId == id)
             .Select(sc => new UserDto
@@ -117,7 +118,7 @@ public class ClassesController : ControllerBase
         try
         {
             // Check if class name already exists in school
-            if (await _context.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == request.SchoolId))
+            if (await _dbContext.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == request.SchoolId))
             {
                 return BadRequest("A class with this name already exists in this school");
             }
@@ -131,8 +132,8 @@ public class ClassesController : ControllerBase
                 UpdatedAt = DateTime.UtcNow
             };
 
-            _context.Classes.Add(classEntity);
-            await _context.SaveChangesAsync();
+            _dbContext.Classes.Add(classEntity);
+            await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetClass), new { id = classEntity.Id }, classEntity);
         }
@@ -148,12 +149,12 @@ public class ClassesController : ControllerBase
     {
         try
         {
-            var classEntity = await _context.Classes.FindAsync(id);
+            var classEntity = await _dbContext.Classes.FindAsync(id);
             if (classEntity == null)
                 return NotFound();
 
             // Check if new name conflicts with existing class
-            if (await _context.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == classEntity.SchoolId && c.Id != id))
+            if (await _dbContext.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == classEntity.SchoolId && c.Id != id))
             {
                 return BadRequest("A class with this name already exists in this school");
             }
@@ -162,7 +163,7 @@ public class ClassesController : ControllerBase
             classEntity.ClassTeacherId = request.ClassTeacherId;
             classEntity.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
@@ -178,7 +179,7 @@ public class ClassesController : ControllerBase
     {
         try
         {
-            var classEntity = await _context.Classes
+            var classEntity = await _dbContext.Classes
                 .Include(c => c.StudentClasses)
                 .Include(c => c.Tests)
                     .ThenInclude(t => t.Grades)
@@ -190,13 +191,13 @@ public class ClassesController : ControllerBase
             // Delete all related data
             foreach (var test in classEntity.Tests)
             {
-                _context.Grades.RemoveRange(test.Grades);
+                _dbContext.Grades.RemoveRange(test.Grades);
             }
-            _context.Tests.RemoveRange(classEntity.Tests);
-            _context.StudentClasses.RemoveRange(classEntity.StudentClasses);
-            _context.Classes.Remove(classEntity);
+            _dbContext.Tests.RemoveRange(classEntity.Tests);
+            _dbContext.StudentClasses.RemoveRange(classEntity.StudentClasses);
+            _dbContext.Classes.Remove(classEntity);
 
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
@@ -213,7 +214,7 @@ public class ClassesController : ControllerBase
         try
         {
             // Check if student is already in class
-            if (await _context.StudentClasses.AnyAsync(sc => sc.ClassId == classId && sc.StudentId == studentId))
+            if (await _dbContext.StudentClasses.AnyAsync(sc => sc.ClassId == classId && sc.StudentId == studentId))
             {
                 return BadRequest("Student is already in this class");
             }
@@ -225,8 +226,8 @@ public class ClassesController : ControllerBase
                 EnrolledAt = DateTime.UtcNow
             };
 
-            _context.StudentClasses.Add(studentClass);
-            await _context.SaveChangesAsync();
+            _dbContext.StudentClasses.Add(studentClass);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -242,14 +243,14 @@ public class ClassesController : ControllerBase
     {
         try
         {
-            var studentClass = await _context.StudentClasses
+            var studentClass = await _dbContext.StudentClasses
                 .FirstOrDefaultAsync(sc => sc.ClassId == classId && sc.StudentId == studentId);
 
             if (studentClass == null)
                 return NotFound();
 
-            _context.StudentClasses.Remove(studentClass);
-            await _context.SaveChangesAsync();
+            _dbContext.StudentClasses.Remove(studentClass);
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
