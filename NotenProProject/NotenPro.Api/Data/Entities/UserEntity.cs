@@ -29,11 +29,10 @@ public class UserEntity
     [MaxLength(200)]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
     [Column("password_hash")]
     [MaxLength(500)]
-    public string PasswordHash { get; set; } = string.Empty;
-
+    public string? PasswordHash { get; set; }
+    
     [Required]
     [Column("role")]
     public UserRole Role { get; set; }
@@ -50,6 +49,12 @@ public class UserEntity
 
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    
+    [Required]
+    [Column("external_id")]
+    [MaxLength(64)]
+    public string ExternalId { get; set; } = string.Empty;
+
 
     // Navigation Properties
     [ForeignKey("SchoolId")]
@@ -60,4 +65,9 @@ public class UserEntity
     public ICollection<TestEntity> CreatedTests { get; set; } = new List<TestEntity>();
     public ICollection<StudentClassEntity> StudentClasses { get; set; } = new List<StudentClassEntity>();
     public ICollection<TeacherSubjectEntity> TeacherSubjects { get; set; } = new List<TeacherSubjectEntity>();
+    
+
 }
+
+
+

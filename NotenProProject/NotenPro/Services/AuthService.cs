@@ -14,7 +14,7 @@ namespace HTLKrems.GradeManagement.Services
 
     public class AuthService : IAuthService
     {
-        private readonly AuthStateProvider _authStateProvider;
+        private readonly AuthStateProvider _authStateProvider;  // Verwende direkt den AuthStateProvider
         private User? _currentUser;
 
         // Demo users
@@ -26,10 +26,9 @@ namespace HTLKrems.GradeManagement.Services
             new User { Id = "4", Name = "System Admin",    Email = "sysadmin@htl-krems.at",Role = UserRole.SystemAdmin }
         };
 
-        public AuthService(AuthenticationStateProvider authStateProvider)
+        public AuthService(AuthStateProvider authStateProvider)  // Injiziere direkt den AuthStateProvider
         {
-            // Wir erwarten hier unseren CustomAuthStateProvider
-            _authStateProvider = (AuthStateProvider)authStateProvider;
+            _authStateProvider = authStateProvider;  // Keine Cast-Operation mehr nötig
         }
 
         public async Task<LoginResponse> LoginAsync(string email, string password)
@@ -44,7 +43,7 @@ namespace HTLKrems.GradeManagement.Services
             {
                 _currentUser = user;
 
-                // 👉 wichtig: AuthState aktualisieren
+                // AuthState aktualisieren
                 _authStateProvider.MarkAuthenticated(
                     user.Name,
                     user.Email,

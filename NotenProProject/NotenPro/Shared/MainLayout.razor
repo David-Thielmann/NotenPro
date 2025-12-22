@@ -1,25 +1,21 @@
 @inherits LayoutComponentBase
-@inject IAuthService AuthService
-@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@using System.Security.Claims
+@inject NavigationManager Nav
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-@if (currentUser == null)
-{
-    <div>@Body</div>
-}
-else
-{
-    @if (currentUser.Role == UserRole.Student)
-    {
-        <StudentLayout OnDarkModeChanged="OnDarkModeChanged">
-            @Body
-        </StudentLayout>
-    }
-    else
-    {
+<AuthorizeView>
+    <NotAuthorized>
+        @* Nicht eingeloggt: zeig einfach den Body (z.B. /login Seite) *@
+        <div>@Body</div>
+    </NotAuthorized>
+
+    <Authorized>
         <MudLayout>
             <MudAppBar Elevation="1" Color="Color.Primary">
                 <MudIconButton Icon="@Icons.Material.Filled.Menu"
@@ -33,14 +29,10 @@ else
 
                 <MudSpacer />
 
-                <!-- Notifications -->
                 <MudIconButton Icon="@Icons.Material.Filled.Notifications"
                                Style="color: white;" />
 
-                <!-- Avatar + Menü + Logout wie im StudentLayout -->
                 <div class="d-flex align-center ml-2">
-
-                    <!-- User Menu wie beim StudentLayout: Avatar + Name als Trigger -->
                     <MudMenu Color="Color.Inherit"
                              AnchorOrigin="Origin.BottomRight"
                              TransformOrigin="Origin.TopRight">
@@ -50,11 +42,11 @@ else
                                 <MudAvatar Color="Color.Secondary"
                                            Size="Size.Medium"
                                            Class="mr-2">
-                                    @GetInitials(currentUser.Name)
+                                    @GetInitials(DisplayName)
                                 </MudAvatar>
 
                                 <MudText Typo="Typo.body2" Style="color: white;">
-                                    @currentUser.Name
+                                    @DisplayName
                                 </MudText>
                             </div>
                         </ActivatorContent>
@@ -65,12 +57,12 @@ else
                                     <MudAvatar Color="Color.Primary"
                                                Size="Size.Small"
                                                Class="mr-2">
-                                        @GetInitials(currentUser.Name)
+                                        @GetInitials(DisplayName)
                                     </MudAvatar>
                                     <div>
-                                        <MudText Typo="Typo.body2">@currentUser.Name</MudText>
+                                        <MudText Typo="Typo.body2">@DisplayName</MudText>
                                         <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                            @GetRoleName(currentUser.Role)
+                                            @UserName
                                         </MudText>
                                     </div>
                                 </div>
@@ -78,28 +70,17 @@ else
 
                             <MudDivider />
 
-                            <MudMenuItem Icon="@Icons.Material.Filled.Person">
-                                Profil
-                            </MudMenuItem>
-
-                            <MudMenuItem Icon="@Icons.Material.Filled.Settings">
-                                Einstellungen
-                            </MudMenuItem>
-
-                            <MudDivider />
-
                             <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                                         OnClick="HandleLogout">
+                                         OnClick="@(() => Nav.NavigateTo("authentication/logout"))">
                                 Abmelden
                             </MudMenuItem>
                         </ChildContent>
                     </MudMenu>
 
-                    <!-- Logout IconButton direkt neben dem Avatar -->
                     <MudIconButton Icon="@Icons.Material.Filled.Logout"
                                    Class="ml-2"
                                    Style="color: white;"
-                                   OnClick="HandleLogout" />
+                                   OnClick="@(() => Nav.NavigateTo("authentication/logout"))" />
                 </div>
             </MudAppBar>
 
@@ -113,33 +94,11 @@ else
                         <MudText Typo="Typo.h6" Color="Color.Primary">HTL Krems</MudText>
                     </div>
                 </MudDrawerHeader>
+
                 <MudNavMenu>
-                    @if (currentUser.Role == UserRole.Teacher)
-                    {
-                        <MudNavLink Href="/teacher" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-                        <MudNavLink Href="/teacher/tests" Icon="@Icons.Material.Filled.Assignment">Tests</MudNavLink>
-                        <MudNavLink Href="/teacher/grades" Icon="@Icons.Material.Filled.Grade">Noten</MudNavLink>
-                        <MudNavLink Href="/teacher/warnings" Icon="@Icons.Material.Filled.Warning">Frühwarnungen</MudNavLink>
-                        <MudNavLink Href="/teacher/classes" Icon="@Icons.Material.Filled.Class">Klassen</MudNavLink>
-                    }
-                    else if (currentUser.Role == UserRole.SchoolAdmin)
-                    {
-                        <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-                        <MudNavLink Href="/admin/teachers" Icon="@Icons.Material.Filled.Person">Lehrer</MudNavLink>
-                        <MudNavLink Href="/admin/classes" Icon="@Icons.Material.Filled.Class">Klassen</MudNavLink>
-                        <MudNavLink Href="/admin/subjects" Icon="@Icons.Material.Filled.MenuBook">Fächer</MudNavLink>
-                        <MudNavLink Href="/admin/maps" Icon="@Icons.Material.Filled.Map">Raumpläne</MudNavLink>
-                        <MudNavLink Href="/admin/backups" Icon="@Icons.Material.Filled.Backup">Backups</MudNavLink>
-                        <MudNavLink Href="/admin/audit" Icon="@Icons.Material.Filled.History">Audit-Log</MudNavLink>
-                    }
-                    else if (currentUser.Role == UserRole.SystemAdmin)
-                    {
-                        <MudNavLink Href="/sysadmin" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-                        <MudNavLink Href="/sysadmin/schools" Icon="@Icons.Material.Filled.School">Schulen</MudNavLink>
-                        <MudNavLink Href="/sysadmin/admins" Icon="@Icons.Material.Filled.AdminPanelSettings">Administratoren</MudNavLink>
-                        <MudNavLink Href="/sysadmin/monitoring" Icon="@Icons.Material.Filled.Insights">System-Überwachung</MudNavLink>
-                        <MudNavLink Href="/sysadmin/settings" Icon="@Icons.Material.Filled.Settings">Einstellungen</MudNavLink>
-                    }
+                    @* Erstmal: neutrales Menü *@
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Home</MudNavLink>
+                    <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock">Secure</MudNavLink>
                 </MudNavMenu>
             </MudDrawer>
 
@@ -149,21 +108,27 @@ else
                 </MudContainer>
             </MudMainContent>
         </MudLayout>
-    }
-}
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private bool _drawerOpen = true;
-    private User? currentUser;
     private bool _isDarkMode;
+
+    // Werte aus Entra Claims (MSAL)
+    private string DisplayName => _displayName ?? "User";
+    private string UserName => _userName ?? "";
+
+    private string? _displayName;
+    private string? _userName;
 
     private readonly MudTheme _theme = new()
     {
         PaletteLight = new PaletteLight
         {
             Primary          = "#29aae3",
-            Secondary        = "#BDBDBD",   // Grey 400
-            Background       = "#FAFAFA",   // Grey 50
+            Secondary        = "#BDBDBD",
+            Background       = "#FAFAFA",
             AppbarBackground = "#29aae3",
             DrawerBackground = "#ffffff",
             Success          = Colors.Green.Default,
@@ -172,51 +137,40 @@ else
         }
     };
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        currentUser = await AuthService.GetCurrentUserAsync();
-        
-        if (currentUser == null && !NavigationManager.Uri.Contains("/login"))
+        // AuthState holen und Claims auslesen
+        // (Geht ohne extra Service)
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        _displayName =
+            user.Identity?.Name ??
+            user.FindFirst("name")?.Value ??
+            user.FindFirst(ClaimTypes.Name)?.Value;
+
+        _userName =
+            user.FindFirst("preferred_username")?.Value ??
+            user.FindFirst("upn")?.Value ??
+            user.FindFirst(ClaimTypes.Email)?.Value;
+
+        // optional: wenn nicht eingeloggt, auf /login leiten
+        if (user.Identity is null || !user.Identity.IsAuthenticated)
         {
-            NavigationManager.NavigateTo("/login");
+            if (!Nav.Uri.Contains("/login"))
+                Nav.NavigateTo("/login");
         }
     }
 
-    private void ToggleDrawer()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
+  
 
-    private async Task HandleLogout()
-    {
-        await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login", replace: true);
-    }
-
-    private Task OnDarkModeChanged(bool value)
-    {
-        _isDarkMode = value;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
     private string GetInitials(string name)
     {
-        var parts = name.Split(' ');
-        if (parts.Length >= 2)
-            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-        return name.Length >= 2 ? name.Substring(0, 2).ToUpper() : name.ToUpper();
-    }
-
-    private string GetRoleName(UserRole role)
-    {
-        return role switch
-        {
-            UserRole.Student     => "Schüler",
-            UserRole.Teacher     => "Lehrer",
-            UserRole.SchoolAdmin => "Schuladministrator",
-            UserRole.SystemAdmin => "Systemverwalter",
-            _                    => ""
-        };
+        if (string.IsNullOrWhiteSpace(name)) return "U";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2) return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return name.Length >= 2 ? name[..2].ToUpper() : name[..1].ToUpper();
     }
 }

@@ -2,41 +2,42 @@ using HTLKrems.GradeManagement.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------------------------------------
-// ConnectionString aus Config holen & debuggen
+// DB
 // ----------------------------------------------------
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<NotenProDbContext>(options =>
 {
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
-Console.WriteLine("=== DB CONNECTION STRING USED BY API ===");
-Console.WriteLine(connectionString);
-Console.WriteLine("========================================");
-
 // ----------------------------------------------------
-// Services registrieren
+// Services
 // ----------------------------------------------------
-
-// Controller (klassische Web-API)
 builder.Services.AddControllers();
 builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 
-// Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ----------------------------------------------------
+// AUTH (Microsoft Identity / Entra ID) ✅
+// ----------------------------------------------------
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
+builder.Services.AddAuthorization();
 
-// CORS – Blazor-Client erlauben (für Entwicklung erstmal offen)
+// ----------------------------------------------------
+// CORS
+// ----------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
@@ -45,7 +46,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            // TODO: im echten Betrieb auf konkrete Origins einschränken (z.B. http://localhost:5000)
             .SetIsOriginAllowed(_ => true);
     });
 });
@@ -53,9 +53,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // ----------------------------------------------------
-// HTTP-Pipeline konfigurieren
+// Pipeline
 // ----------------------------------------------------
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -64,15 +63,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// CORS vor Authorization/Endpoints
 app.UseCors("AllowBlazorClient");
 
-// (Optional: später Authentication einhängen)
-// app.UseAuthentication();
-
+// AUTH middleware Reihenfolge ist wichtig ✅
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Attribute-Routing der Controller aktivieren
 app.MapControllers();
 
 app.Run();

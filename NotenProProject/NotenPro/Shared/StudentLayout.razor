@@ -1,10 +1,11 @@
 @using MudBlazor
-@inject IAuthService AuthService
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
 @inject INotificationService NotificationService
 @inject NavigationManager NavigationManager
 
 <MudLayout>
-    <!-- Eine AppBar für alle Breakpoints -->
     <MudAppBar Elevation="1" Color="Color.Primary">
         <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Edge="Edge.Start"
@@ -44,24 +45,25 @@
                     <MudAvatar Color="Color.Secondary"
                                Size="Size.Medium"
                                Class="mr-2">
-                        @GetInitials()
+                        @GetInitials(DisplayName)
                     </MudAvatar>
                     <MudText Typo="Typo.body2"
                              Style="color: white;">
-                        @currentUser?.Name
+                        @DisplayName
                     </MudText>
                 </div>
             </ActivatorContent>
+
             <ChildContent>
                 <MudMenuItem>
                     <div class="d-flex align-center">
                         <MudAvatar Color="Color.Primary"
                                    Size="Size.Small"
                                    Class="mr-2">
-                            @GetInitials()
+                            @GetInitials(DisplayName)
                         </MudAvatar>
                         <div>
-                            <MudText Typo="Typo.body2">@currentUser?.Name</MudText>
+                            <MudText Typo="Typo.body2">@DisplayName</MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">
                                 Schüler
                             </MudText>
@@ -70,10 +72,6 @@
                 </MudMenuItem>
 
                 <MudDivider />
-
-                <MudMenuItem Icon="@Icons.Material.Filled.Lock">
-                    Passwort ändern
-                </MudMenuItem>
 
                 <MudMenuItem Icon="@Icons.Material.Filled.DarkMode">
                     <div class="d-flex justify-space-between align-center" style="width: 100%;">
@@ -89,20 +87,18 @@
                 <MudDivider />
 
                 <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                             OnClick="HandleLogout">
+                             OnClick="@(() => NavigationManager.NavigateTo("authentication/logout"))">
                     Abmelden
                 </MudMenuItem>
             </ChildContent>
         </MudMenu>
 
-        <!-- Logout IconButton direkt neben dem Avatar -->
         <MudIconButton Icon="@Icons.Material.Filled.Logout"
                        Class="ml-1"
                        Style="color: white;"
-                       OnClick="HandleLogout" />
+                       OnClick="@(() => NavigationManager.NavigateTo("authentication/logout"))" />
     </MudAppBar>
 
-    <!-- Drawer für alle Breakpoints -->
     <MudDrawer @bind-Open="_drawerOpen"
                Elevation="2"
                ClipMode="DrawerClipMode.Always">
@@ -134,9 +130,7 @@
                     <span>Benachrichtigungen</span>
                     @if (unreadCount > 0)
                     {
-                        <MudChip T="int"
-                                 Size="Size.Small"
-                                 Color="Color.Error">
+                        <MudChip T="int" Size="Size.Small" Color="Color.Error">
                             @unreadCount
                         </MudChip>
                     }
@@ -156,7 +150,6 @@
         </MudContainer>
     </MudMainContent>
 
-    <!-- Mobile Bottom Navigation nur auf kleinen Screens -->
     <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudPaper Square="true"
                   Elevation="3"
@@ -180,7 +173,8 @@
 
                 <MudBottomNavigationItem T="string"
                                          Value="notifications"
-                                         Text="Nachrichten">
+                                         Text="Nachrichten"
+                                         OnClick="@(() => SelectPage("notifications", "/student/notifications"))">
                     <IconContent>
                         <MudBadge Content="@unreadCount"
                                   Color="Color.Error"
@@ -202,28 +196,34 @@
 </MudLayout>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> OnDarkModeChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<bool> OnDarkModeChanged { get; set; }
 
     private bool _drawerOpen = true;
     private int unreadCount;
     private bool _isDarkMode;
-    private User? currentUser;
     private string selectedPage = "dashboard";
 
-    private void OnSelectedPageChanged(string value)
-    {
-        selectedPage = value;
-    }
+    private string DisplayName => _displayName ?? "User";
+    private string? _displayName;
 
     protected override async Task OnInitializedAsync()
     {
-        currentUser = await AuthService.GetCurrentUserAsync();
+        // Claims holen
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        _displayName =
+            user.Identity?.Name ??
+            user.FindFirst("name")?.Value ??
+            user.FindFirst(ClaimTypes.Name)?.Value ??
+            user.FindFirst("preferred_username")?.Value ??
+            "User";
+
+        // Notifications (dein Service)
         unreadCount = await NotificationService.GetUnreadCountAsync();
 
+        // SelectedPage
         var uri = NavigationManager.Uri.ToLowerInvariant();
         if (uri.Contains("/student/grades"))
             selectedPage = "grades";
@@ -235,18 +235,9 @@
             selectedPage = "dashboard";
     }
 
+    private void OnSelectedPageChanged(string value) => selectedPage = value;
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
-
-    private void NavigateTo(string url)
-    {
-        NavigationManager.NavigateTo(url);
-    }
-
-    private async Task HandleLogout()
-    {
-        await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login", replace: true);
-    }
+    private void NavigateTo(string url) => NavigationManager.NavigateTo(url);
 
     private void SelectPage(string value, string url)
     {
@@ -258,22 +249,14 @@
     {
         _isDarkMode = value;
         if (OnDarkModeChanged.HasDelegate)
-        {
             await OnDarkModeChanged.InvokeAsync(value);
-        }
     }
 
-    private string GetInitials()
+    private static string GetInitials(string name)
     {
-        if (currentUser == null)
-            return string.Empty;
-
-        var parts = currentUser.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length >= 2)
-            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-
-        return currentUser.Name.Length >= 2
-            ? currentUser.Name[..2].ToUpper()
-            : currentUser.Name.ToUpper();
+        if (string.IsNullOrWhiteSpace(name)) return "U";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2) return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return name.Length >= 2 ? name[..2].ToUpper() : name[..1].ToUpper();
     }
 }
