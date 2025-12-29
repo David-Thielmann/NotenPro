@@ -1,4 +1,7 @@
 @page "/admin/subjects"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject ISubjectService SubjectService
 @inject ISnackbar Snackbar
 
@@ -218,11 +221,7 @@ else
             return filtered.OrderBy(s => s.Name);
         }
     }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+    
 
     private async Task LoadData()
     {
@@ -420,5 +419,18 @@ else
         public string Department { get; set; } = string.Empty;
         public int HoursPerWeek { get; set; }
         public bool IsActive { get; set; } = true;
+    }
+}
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Admin"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }

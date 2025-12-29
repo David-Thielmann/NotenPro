@@ -1,4 +1,5 @@
 @page "/student/grades"
+@using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IGradeService GradeService
@@ -7,6 +8,8 @@
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
 @inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @using MudBlazor
 
 <PageTitle>Meine Noten</PageTitle>
@@ -201,23 +204,7 @@ else
     private int testCount;
     private double overallPerformancePercent;
 
-    protected override async Task OnInitializedAsync()
-    {
-        isLoading = true;
-
-        grades = await GradeService.GetMyGradesAsync();
-
-        // Alle Fächer des Schülers extrahieren
-        subjects = grades
-            .Select(g => g.Subject)
-            .Distinct()
-            .OrderBy(s => s)
-            .ToList();
-
-        CalculateStats();
-
-        isLoading = false;
-    }
+   
 
     private void CalculateStats()
     {
@@ -301,5 +288,29 @@ else
         }
     }
 
-    
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        grades = await GradeService.GetMyGradesAsync();
+
+        // Alle Fächer des Schülers extrahieren
+        subjects = grades
+            .Select(g => g.Subject)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList();
+
+        CalculateStats();
+
+        isLoading = false;
+        
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Student"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
+    }
 }

@@ -1,5 +1,8 @@
 @page "/student/notifications"
+@using Microsoft.AspNetCore.Authorization
 @inject INotificationService NotificationService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject ISnackbar Snackbar
 
 <PageTitle>Benachrichtigungen</PageTitle>
@@ -61,12 +64,7 @@ else
     private bool isLoading = true;
     private List<Notification> notifications = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        isLoading = true;
-        notifications = await NotificationService.GetMyNotificationsAsync();
-        isLoading = false;
-    }
+ 
 
     private async Task MarkAsRead(string id)
     {
@@ -99,5 +97,20 @@ else
             NotificationType.Error => Color.Error,
             _ => Color.Info
         };
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        notifications = await NotificationService.GetMyNotificationsAsync();
+        isLoading = false;
+        
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Student"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }

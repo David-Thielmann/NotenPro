@@ -1,4 +1,7 @@
 @page "/teacher/tests"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject ITestService TestService
 @inject IClassService ClassService
 @inject ISubjectService SubjectService
@@ -215,10 +218,7 @@
 
    
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+  
 
     private async Task LoadData()
     {
@@ -330,6 +330,19 @@
 
             // Optional: Noten neu laden
             // await OnInitializedAsync();  // oder eigene Reload-Methode
+        }
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Teacher"))
+        {
+            Nav.NavigateTo("/login", true);
         }
     }
 }

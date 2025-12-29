@@ -1,4 +1,7 @@
 @page "/admin/teachers"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject ITeacherService TeacherService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -94,10 +97,7 @@
     private Teacher newTeacher = new();
     private string subjectsInput = "";
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTeachers();
-    }
+
 
     private async Task LoadTeachers()
     {
@@ -163,6 +163,19 @@
                 await LoadTeachers();
                 Snackbar.Add("Lehrer gelöscht", Severity.Success);
             }
+        }
+    }
+}
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeachers();
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Admin"))
+        {
+            Nav.NavigateTo("/login", true);
         }
     }
 }

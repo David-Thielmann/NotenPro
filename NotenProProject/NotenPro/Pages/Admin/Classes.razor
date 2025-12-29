@@ -1,4 +1,7 @@
 @page "/admin/classes"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @using HTLKrems.GradeManagement.Models
 @inject IClassService ClassService
 @inject ITeacherService TeacherService
@@ -193,10 +196,7 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+   
 
     private async Task LoadData()
     {
@@ -343,5 +343,18 @@
         public int StudentCount { get; set; }
         public string SchoolYear { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+    }
+}
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Admin"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }

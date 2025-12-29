@@ -1,4 +1,7 @@
-@page "/teacher"
+@page "/teacher/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject ITestService TestService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -127,11 +130,7 @@
 @code {
     private List<Test> upcomingTests = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        var allTests = await TestService.GetMyTestsAsync();
-        upcomingTests = allTests.Where(t => t.Date >= DateTime.Now).OrderBy(t => t.Date).ToList();
-    }
+  
     
     private async Task OpenNewTestDialog()
     {
@@ -166,6 +165,19 @@
             // await OnInitializedAsync();  // oder eigene Reload-Methode
         }
     }
+    protected override async Task OnInitializedAsync()
+    {
+        var allTests = await TestService.GetMyTestsAsync();
+        upcomingTests = allTests.Where(t => t.Date >= DateTime.Now).OrderBy(t => t.Date).ToList();
 
+        
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Teacher"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
+    }
     
 }

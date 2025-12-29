@@ -17,4 +17,15 @@
     <PackageReference Include="QuestPDF" Version="2025.7.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Student\Dashboard.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Student\Grades.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Student\Notifications.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Teacher\Classes.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Teacher\Dashboard.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Teacher\GradeEntry.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Teacher\Tests.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Teacher\Warnings.razor" />
+  </ItemGroup>
+
 </Project>

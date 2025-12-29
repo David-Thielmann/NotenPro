@@ -1,4 +1,7 @@
 @page "/teacher/warnings"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject IGradeService GradeService
 @inject IClassService ClassService
 @inject ISnackbar Snackbar
@@ -208,10 +211,7 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+    
 
     private async Task LoadData()
     {
@@ -363,5 +363,18 @@
         public decimal Average { get; set; }
         public string Comment { get; set; } = string.Empty;
         public DateTime SentDate { get; set; }
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Teacher"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }

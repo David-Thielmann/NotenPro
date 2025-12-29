@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "NotenPro",
   "resources": {
-    "hash": "sha256-8RB42oYEhZOJGZYRcvlvl7vRyJGuuZN6SF+SzT4lSBY=",
+    "hash": "sha256-4rwPmg8Q/z8s/mX5hKOnyqHKkLTx2zDpRItVdneU2GU=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-D0bzod5lwwSzPR43JC8TTCcZKw+3jIHOk8CZFCRj5is="
     },
@@ -220,10 +220,10 @@
       "mscorlib.wasm": "sha256-8qWtIcy8fV43tlcx4DxsF45RlkcfK6588vVoxF7be2E=",
       "netstandard.wasm": "sha256-eOgz2RiO4YaPLOMIGgVLNrcfsQhmLQJzR0N7Pu2teXc=",
       "System.Private.CoreLib.wasm": "sha256-F8T63QCIbMPXPQPqTcuyBAw+oVvZSrWjy88j7fiJQZ4=",
-      "NotenPro.wasm": "sha256-bprTWyUtAJmbsIBRI0zfBT6ll3uBCYgABDrLu2cmSCI="
+      "NotenPro.wasm": "sha256-BaCHJmeIrFNv82IbwRMzcKVb05tPoyiU5dIWhj7FMjo="
     },
     "pdb": {
-      "NotenPro.pdb": "sha256-8GzkM0Dir/ixt9sIN4ZqMvRLp0T3vEtpLPBfgJamVeY="
+      "NotenPro.pdb": "sha256-BsTTIB+NqfJfEDubpUY3fLO6CZMLNx9qfwAXJm9prN8="
     }
   },
   "cacheBootResources": true,

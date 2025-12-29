@@ -1,6 +1,8 @@
 @page "/admin/maps"
 @inject ISnackbar Snackbar
-
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 <PageTitle>Raumpläne verwalten</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-6">
@@ -223,10 +225,7 @@
     
     private DialogOptions previewDialogOptions = new() { MaxWidth = MaxWidth.Large, FullWidth = true };
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadMaps();
-    }
+   
 
     private async Task LoadMaps()
     {
@@ -368,5 +367,18 @@
         public string FileName { get; set; } = string.Empty;
         public long Size { get; set; }
         public DateTime UploadDate { get; set; }
+    }
+}
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMaps();
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Admin"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }

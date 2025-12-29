@@ -1,43 +1,49 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using HTLKrems.GradeManagement;
-using MudBlazor.Services;
-using HTLKrems.GradeManagement.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using MudBlazor.Services;
+using HTLKrems.GradeManagement;
+using HTLKrems.GradeManagement.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// 🔐 Microsoft Identity (Entra ID)
+// 🌐 Standard HttpClient (für Blazor intern)
+builder.Services.AddScoped(sp =>
+    new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }
+);
+
+// 🔐 Microsoft Entra ID (MSAL)
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
 
-    options.ProviderOptions.DefaultAccessTokenScopes.Add(
-        "api://03f0164a-e673-4862-9ef7-2ac41b743329/access_as_user");
+    // 🔴 DAS war der Schlüssel für Roles
+    options.UserOptions.RoleClaim = "roles";
 });
 
-// 🌐 HttpClient für API (crash-sicher)
-var apiBaseUrl = builder.Configuration["Api:BaseUrl"];
-if (string.IsNullOrWhiteSpace(apiBaseUrl))
-{
-    apiBaseUrl = builder.HostEnvironment.BaseAddress;
-}
-
+// 🌐 HttpClient → API (mit Access Token)
 builder.Services.AddHttpClient("NotenProApi", client =>
-    {
-        client.BaseAddress = new Uri(apiBaseUrl);
-    })
-    .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+{
+    client.BaseAddress = new Uri("https://localhost:7001/");
+})
+.AddHttpMessageHandler(sp =>
+{
+    var handler = sp.GetRequiredService<AuthorizationMessageHandler>()
+        .ConfigureHandler(
+            authorizedUrls: new[] { "https://localhost:7001/" },
+            scopes: new[] { "api://03f0164a-e673-4862-9ef7-2ac41b743329/access_as_user" }
+        );
 
-builder.Services.AddScoped(sp =>
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("NotenProApi"));
+    return handler;
+});
 
-// MudBlazor
+// 🎨 MudBlazor
 builder.Services.AddMudServices();
 
-// Services
+// 📦 Application Services
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<ITestService, TestService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

@@ -1,7 +1,7 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims
 @inject NavigationManager Nav
 
@@ -11,7 +11,8 @@
 
 <AuthorizeView>
     <NotAuthorized>
-        @* Nicht eingeloggt: zeig einfach den Body (z.B. /login Seite) *@
+        @* Nicht eingeloggt: sofort zur Login-Seite weiterleiten *@
+        @* Dies wird sicherstellen, dass nicht authentifizierte Benutzer zur Login-Seite weitergeleitet werden *@
         <div>@Body</div>
     </NotAuthorized>
 
@@ -71,7 +72,8 @@
                             <MudDivider />
 
                             <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                                         OnClick="@(() => Nav.NavigateTo("authentication/logout"))">
+                                         OnClick="Logout"
+                            >
                                 Abmelden
                             </MudMenuItem>
                         </ChildContent>
@@ -80,7 +82,8 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Logout"
                                    Class="ml-2"
                                    Style="color: white;"
-                                   OnClick="@(() => Nav.NavigateTo("authentication/logout"))" />
+                                   OnClick="Logout"
+                    />
                 </div>
             </MudAppBar>
 
@@ -96,7 +99,6 @@
                 </MudDrawerHeader>
 
                 <MudNavMenu>
-                    @* Erstmal: neutrales Menü *@
                     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Home</MudNavLink>
                     <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock">Secure</MudNavLink>
                 </MudNavMenu>
@@ -115,7 +117,6 @@
     private bool _drawerOpen = true;
     private bool _isDarkMode;
 
-    // Werte aus Entra Claims (MSAL)
     private string DisplayName => _displayName ?? "User";
     private string UserName => _userName ?? "";
 
@@ -139,30 +140,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // AuthState holen und Claims auslesen
-        // (Geht ohne extra Service)
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        _displayName =
-            user.Identity?.Name ??
-            user.FindFirst("name")?.Value ??
-            user.FindFirst(ClaimTypes.Name)?.Value;
+        // DisplayName und UserName aus den Claims extrahieren
+        _displayName = user.Identity?.Name ??
+                       user.FindFirst("name")?.Value ??
+                       user.FindFirst(ClaimTypes.Name)?.Value;
 
-        _userName =
-            user.FindFirst("preferred_username")?.Value ??
-            user.FindFirst("upn")?.Value ??
-            user.FindFirst(ClaimTypes.Email)?.Value;
+        _userName = user.FindFirst("preferred_username")?.Value ??
+                    user.FindFirst("upn")?.Value ??
+                    user.FindFirst(ClaimTypes.Email)?.Value;
 
-        // optional: wenn nicht eingeloggt, auf /login leiten
-        if (user.Identity is null || !user.Identity.IsAuthenticated)
-        {
-            if (!Nav.Uri.Contains("/login"))
-                Nav.NavigateTo("/login");
-        }
+        // Wenn nicht authentifiziert, leite zur Login-Seite weiter
+        
     }
-
-  
 
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
@@ -174,3 +166,10 @@
         return name.Length >= 2 ? name[..2].ToUpper() : name[..1].ToUpper();
     }
 }
+@code {
+    void Logout()
+    {
+        Nav.NavigateToLogout("authentication/logout");
+    }
+}
+

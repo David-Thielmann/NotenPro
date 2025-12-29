@@ -1,4 +1,7 @@
 @page "/teacher/classes"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject IClassService ClassService
 @inject IGradeService GradeService
 @inject ISnackbar Snackbar
@@ -122,11 +125,7 @@ else
     private bool loading = true;
     private string? expandedClassId;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
-
+    
     private async Task LoadData()
     {
         loading = true;
@@ -217,6 +216,18 @@ else
     {
         public string Name { get; set; } = string.Empty;
         public decimal Average { get; set; }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        
+        await LoadData();
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Teacher"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
     }
 }
 

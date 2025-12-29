@@ -1,4 +1,7 @@
-@page "/student"
+@page "/student/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 @inject IStudentService StudentService
 @inject IGradeService GradeService
 @inject INotificationService NotificationService
@@ -149,14 +152,7 @@ else
     private List<Grade> recentGrades = new();
     private List<Services.SubjectAverage> subjectAverages = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        isLoading = true;
-        stats = await StudentService.GetDashboardStatsAsync();
-        recentGrades = await GradeService.GetRecentGradesAsync(5);
-        subjectAverages = await GradeService.GetSubjectAveragesAsync();
-        isLoading = false;
-    }
+   
 
     private Color GetGradeColor(decimal grade)
     {
@@ -176,5 +172,22 @@ else
         public string Name { get; set; } = "";
         public decimal Average { get; set; }
         public int TestCount { get; set; }
-    }
+        
+    }   
+        protected override async Task OnInitializedAsync()
+        {
+            isLoading = true;
+            stats = await StudentService.GetDashboardStatsAsync();
+            recentGrades = await GradeService.GetRecentGradesAsync(5);
+            subjectAverages = await GradeService.GetSubjectAveragesAsync();
+            isLoading = false;
+        
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = auth.User;
+
+            if (!RoleHelper.HasRole(user, "Student"))
+            {
+                Nav.NavigateTo("/login", true);
+            }
+        }
 }

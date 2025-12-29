@@ -1,0 +1,28 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+<p>Weiterleitung…</p>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        if (RoleHelper.HasRole(user, "Admin"))
+            Nav.NavigateTo("/admin/dashboard", true);
+        else if (RoleHelper.HasRole(user, "Teacher"))
+            Nav.NavigateTo("/teacher/dashboard", true);
+        else if (RoleHelper.HasRole(user, "Student"))
+            Nav.NavigateTo("/student/dashboard", true);
+        
+    }
+}

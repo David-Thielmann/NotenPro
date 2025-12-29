@@ -1,29 +1,25 @@
 @using Microsoft.AspNetCore.Components.Authorization
-
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
-                    <LayoutView Layout="@typeof(MainLayout)">
-                        <p>Du bist nicht eingeloggt.</p>
-                        <a href="authentication/login">Login</a>
-                    </LayoutView>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <RedirectToLogin/>
+                    }
+                    else
+                    {
+                        <p role="alert">You are not authorized to access this resource.</p>
+                    }
                 </NotAuthorized>
-                <Authorizing>
-                    <LayoutView Layout="@typeof(MainLayout)">
-                        <p>Login wird geprüft…</p>
-                    </LayoutView>
-                </Authorizing>
             </AuthorizeRouteView>
-
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
         </Found>
-
         <NotFound>
-            <PageTitle>Nicht gefunden</PageTitle>
+            <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Diese Seite wurde nicht gefunden.</p>
+                <p role="alert">Sorry, there's nothing at this address.</p>
             </LayoutView>
         </NotFound>
     </Router>

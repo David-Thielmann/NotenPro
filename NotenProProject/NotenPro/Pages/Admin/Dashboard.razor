@@ -1,5 +1,8 @@
-@page "/admin"
-
+@page "/admin/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 <PageTitle>Dashboard - Schuladministrator</PageTitle>
 
 <MudText Typo="Typo.h4" Class="mb-6">Schuladministrator Dashboard</MudText>
@@ -83,3 +86,16 @@
         </div>
     </MudCardContent>
 </MudCard>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        if (!RoleHelper.HasRole(user, "Admin"))
+        {
+            Nav.NavigateTo("/login", true);
+        }
+    }
+}
