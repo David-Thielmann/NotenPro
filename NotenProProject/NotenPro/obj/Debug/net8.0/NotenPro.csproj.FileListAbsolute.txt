@@ -3275,8 +3275,8 @@ C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\Not
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.dll
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.pdb
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\webcil\NotenPro.Shared.wasm
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-7bly9vbq4y.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-208sn4wnc2.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-xk38tjo1zw.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-5u1a7hq5ll.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-t1cmblrp6j.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-nyai0ii7rc.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-sgihkg3ba3.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-hg0n0k4bz4.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-mni26lrg29.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-vdzwi783hd.gz
