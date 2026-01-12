@@ -1053,3 +1053,15 @@ C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net9
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\refint\NotenPro.dll
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.pdb
 C:\Users\David\Documents\GitHub\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\ref\NotenPro.dll
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.csproj.AssemblyReference.cache
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.AssemblyInfoInputs.cache
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.AssemblyInfo.cs
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.csproj.CoreCompileInputs.cache
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.sourcelink.json
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.dll
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\refint\NotenPro.dll
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net9.0\NotenPro.pdb

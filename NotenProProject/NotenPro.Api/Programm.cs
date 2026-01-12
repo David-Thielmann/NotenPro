@@ -11,11 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 // DB
 // ----------------------------------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 
 builder.Services.AddDbContext<NotenProDbContext>(options =>
-{
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-});
+    options.UseMySql(connectionString, serverVersion)
+);
+
 
 // ----------------------------------------------------
 // Services

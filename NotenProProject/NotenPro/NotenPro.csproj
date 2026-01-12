@@ -27,5 +27,9 @@
     <_ContentIncludedByDefault Remove="Pages\Teacher\Tests.razor" />
     <_ContentIncludedByDefault Remove="Pages\Teacher\Warnings.razor" />
   </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\NotenPro.Shared\NotenPro.Shared.csproj" />
+    </ItemGroup>
 
 </Project>

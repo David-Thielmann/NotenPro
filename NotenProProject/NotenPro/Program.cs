@@ -40,18 +40,40 @@ builder.Services.AddHttpClient("NotenProApi", client =>
     return handler;
 });
 
+//Koffer api NotenProApi
+builder.Services.AddHttpClient("NotenProApi", client =>
+    {
+        var baseUrl = builder.Configuration["Api:BaseUrl"]!;
+        client.BaseAddress = new Uri(baseUrl);
+    })
+    .AddHttpMessageHandler(sp =>
+    {
+        var baseUrl = builder.Configuration["Api:BaseUrl"]!;
+        return sp.GetRequiredService<AuthorizationMessageHandler>()
+            .ConfigureHandler(
+                authorizedUrls: new[] { baseUrl },
+                scopes: new[] { "api://03f0164a-e673-4862-9ef7-2ac41b743329/access_as_user" }
+            );
+    });
+
+
+
 // 🎨 MudBlazor
 builder.Services.AddMudServices();
 
 // 📦 Application Services
-builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<ITestService, TestService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
-builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPdfExportService, PdfExportService>();
+//api service
+builder.Services.AddScoped<ICurrentUserService, CurrentUserApiService>();
+builder.Services.AddScoped<IGradeService, GradeApiService>();
+builder.Services.AddScoped<INotificationService, NotificationApiService>();
+builder.Services.AddScoped<IStudentService, StudentApiService>();
+
+
 
 await builder.Build().RunAsync();
