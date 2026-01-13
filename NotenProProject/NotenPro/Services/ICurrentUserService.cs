@@ -1,9 +1,9 @@
 using NotenPro.Api.DTOs;
 
-namespace HTLKrems.GradeManagement.Services;
-
-public interface ICurrentUserService
+namespace HTLKrems.GradeManagement.Services
 {
-    Task<AuthMeDto> GetMeAsync(bool forceRefresh = false);
+    public interface ICurrentUserService
+    {
+        Task<AuthMeDto> GetMeAsync();
+    }
 }
-

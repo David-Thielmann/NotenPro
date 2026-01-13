@@ -1,193 +1,551 @@
 @page "/student/dashboard"
 @using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IStudentService StudentService
 @inject IGradeService GradeService
-@inject INotificationService NotificationService
+@inject ICurrentUserService CurrentUserService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Dashboard - Schüler</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-6">Dashboard</MudText>
+<!-- Debug Info -->
+@if (showDebug)
+{
+    <MudAlert Severity="Severity.Info" Class="mb-3">
+        <MudAlertTitle>Debug Info</MudAlertTitle>
+        <MudText>User: @currentUserName</MudText>
+        <MudText>Rolle: @userRole</MudText>
+        <MudText>Object ID: @azureObjectId</MudText>
+        <MudText>Email: @userEmail</MudText>
+        <MudText>Status: @(isLoading ? "Lädt..." : hasError ? "Fehler" : "Geladen")</MudText>
+        <MudText>API Calls: @apiCallCount</MudText>
+        
+        @if (showAllClaims)
+        {
+            <div class="mt-3">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Alle Claims:</MudText>
+                <MudPaper Elevation="1" Class="pa-3" Style="max-height: 200px; overflow-y: auto;">
+                    @foreach (var claim in allClaims)
+                    {
+                        <div class="d-flex">
+                            <MudText Typo="Typo.caption" Style="min-width: 300px;">@claim.Type</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@claim.Value</MudText>
+                        </div>
+                    }
+                </MudPaper>
+            </div>
+        }
+        
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small">
+                Debug ausblenden
+            </MudButton>
+            <MudButton Color="Color.Info" OnClick="ToggleClaims" Size="Size.Small" Variant="Variant.Outlined">
+                @(showAllClaims ? "Claims ausblenden" : "Alle Claims anzeigen")
+            </MudButton>
+            <MudButton Color="Color.Warning" OnClick="CopyObjectId" Size="Size.Small" Variant="Variant.Outlined">
+                Object ID kopieren
+            </MudButton>
+        </div>
+    </MudAlert>
+}
+
+<MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small" Class="mb-2">
+    Debug anzeigen
+</MudButton>
 
 @if (isLoading)
 {
-    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    <div class="text-center py-12">
+        <MudCircularProgress Color="Color.Primary" />
+        <MudText Typo="Typo.body1" Class="mt-4">Dashboard wird geladen...</MudText>
+        @if (loadStep > 0)
+        {
+            <MudText Typo="Typo.caption">@GetLoadStepText()</MudText>
+        }
+    </div>
+}
+else if (hasError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" Variant="Variant.Filled">
+        <MudAlertTitle>Daten konnten nicht geladen werden</MudAlertTitle>
+        <MudText>Die Dashboard-Daten sind derzeit nicht verfügbar.</MudText>
+        <MudText Typo="Typo.caption" Class="mt-2">Fehler: @errorMessage</MudText>
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Primary" OnClick="Reload" StartIcon="@Icons.Material.Filled.Refresh">
+                Erneut versuchen
+            </MudButton>
+            <MudButton Color="Color.Secondary" OnClick="GoToGrades" StartIcon="@Icons.Material.Filled.List">
+                Zu Noten wechseln
+            </MudButton>
+        </div>
+    </MudAlert>
+    
+    <!-- Leeres Dashboard anzeigen -->
+    <EmptyDashboard />
 }
 else
 {
-    <!-- Statistics Cards -->
-    <MudGrid Class="mb-6">
-        <MudItem xs="12" sm="6" md="3">
-            <MudCard Elevation="2" Class="hover-card">
-                <MudCardContent>
-                    <div class="d-flex justify-space-between align-center">
-                        <div>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                Notendurchschnitt
-                            </MudText>
-                            <MudText Typo="Typo.h4">@stats.AverageGrade.ToString("F1")</MudText>
-                        </div>
-                        <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Primary" Size="Size.Large" />
-                    </div>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudCard Elevation="2" Class="hover-card">
-                <MudCardContent>
-                    <div class="d-flex justify-space-between align-center">
-                        <div>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                Unbenotete Tests
-                            </MudText>
-                            <MudText Typo="Typo.h4">@stats.UngradedTests</MudText>
-                        </div>
-                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Color="Color.Warning" Size="Size.Large" />
-                    </div>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudCard Elevation="2" Class="hover-card">
-                <MudCardContent>
-                    <div class="d-flex justify-space-between align-center">
-                        <div>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                Benachrichtigungen
-                            </MudText>
-                            <MudText Typo="Typo.h4">@stats.UnreadNotifications</MudText>
-                        </div>
-                        <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Info" Size="Size.Large" />
-                    </div>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudCard Elevation="2" Class="hover-card">
-                <MudCardContent>
-                    <div class="d-flex justify-space-between align-center">
-                        <div>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                Klasse
-                            </MudText>
-                            <MudText Typo="Typo.h4">@stats.ClassName</MudText>
-                        </div>
-                        <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Success" Size="Size.Large" />
-                    </div>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
-
-    <!-- Recent Grades -->
-    <MudCard Elevation="2" Class="mb-6">
-        <MudCardHeader>
-            <MudText Typo="Typo.h6">Letzte Noten</MudText>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudTable Items="@recentGrades" Hover="true" Dense="true">
-                <HeaderContent>
-                    <MudTh>Fach</MudTh>
-                    <MudTh>Test</MudTh>
-                    <MudTh>Note</MudTh>
-                    <MudTh>Datum</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
-                    <MudTd DataLabel="Test">@context.TestName</MudTd>
-                    <MudTd DataLabel="Note">
-                        <MudChip T="string"
-                                 Color="@GetGradeColor(context.GradeValue)"
-                                 Size="Size.Small">
-                            @context.GradeValue.ToString()
-                        </MudChip>
-
-                    </MudTd>
-                    <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
-                </RowTemplate>
-            </MudTable>
-        </MudCardContent>
-    </MudCard>
-
-    <!-- Subject Overview -->
-    <MudCard Elevation="2">
-        <MudCardHeader>
-            <MudText Typo="Typo.h6">Fächer-Übersicht</MudText>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudGrid>
-                @foreach (var subject in subjectAverages)
-                {
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudCard Outlined="true">
-                            <MudCardContent>
-                                <div class="d-flex justify-space-between align-center mb-2">
-                                    <MudText Typo="Typo.body1">@subject.Name</MudText>
-                                    <MudChip T="string"
-                                             Color="@GetGradeColor(subject.Average)"
-                                             Size="Size.Small">
-                                        @subject.Average.ToString("F1")
-                                    </MudChip>
-
-                                </div>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    @subject.TestCount Test(s)
-                                </MudText>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-                }
-            </MudGrid>
-        </MudCardContent>
-    </MudCard>
+    <DashboardContent />
 }
 
 @code {
     private bool isLoading = true;
-    private Services.StudentDashboardStats stats = new();
+    private bool hasError = false;
+    private bool showDebug = false;
+    private bool showAllClaims = false;
+    private int loadStep = 0;
+    private int apiCallCount = 0;
+    private string errorMessage = string.Empty;
+    private string currentUserName = string.Empty;
+    private string userRole = string.Empty;
+    private string azureObjectId = string.Empty;
+    private string userEmail = string.Empty;
+    private List<ClaimInfo> allClaims = new();
+    
+    private StudentDashboardStats stats = null;
     private List<Grade> recentGrades = new();
-    private List<Services.SubjectAverage> subjectAverages = new();
+    private List<SubjectAverage> subjectAverages = new();
 
-   
-
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("=== DASHBOARD START ===");
+        
+        try
+        {
+            // 1. Auth prüfen und Claims analysieren
+            loadStep = 1;
+            StateHasChanged();
+            
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            
+            // Benutzerinfo extrahieren
+            currentUserName = user.Identity?.Name ?? "Unbekannt";
+            userRole = GetUserRole(user);
+            azureObjectId = GetAzureObjectId(user);
+            userEmail = GetUserEmail(user);
+            
+            // Alle Claims für Debug sammeln
+            allClaims = user.Claims
+                .Select(c => new ClaimInfo { Type = c.Type, Value = c.Value })
+                .ToList();
+            
+            Console.WriteLine($"User: {currentUserName}, Role: {userRole}");
+            Console.WriteLine($"Object ID: {azureObjectId}");
+            Console.WriteLine($"Email: {userEmail}");
+            
+            // Claims in Console loggen
+            Console.WriteLine("=== ALL CLAIMS ===");
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+            Console.WriteLine("=== END CLAIMS ===");
+            
+            // 2. Current User von API holen
+            loadStep = 2;
+            StateHasChanged();
+            
+            try
+            {
+                apiCallCount++;
+                var currentUser = await CurrentUserService.GetMeAsync();
+                Console.WriteLine($"API User: {currentUser.Name} ({currentUser.Role})");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CurrentUser API error: {ex.Message}");
+                // Wir machen weiter, das Dashboard sollte auch ohne CurrentUser funktionieren
+            }
+            
+            // 3. Dashboard Daten laden
+            await LoadDashboardData();
+            
+            Console.WriteLine("=== DASHBOARD SUCCESS ===");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Dashboard init error: {ex}");
+            hasError = true;
+            errorMessage = ex.InnerException?.Message ?? ex.Message;
+            Snackbar.Add($"Fehler beim Laden: {errorMessage}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+    private string GetAzureObjectId(ClaimsPrincipal user)
+    {
+        // Verschiedene mögliche Claim-Typen für Object ID
+        var objectId = user.FindFirst("oid")?.Value 
+                    ?? user.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+                    ?? user.FindFirst("objectidentifier")?.Value
+                    ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        
+        return objectId ?? "Nicht gefunden";
+    }
+    
+    private string GetUserEmail(ClaimsPrincipal user)
+    {
+        // Verschiedene mögliche Claim-Typen für Email
+        var email = user.FindFirst("preferred_username")?.Value
+                 ?? user.FindFirst("email")?.Value
+                 ?? user.FindFirst("upn")?.Value
+                 ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+        
+        return email ?? "Nicht gefunden";
+    }
+    
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole("Student")) return "Student";
+        
+        var roleClaim = user.Claims.FirstOrDefault(c => 
+            c.Type == "roles" || 
+            c.Type == "role" || 
+            c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
+        
+        if (roleClaim != null)
+        {
+            var value = roleClaim.Value;
+            if (value.Contains("Student")) return "Student";
+            if (value.Contains("["))
+            {
+                if (value.Contains("\"Student\"")) return "Student";
+            }
+            return value;
+        }
+        
+        return "Unbekannt";
+    }
+    
+    private async Task LoadDashboardData()
+    {
+        try
+        {
+            loadStep = 3;
+            StateHasChanged();
+            
+            // KEINE Try-Catch-Blöcke mehr! Lass die Exceptions durchfließen
+            // Wenn die API nicht läuft, werden hier Exceptions geworfen
+            
+            // 1. Dashboard Stats - OHNE TRY-CATCH
+            Console.WriteLine("Calling StudentService.GetDashboardStatsAsync()...");
+            apiCallCount++;
+            stats = await StudentService.GetDashboardStatsAsync();
+            Console.WriteLine($"Stats loaded: {stats?.AverageGrade}");
+            
+            // 2. Recent Grades - OHNE TRY-CATCH
+            Console.WriteLine("Calling GradeService.GetRecentGradesAsync()...");
+            apiCallCount++;
+            recentGrades = await GradeService.GetRecentGradesAsync(5) ?? new();
+            Console.WriteLine($"Grades loaded: {recentGrades.Count}");
+            
+            // 3. Subject Averages - OHNE TRY-CATCH
+            Console.WriteLine("Calling GradeService.GetSubjectAveragesAsync()...");
+            apiCallCount++;
+            subjectAverages = await GradeService.GetSubjectAveragesAsync() ?? new();
+            Console.WriteLine($"Averages loaded: {subjectAverages.Count}");
+            
+            loadStep = 4;
+            StateHasChanged();
+            
+            Snackbar.Add("Dashboard aktualisiert", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadDashboardData error: {ex.Message}");
+            // WICHTIG: Exception weiterwerfen, damit der äußere Catch-Block sie fängt
+            throw new Exception($"API-Fehler: {ex.Message}", ex);
+        }
+    }
+    
+    private string GetLoadStepText()
+    {
+        return loadStep switch
+        {
+            1 => "Authentifizierung prüfen...",
+            2 => "Benutzerdaten laden...",
+            3 => "Dashboard-Daten laden...",
+            4 => "Fertig!",
+            _ => "Lädt..."
+        };
+    }
+    
+    private void ToggleDebug() 
+    {
+        showDebug = !showDebug;
+        if (!showDebug) showAllClaims = false;
+    }
+    
+    private void ToggleClaims() => showAllClaims = !showAllClaims;
+    
+    private async Task CopyObjectId()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", azureObjectId);
+            Snackbar.Add("Object ID in Zwischenablage kopiert!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            // Fallback: Object ID in Snackbar anzeigen
+            Snackbar.Add($"Object ID: {azureObjectId}", Severity.Info);
+        }
+    }
+    
+    private async Task Reload()
+    {
+        isLoading = true;
+        hasError = false;
+        stats = null;
+        recentGrades = new();
+        subjectAverages = new();
+        apiCallCount = 0;
+        StateHasChanged();
+        
+        await Task.Delay(500);
+        await LoadDashboardData();
+        
+        isLoading = false;
+        StateHasChanged();
+    }
+    
+    private void GoToGrades()
+    {
+        Nav.NavigateTo("/grades");
+    }
+    
     private Color GetGradeColor(decimal grade)
     {
         return grade <= 2.0m ? Color.Success : grade <= 3.5m ? Color.Warning : Color.Error;
     }
-
-    public class StudentDashboardStats
+    
+    // Helper class for claims display
+    private class ClaimInfo
     {
-        public decimal AverageGrade { get; set; } = 2.1m;
-        public int UngradedTests { get; set; } = 3;
-        public int UnreadNotifications { get; set; } = 5;
-        public string ClassName { get; set; } = "3AHIF";
+        public string Type { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
     }
+}
 
-    public class SubjectAverage
-    {
-        public string Name { get; set; } = "";
-        public decimal Average { get; set; }
-        public int TestCount { get; set; }
-        
-    }   
-        protected override async Task OnInitializedAsync()
+@* EmptyDashboard für Fehlerfall *@
+@if (hasError && !isLoading)
+{
+    <div class="text-center py-12">
+        <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Size="Size.Large" Color="Color.Error" Class="mb-4" />
+        <MudText Typo="Typo.h6" Class="mb-2">Keine Daten verfügbar</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
+            Die Dashboard-Daten konnten nicht von der API geladen werden.
+        </MudText>
+        <div class="d-flex justify-center gap-3">
+            <MudButton Color="Color.Primary" OnClick="Reload" StartIcon="@Icons.Material.Filled.Refresh">
+                Neu laden
+            </MudButton>
+            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="ToggleDebug">
+                Debug anzeigen
+            </MudButton>
+        </div>
+    </div>
+}
+
+@* DashboardContent Komponente *@
+@if (!isLoading && !hasError)
+{
+    <div>
+        <!-- Statistics Cards -->
+        <MudGrid Class="mb-6">
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="hover-card">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    Notendurchschnitt
+                                </MudText>
+                                <MudText Typo="Typo.h4">
+                                    @if (stats != null)
+                                    {
+                                        @stats.AverageGrade.ToString("F1")
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="Color.Warning">-</MudText>
+                                    }
+                                </MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Primary" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="hover-card">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    Unbenotete Tests
+                                </MudText>
+                                <MudText Typo="Typo.h4">
+                                    @if (stats != null)
+                                    {
+                                        @stats.UngradedTests
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="Color.Warning">-</MudText>
+                                    }
+                                </MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Color="Color.Warning" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="hover-card">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    Benachrichtigungen
+                                </MudText>
+                                <MudText Typo="Typo.h4">
+                                    @if (stats != null)
+                                    {
+                                        @stats.UnreadNotifications
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="Color.Warning">-</MudText>
+                                    }
+                                </MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Info" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="hover-card">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    Klasse
+                                </MudText>
+                                <MudText Typo="Typo.h4">
+                                    @if (stats != null && !string.IsNullOrEmpty(stats.ClassName))
+                                    {
+                                        @stats.ClassName
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="Color.Warning">-</MudText>
+                                    }
+                                </MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Success" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Recent Grades -->
+        <MudCard Elevation="2" Class="mb-6">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <MudText Typo="Typo.h6">Letzte Noten</MudText>
+                        @if (recentGrades.Any())
+                        {
+                            <MudBadge Color="Color.Primary" Size="Size.Small">
+                                @recentGrades.Count
+                            </MudBadge>
+                        }
+                    </div>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (recentGrades.Any())
+                {
+                    <MudTable Items="@recentGrades" Hover="true" Dense="true">
+                        <HeaderContent>
+                            <MudTh>Fach</MudTh>
+                            <MudTh>Test</MudTh>
+                            <MudTh>Note</MudTh>
+                            <MudTh>Datum</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Fach">@context.Subject</MudTd>
+                            <MudTd DataLabel="Test">@context.TestName</MudTd>
+                            <MudTd DataLabel="Note">
+                                <MudChip T="string" Color="@GetGradeColor(context.GradeValue)" Size="Size.Small">
+                                    @context.GradeValue.ToString("F1")
+                                </MudChip>
+                            </MudTd>
+                            <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="text-center py-4">
+                        Keine Noten vorhanden
+                    </MudText>
+                }
+            </MudCardContent>
+        </MudCard>
+
+        <!-- Subject Overview -->
+        @if (subjectAverages.Any())
         {
-            isLoading = true;
-            stats = await StudentService.GetDashboardStatsAsync();
-            recentGrades = await GradeService.GetRecentGradesAsync(5);
-            subjectAverages = await GradeService.GetSubjectAveragesAsync();
-            isLoading = false;
-        
-            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = auth.User;
-
-            if (!RoleHelper.HasRole(user, "Student"))
-            {
-                Nav.NavigateTo("/login", true);
-            }
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <MudText Typo="Typo.h6">Fächer-Übersicht</MudText>
+                            <MudBadge Color="Color.Secondary" Size="Size.Small">
+                                @subjectAverages.Count Fächer
+                            </MudBadge>
+                        </div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        @foreach (var subject in subjectAverages)
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Outlined="true">
+                                    <MudCardContent>
+                                        <div class="d-flex justify-space-between align-center mb-2">
+                                            <MudText Typo="Typo.body1">@subject.Name</MudText>
+                                            <MudChip T="string" Color="@GetGradeColor(subject.Average)" Size="Size.Small">
+                                                @subject.Average.ToString("F1")
+                                            </MudChip>
+                                        </div>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            @subject.TestCount Test(s)
+                                        </MudText>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
         }
+    </div>
 }

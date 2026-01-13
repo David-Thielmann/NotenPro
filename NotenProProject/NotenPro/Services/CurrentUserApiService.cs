@@ -1,28 +1,46 @@
 using System.Net.Http.Json;
+using HTLKrems.GradeManagement.Services;
 using NotenPro.Api.DTOs;
 
-namespace HTLKrems.GradeManagement.Services;
-
-public sealed class CurrentUserApiService : ICurrentUserService
+public class CurrentUserApiService : ICurrentUserService
 {
-    private readonly HttpClient _http;
-    private AuthMeDto? _cache;
+    private readonly HttpClient _httpClient;
 
-    public CurrentUserApiService(IHttpClientFactory factory)
+    public CurrentUserApiService(HttpClient httpClient)
     {
-        _http = factory.CreateClient("NotenProApi");
+        _httpClient = httpClient;
+        Console.WriteLine($"DEBUG: CurrentUserApiService created with BaseAddress: {_httpClient.BaseAddress}");
     }
 
-    public async Task<AuthMeDto> GetMeAsync(bool forceRefresh = false)
+    public async Task<AuthMeDto> GetMeAsync()
     {
-        if (!forceRefresh && _cache != null)
-            return _cache;
-
-        var me = await _http.GetFromJsonAsync<AuthMeDto>("api/auth/me");
-        if (me == null || string.IsNullOrWhiteSpace(me.Id))
-            throw new InvalidOperationException("api/auth/me returned no valid user.");
-
-        _cache = me;
-        return me;
+        try
+        {
+            Console.WriteLine("DEBUG: CurrentUserApiService.GetMeAsync()");
+            Console.WriteLine($"DEBUG: HttpClient BaseAddress: {_httpClient.BaseAddress}");
+            
+            var response = await _httpClient.GetAsync("api/auth/me");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"User API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+            
+            var authMeDto = await response.Content.ReadFromJsonAsync<AuthMeDto>();
+            
+            if (authMeDto == null || string.IsNullOrEmpty(authMeDto.Id))
+            {
+                throw new Exception("Ungültige Benutzerdaten erhalten");
+            }
+            
+            Console.WriteLine($"DEBUG: GetMeAsync - User ID: {authMeDto.Id}, Name: {authMeDto.Name}");
+            return authMeDto;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: GetMeAsync error: {ex.Message}");
+            throw;
+        }
     }
 }

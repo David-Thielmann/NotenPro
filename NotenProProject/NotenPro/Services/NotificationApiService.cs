@@ -1,52 +1,108 @@
 using System.Net.Http.Json;
 using HTLKrems.GradeManagement.Models;
+using HTLKrems.GradeManagement.Services;
 using NotenPro.Api.DTOs;
 
-namespace HTLKrems.GradeManagement.Services;
-
-public sealed class NotificationApiService : INotificationService
+public class NotificationApiService : INotificationService
 {
-    private readonly HttpClient _http;
-    private readonly ICurrentUserService _currentUser;
+    private readonly HttpClient _httpClient;
+    private readonly ICurrentUserService _currentUserService;
 
-    public NotificationApiService(IHttpClientFactory factory, ICurrentUserService currentUser)
+    public NotificationApiService(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
     {
-        _http = factory.CreateClient("NotenProApi");
-        _currentUser = currentUser;
+        // 🔥 WICHTIG: DENSELBEN NAMEN WIE IN PROGRAM.CS VERWENDEN!
+        // Wenn in Program.cs "ApiClient" steht:
+        _httpClient = httpClientFactory.CreateClient("ApiClient");
+        
+        // ODER wenn in Program.cs "NotenProApi" steht:
+        // _httpClient = httpClientFactory.CreateClient("NotenProApi");
+        
+        _currentUserService = currentUserService;
+        Console.WriteLine($"DEBUG: NotificationApiService created with BaseAddress: {_httpClient?.BaseAddress}");
     }
 
     public async Task<List<Notification>> GetMyNotificationsAsync()
     {
-        var me = await _currentUser.GetMeAsync();
-        var dtos = await _http.GetFromJsonAsync<List<NotificationDto>>($"api/notifications/user/{me.Id}")
-                   ?? new List<NotificationDto>();
-
-        return dtos
-            .OrderByDescending(n => n.Timestamp)
-            .Select(d => new Notification
+        try
+        {
+            Console.WriteLine("DEBUG: NotificationApiService.GetMyNotificationsAsync()");
+            Console.WriteLine($"DEBUG: HttpClient BaseAddress: {_httpClient.BaseAddress}");
+            
+            var currentUser = await _currentUserService.GetMeAsync();
+            
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
             {
-                Id = d.Id,
-                UserId = d.UserId,
-                Title = d.Title,
-                Message = d.Message,
-                Timestamp = d.Timestamp,
-                IsRead = d.IsRead,
-                Type = Enum.TryParse<NotificationType>(d.Type, true, out var t) ? t : NotificationType.Info
-            })
-            .ToList();
+                throw new Exception("Benutzerdaten konnten nicht geladen werden.");
+            }
+            
+            var response = await _httpClient.GetAsync($"api/notifications/user/{currentUser.Id}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Notifications API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+            
+            var result = await response.Content.ReadFromJsonAsync<List<Notification>>() ?? new();
+            Console.WriteLine($"DEBUG: Notifications loaded: {result.Count}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: GetMyNotificationsAsync error: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<int> GetUnreadCountAsync()
     {
-        var me = await _currentUser.GetMeAsync();
-        var count = await _http.GetFromJsonAsync<int>($"api/notifications/user/{me.Id}/count");
-        return count;
+        try
+        {
+            var currentUser = await _currentUserService.GetMeAsync();
+            
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
+            {
+                throw new Exception("Benutzerdaten konnten nicht geladen werden.");
+            }
+            
+            var response = await _httpClient.GetAsync($"api/notifications/user/{currentUser.Id}/unread/count");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Notifications API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+            
+            var result = await response.Content.ReadFromJsonAsync<int>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: GetUnreadCount error: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<bool> MarkAsReadAsync(string id)
     {
-        // du hast in der API mehrere Varianten – die einfachste ist PUT api/notifications/{id}/read
-        var resp = await _http.PutAsync($"api/notifications/{id}/read", content: null);
-        return resp.IsSuccessStatusCode;
+        try
+        {
+            Console.WriteLine("DEBUG: NotificationApiService.MarkAsReadAsync()");
+            
+            var response = await _httpClient.PutAsync($"api/notifications/{id}/read", null);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"MarkAsRead API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: MarkAsReadAsync error: {ex.Message}");
+            throw;
+        }
     }
 }

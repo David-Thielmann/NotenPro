@@ -1,34 +1,52 @@
-namespace HTLKrems.GradeManagement.Services;
+using System.Net.Http.Json;
+using HTLKrems.GradeManagement.Models;
+using HTLKrems.GradeManagement.Services;
+using NotenPro.Api.DTOs;
 
-public sealed class StudentApiService : IStudentService
+public class StudentApiService : IStudentService
 {
-    private readonly IGradeService _grades;
-    private readonly INotificationService _notifications;
+    private readonly HttpClient _httpClient;
+    private readonly ICurrentUserService _currentUserService;
 
-    public StudentApiService(IGradeService grades, INotificationService notifications)
+    public StudentApiService(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
     {
-        _grades = grades;
-        _notifications = notifications;
+        // 🔥 WICHTIG: "ApiClient" als String übergeben!
+        _httpClient = httpClientFactory.CreateClient("ApiClient");
+        _currentUserService = currentUserService;
+        Console.WriteLine($"DEBUG: StudentApiService created with BaseAddress: {_httpClient.BaseAddress}");
     }
 
     public async Task<StudentDashboardStats> GetDashboardStatsAsync()
     {
-        var grades = await _grades.GetMyGradesAsync();
-        var unread = await _notifications.GetUnreadCountAsync();
-
-        // Average: nur dort wo GradeValue gesetzt > 0
-        var graded = grades.Where(g => g.GradeValue > 0).ToList();
-        var avg = graded.Count > 0 ? graded.Average(g => g.GradeValue) : 0m;
-
-        // Ungraded: Status != Graded ODER GradeValue == 0
-        var ungraded = grades.Count(g => g.GradeValue <= 0 || g.Status != Models.GradeStatus.Graded);
-
-        return new StudentDashboardStats
+        try
         {
-            AverageGrade = avg,
-            UngradedTests = ungraded,
-            UnreadNotifications = unread,
-            ClassName = "-" // ClassName machen wir als nächsten Schritt sauber (braucht API-Unterstützung)
-        };
+            Console.WriteLine("DEBUG: StudentApiService.GetDashboardStatsAsync()");
+            Console.WriteLine($"DEBUG: HttpClient BaseAddress: {_httpClient.BaseAddress}");
+            
+            var currentUser = await _currentUserService.GetMeAsync();
+            
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
+            {
+                throw new Exception("Benutzerdaten konnten nicht geladen werden.");
+            }
+
+            Console.WriteLine($"DEBUG: Using real user ID: {currentUser.Id}");
+            
+            var response = await _httpClient.GetAsync($"api/students/{currentUser.Id}/dashboard/stats");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Dashboard Stats API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+            
+            var stats = await response.Content.ReadFromJsonAsync<StudentDashboardStats>();
+            return stats;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: StudentApiService error: {ex.Message}");
+            throw;
+        }
     }
 }
