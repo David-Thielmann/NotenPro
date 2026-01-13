@@ -3275,8 +3275,8 @@ C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\Not
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.dll
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.pdb
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\webcil\NotenPro.Shared.wasm
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-nyai0ii7rc.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-sgihkg3ba3.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-hg0n0k4bz4.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-mni26lrg29.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-vdzwi783hd.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-mx75b474g4.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-saibuf3r1v.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-sos3adiet7.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-g65dtp02a8.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-02463sgk4x.gz

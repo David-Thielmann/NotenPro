@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "NotenPro",
   "resources": {
-    "hash": "sha256-71ks6nvudb1LxI5RcQ4Lf+iMGcTA5fHMYzNX9bcnB98=",
+    "hash": "sha256-URdwn3CkXqD3vdnrqdQ2/9dNmt6UB5kJ53ljegcweyc=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.ykfzd9f74r.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.8j74ad8aj8.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -9,7 +9,9 @@
       "Microsoft.AspNetCore.Components.Forms.21vezblfp5.wasm": "Microsoft.AspNetCore.Components.Forms.wasm",
       "Microsoft.AspNetCore.Components.Web.nyrtexalry.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
       "Microsoft.AspNetCore.Components.WebAssembly.0mk72np563.wasm": "Microsoft.AspNetCore.Components.WebAssembly.wasm",
+      "Microsoft.AspNetCore.Components.WebAssembly.Authentication.67kqcjyqyp.wasm": "Microsoft.AspNetCore.Components.WebAssembly.Authentication.wasm",
       "Microsoft.AspNetCore.Metadata.v9484fyjlw.wasm": "Microsoft.AspNetCore.Metadata.wasm",
+      "Microsoft.Authentication.WebAssembly.Msal.y5mk0xa5pg.wasm": "Microsoft.Authentication.WebAssembly.Msal.wasm",
       "Microsoft.Extensions.Configuration.4njtqvtvgx.wasm": "Microsoft.Extensions.Configuration.wasm",
       "Microsoft.Extensions.Configuration.Abstractions.8kr5d0tjmo.wasm": "Microsoft.Extensions.Configuration.Abstractions.wasm",
       "Microsoft.Extensions.Configuration.Binder.530fv282r5.wasm": "Microsoft.Extensions.Configuration.Binder.wasm",
@@ -17,18 +19,23 @@
       "Microsoft.Extensions.Configuration.Json.ua9xbwdl0u.wasm": "Microsoft.Extensions.Configuration.Json.wasm",
       "Microsoft.Extensions.DependencyInjection.y2i1jqa8ys.wasm": "Microsoft.Extensions.DependencyInjection.wasm",
       "Microsoft.Extensions.DependencyInjection.Abstractions.kgyjb8k43h.wasm": "Microsoft.Extensions.DependencyInjection.Abstractions.wasm",
+      "Microsoft.Extensions.Diagnostics.xg83zizj0a.wasm": "Microsoft.Extensions.Diagnostics.wasm",
+      "Microsoft.Extensions.Diagnostics.Abstractions.f96etlqg03.wasm": "Microsoft.Extensions.Diagnostics.Abstractions.wasm",
       "Microsoft.Extensions.FileProviders.Abstractions.1c7ksbormu.wasm": "Microsoft.Extensions.FileProviders.Abstractions.wasm",
       "Microsoft.Extensions.FileProviders.Physical.rpvltkbyzt.wasm": "Microsoft.Extensions.FileProviders.Physical.wasm",
       "Microsoft.Extensions.FileSystemGlobbing.i464dwxnbb.wasm": "Microsoft.Extensions.FileSystemGlobbing.wasm",
+      "Microsoft.Extensions.Http.8u7hd4iwzw.wasm": "Microsoft.Extensions.Http.wasm",
       "Microsoft.Extensions.Localization.wgdl21ygqt.wasm": "Microsoft.Extensions.Localization.wasm",
       "Microsoft.Extensions.Localization.Abstractions.dybfvbb575.wasm": "Microsoft.Extensions.Localization.Abstractions.wasm",
       "Microsoft.Extensions.Logging.78i0zw4gi3.wasm": "Microsoft.Extensions.Logging.wasm",
       "Microsoft.Extensions.Logging.Abstractions.tz325eqvv5.wasm": "Microsoft.Extensions.Logging.Abstractions.wasm",
       "Microsoft.Extensions.Options.jt8xzja2dj.wasm": "Microsoft.Extensions.Options.wasm",
+      "Microsoft.Extensions.Options.ConfigurationExtensions.zyudcniekx.wasm": "Microsoft.Extensions.Options.ConfigurationExtensions.wasm",
       "Microsoft.Extensions.Primitives.lsakbjp1fg.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.v5qjmi2qzi.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.760cxa11r6.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
       "MudBlazor.uo0yx5b378.wasm": "MudBlazor.wasm",
+      "QuestPDF.ltxmgqxaw9.wasm": "QuestPDF.wasm",
       "Microsoft.CSharp.j3zkownjjr.wasm": "Microsoft.CSharp.wasm",
       "Microsoft.VisualBasic.Core.qljjwgjnrn.wasm": "Microsoft.VisualBasic.Core.wasm",
       "Microsoft.VisualBasic.ocn5mkr2m2.wasm": "Microsoft.VisualBasic.wasm",
@@ -199,23 +206,25 @@
       "netstandard.kaml52uspo.wasm": "netstandard.wasm",
       "System.Private.CoreLib.uqnhzdwypx.wasm": "System.Private.CoreLib.wasm",
       "dotnet.js": "dotnet.js",
-      "dotnet.native.9ih887ebfz.js": "dotnet.native.js",
-      "dotnet.native.21mns4qp4i.wasm": "dotnet.native.wasm",
-      "dotnet.runtime.st3wwc8rqy.js": "dotnet.runtime.js",
+      "dotnet.native.noby4tlk4d.js": "dotnet.native.js",
+      "dotnet.native.qe75a9vfqn.wasm": "dotnet.native.wasm",
+      "dotnet.runtime.9o45ky8ejm.js": "dotnet.runtime.js",
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "NotenPro.bhl1oi5v0l.wasm": "NotenPro.wasm",
-      "NotenPro.5zagf59u2x.pdb": "NotenPro.pdb"
+      "NotenPro.Shared.mx75b474g4.wasm": "NotenPro.Shared.wasm",
+      "NotenPro.Shared.saibuf3r1v.pdb": "NotenPro.Shared.pdb",
+      "NotenPro.onam0nvya0.wasm": "NotenPro.wasm",
+      "NotenPro.28s9jptip2.pdb": "NotenPro.pdb"
     },
     "jsModuleNative": {
-      "dotnet.native.9ih887ebfz.js": "sha256-oS7IRiQoVt9ThQ7Y2UM3XoeY0JqPD02cg9IvRdufn2w="
+      "dotnet.native.noby4tlk4d.js": "sha256-p9eEzXhQIsI0a5bBJhfzW15iRafgplTxT8XrO5FiH9o="
     },
     "jsModuleRuntime": {
-      "dotnet.runtime.st3wwc8rqy.js": "sha256-oBRKHAqZUsvCRnCzkQfB7zc45cpKLNq2NKyrG10IKx8="
+      "dotnet.runtime.9o45ky8ejm.js": "sha256-6QIZYgG+ftoT9N1H1EEJeXIhD/qbKqEcnmawDskiwdI="
     },
     "wasmNative": {
-      "dotnet.native.21mns4qp4i.wasm": "sha256-RtuwNrUOdAJ5A4aS4ZmceO4ySriaYqTdC7X++6yd9lM="
+      "dotnet.native.qe75a9vfqn.wasm": "sha256-Po2dalLvTpf5jAS+jt0TzuBYybYiL1F6qAacZJ8UAdo="
     },
     "icu": {
       "icudt_CJK.tjcz0u77k5.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -233,7 +242,9 @@
       "Microsoft.AspNetCore.Components.Forms.21vezblfp5.wasm": "sha256-akzgy1uAnRG/g4YlT0MwG1bOtrv61SEGE6Sr+AiIkCE=",
       "Microsoft.AspNetCore.Components.Web.nyrtexalry.wasm": "sha256-Mfv/Wds4tY+jX0AY8lIFtYCYhvXOliEK58jv2q6r2Lk=",
       "Microsoft.AspNetCore.Components.WebAssembly.0mk72np563.wasm": "sha256-GDJfIU7XS7MlmrwWZh/CD4wNkm+PPO7FFLZ4Qo0jCPU=",
+      "Microsoft.AspNetCore.Components.WebAssembly.Authentication.67kqcjyqyp.wasm": "sha256-wkDZcde70UgE//S8rIWu1Lda/JLfQaUpvgst+8EF7XQ=",
       "Microsoft.AspNetCore.Metadata.v9484fyjlw.wasm": "sha256-o8d/sfLwWV1sC7eJf5UxbKBthuiy5jNqD6JigjvSrJs=",
+      "Microsoft.Authentication.WebAssembly.Msal.y5mk0xa5pg.wasm": "sha256-yk77vYx+s5iKaKKZqwab1GqgfqiH1WsoH14rnH+mkls=",
       "Microsoft.Extensions.Configuration.4njtqvtvgx.wasm": "sha256-UDGEQR7J3WTfzYMgOzxVIBwFQtKEeJvO8UgrWagypdE=",
       "Microsoft.Extensions.Configuration.Abstractions.8kr5d0tjmo.wasm": "sha256-yNdqbqDWGiJo943D7LPak5xryCBEsNH0wtdiuU1R9VE=",
       "Microsoft.Extensions.Configuration.Binder.530fv282r5.wasm": "sha256-z4rx/oKV4Rmj1LLt/A3F+PhCEg3wcLXSWHjstLQm5Q4=",
@@ -241,18 +252,23 @@
       "Microsoft.Extensions.Configuration.Json.ua9xbwdl0u.wasm": "sha256-ViitoeUHw71Xhs0JJ88lGca05eRKDi+p+NyaYc6cRIQ=",
       "Microsoft.Extensions.DependencyInjection.y2i1jqa8ys.wasm": "sha256-NrPYML1ZOnKmz2Y+n4q5EFp+e4a6g47+gH22VofJd2k=",
       "Microsoft.Extensions.DependencyInjection.Abstractions.kgyjb8k43h.wasm": "sha256-NICKEw2hjoBhl1lvxOBh8cxOIN8kkrGHz3pvV1eLLbY=",
+      "Microsoft.Extensions.Diagnostics.xg83zizj0a.wasm": "sha256-ocjYvUYaqVp/zqoZgO2Jz9xDvZzLM7qR2qkAidM5DsU=",
+      "Microsoft.Extensions.Diagnostics.Abstractions.f96etlqg03.wasm": "sha256-zZcH54DRmcuIAi/NQWV5AKf4l8zFSHQ5r+ZK4gGwnrY=",
       "Microsoft.Extensions.FileProviders.Abstractions.1c7ksbormu.wasm": "sha256-IUopixuV8E09mP+TIgRp/lXEbeacXbUTW7cu0v5B9Tc=",
       "Microsoft.Extensions.FileProviders.Physical.rpvltkbyzt.wasm": "sha256-MS+zB0xkKhKk/QdE32ZwKtdlrLMLI/y2NAKPUWhcBVg=",
       "Microsoft.Extensions.FileSystemGlobbing.i464dwxnbb.wasm": "sha256-AnWUKd0qJ8ZNKkRC0AFK2cjjszB7reXiP+bXdIi8bic=",
+      "Microsoft.Extensions.Http.8u7hd4iwzw.wasm": "sha256-EOHR/vTMOWbdshFAa+n27+jPgCvrczn8XGFLj2P06UI=",
       "Microsoft.Extensions.Localization.wgdl21ygqt.wasm": "sha256-kMLgnUXyCK3PjWaFVpQGP59lzJkRYIrR9nxlovntXE0=",
       "Microsoft.Extensions.Localization.Abstractions.dybfvbb575.wasm": "sha256-RWXCVmZKCYgNeXmPf/7V0IHNsTKNdb/31UpoQtdxcNc=",
       "Microsoft.Extensions.Logging.78i0zw4gi3.wasm": "sha256-Rx+UwnmyfTtMmlYd3HWJOvYVnSSwShUKrbPvqkfxmZk=",
       "Microsoft.Extensions.Logging.Abstractions.tz325eqvv5.wasm": "sha256-uf1KJp0fVm0d3Bs2JFD1oxo857dVH+MA9AF/tlH5YEw=",
       "Microsoft.Extensions.Options.jt8xzja2dj.wasm": "sha256-5/m+yVFGRuY+N4jQnD+QETKH0AfhAsnVze5dJ5ogIVM=",
+      "Microsoft.Extensions.Options.ConfigurationExtensions.zyudcniekx.wasm": "sha256-C8ZA1VhhrMRPf8Qqv+OrW9za3ggJkCM9i1d8R/F1ETc=",
       "Microsoft.Extensions.Primitives.lsakbjp1fg.wasm": "sha256-pVrYOTfjb2ITls3LKIByW1t8jwOAWFhmkIVDewtJ1GE=",
       "Microsoft.JSInterop.v5qjmi2qzi.wasm": "sha256-MwldKMFxneAed5VVuF+dWcoF8YxUQgxNT52sVyJNbN0=",
       "Microsoft.JSInterop.WebAssembly.760cxa11r6.wasm": "sha256-3wQR1/VN+SB8r7Gkqf93l8O4F1aSbaghQWV2PoaJByI=",
       "MudBlazor.uo0yx5b378.wasm": "sha256-AmOtUZlGuPOLrIEYg9f5omGJDdNPS3d8rbKTKgEtlc0=",
+      "QuestPDF.ltxmgqxaw9.wasm": "sha256-uZxCsM3Kl8pbBti6LtkjJFGno/19OG8gKXXkebunugg=",
       "Microsoft.CSharp.j3zkownjjr.wasm": "sha256-r7YS8Hp01zUR3LoH5JsS7IrucOta+FnV199bCLii7Pk=",
       "Microsoft.VisualBasic.Core.qljjwgjnrn.wasm": "sha256-/jlp74GLHWhrCfjAmWlVClO68H3wIk+kVx9A/gjByls=",
       "Microsoft.VisualBasic.ocn5mkr2m2.wasm": "sha256-eNtd5fm3g/oUf5hiuJ1DpH74Qzd5eTxbpPOEunY0DZQ=",
@@ -420,14 +436,19 @@
       "WindowsBase.vy2l5u79y6.wasm": "sha256-ufB9Mo5joMyUs3DzXWWBFFIZNEVrt6h9N5stYB6Oln4=",
       "mscorlib.xd6mv31d55.wasm": "sha256-1YSLR2eZt3ceALFV//vZUF2AloxVil3VlrW1zZYPSEI=",
       "netstandard.kaml52uspo.wasm": "sha256-HLEwBpLfzKw2/zGSVzHzFJxznCkt/WIjahrziiMrOpA=",
-      "NotenPro.bhl1oi5v0l.wasm": "sha256-/9JwrOh3NUc+szQHvCxCk9uoumHpNwwYKgoQjxO127E="
+      "NotenPro.Shared.mx75b474g4.wasm": "sha256-ll2VBRCQ5wSxeMRyyUPCplU+bhW+n4l8NeejH+gYrfg=",
+      "NotenPro.onam0nvya0.wasm": "sha256-jPS5s6QgOE27iQk36aFMsGAC5UNcLlpqzW9btB9wH9A="
     },
     "pdb": {
-      "NotenPro.5zagf59u2x.pdb": "sha256-b7FFD3CS/BL4rAZ6uFpJhwJxvotgo2gzmRxagut4Lic="
+      "NotenPro.Shared.saibuf3r1v.pdb": "sha256-ZJuTyn+l94ZcdPjcoypM5Hm/FWisIvKrz3i5aAsQokg=",
+      "NotenPro.28s9jptip2.pdb": "sha256-3sFhTgCpCcXtJwf2Q9E/6Ar/bXhVVJRLgncnhfEym/s="
     }
   },
   "cacheBootResources": true,
   "debugLevel": -1,
+  "appsettings": [
+    "../appsettings.json"
+  ],
   "globalizationMode": "sharded",
   "extensions": {
     "blazor": {}
