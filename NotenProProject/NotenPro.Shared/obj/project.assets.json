@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
+      "projectUniqueName": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
       "projectName": "NotenPro.Shared",
-      "projectPath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
+      "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
       "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\obj\\",
+      "outputPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"

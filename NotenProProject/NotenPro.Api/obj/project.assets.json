@@ -5533,11 +5533,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
+      "projectUniqueName": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
       "projectName": "NotenPro.Api",
-      "projectPath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
+      "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
       "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\obj\\",
+      "outputPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -5552,8 +5552,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
-              "projectPath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj"
+            "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
+              "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj"
             }
           }
         }

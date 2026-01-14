@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "6oB+ZrNQUHk=",
+  "dgSpecHash": "sT5kqczHtSY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
+  "projectFilePath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Api\\NotenPro.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\David\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

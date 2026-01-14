@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LnsXva/Lmb8=",
+  "dgSpecHash": "w9uqGNp2vfE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\David\\OneDrive - HTL Krems\\Htlkrems2024\\ITPP Katz\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
+  "projectFilePath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\David\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.22\\microsoft.aspnetcore.authorization.8.0.22.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.22\\microsoft.aspnetcore.components.8.0.22.nupkg.sha512",

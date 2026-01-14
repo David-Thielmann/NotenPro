@@ -3275,9 +3275,9 @@ C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\Not
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.dll
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\NotenPro.Shared.pdb
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\webcil\NotenPro.Shared.wasm
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-dfdpbsrjvi.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-morikmav73.gz
 C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\bin\Debug\net8.0\appsettings.json
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-w0d3oklqi1.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-t1xyncf54x.gz
-C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-gahst11oac.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-dtun2t53wf.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-3d6a7t0j0o.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-8dfzly0ceb.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-17cwmxtgqz.gz
+C:\Users\David\OneDrive - HTL Krems\Htlkrems2024\ITPP Katz\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-a4onkp2obt.gz
