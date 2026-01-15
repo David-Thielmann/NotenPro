@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using HTLKrems.GradeManagement.Models;
 using HTLKrems.GradeManagement.Services;
+using HTLKrems.GradeManagement.Services.Json;
 using NotenPro.Shared.DTOs;
 
 public class GradeApiService : IGradeService
@@ -8,9 +10,16 @@ public class GradeApiService : IGradeService
     private readonly HttpClient _httpClient;
     private readonly ICurrentUserService _currentUserService;
 
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters =
+        {
+            new FlexibleEnumConverter<GradeStatus>()
+        }
+    };
+
     public GradeApiService(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
     {
-        // 🔥 WICHTIG: "ApiClient" als String übergeben!
         _httpClient = httpClientFactory.CreateClient("ApiClient");
         _currentUserService = currentUserService;
         Console.WriteLine($"DEBUG: GradeApiService created with BaseAddress: {_httpClient.BaseAddress}");
@@ -22,24 +31,21 @@ public class GradeApiService : IGradeService
         {
             Console.WriteLine("DEBUG: GradeApiService.GetMyGradesAsync()");
             Console.WriteLine($"DEBUG: HttpClient BaseAddress: {_httpClient.BaseAddress}");
-            
+
             var currentUser = await _currentUserService.GetMeAsync();
-            
+
             if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
-            {
                 throw new Exception("Benutzerdaten konnten nicht geladen werden.");
-            }
-            
-            // 🔥 ABSOLUTE URL (relativ zu BaseAddress)
+
             var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"Grades API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>() ?? new();
+
+            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
             Console.WriteLine($"DEBUG: My grades loaded: {result.Count}");
             return result;
         }
@@ -55,23 +61,21 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.GetRecentGradesAsync()");
-            
+
             var currentUser = await _currentUserService.GetMeAsync();
-            
+
             if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
-            {
                 throw new Exception("Benutzerdaten konnten nicht geladen werden.");
-            }
-            
+
             var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}?count={count}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"Grades API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>() ?? new();
+
+            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
             Console.WriteLine($"DEBUG: Real grades loaded: {result.Count}");
             return result;
         }
@@ -87,23 +91,21 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.GetSubjectAveragesAsync()");
-            
+
             var currentUser = await _currentUserService.GetMeAsync();
-            
+
             if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
-            {
                 throw new Exception("Benutzerdaten konnten nicht geladen werden.");
-            }
-            
+
             var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}/averages");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"Averages API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<List<SubjectAverage>>() ?? new();
+
+            var result = await response.Content.ReadFromJsonAsync<List<SubjectAverage>>(JsonOptions) ?? new();
             Console.WriteLine($"DEBUG: Real averages loaded: {result.Count}");
             return result;
         }
@@ -119,16 +121,16 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.SaveGradesAsync()");
-            
+
             var response = await _httpClient.PostAsJsonAsync($"api/grades/test/{testId}", grades);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"SaveGrades API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>(JsonOptions);
             Console.WriteLine($"DEBUG: SaveGrades success: {result?.Success}");
             return result ?? new ApiResponse<bool> { Success = false, Message = "Keine Antwort erhalten" };
         }
@@ -144,16 +146,16 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.GetGradesByTestAsync()");
-            
+
             var response = await _httpClient.GetAsync($"api/grades/test/{testId}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"GetGradesByTest API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>() ?? new();
+
+            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
             Console.WriteLine($"DEBUG: Grades by test loaded: {result.Count}");
             return result;
         }
@@ -169,16 +171,16 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.SaveGradeAsync()");
-            
+
             var response = await _httpClient.PostAsJsonAsync("api/grades", grade);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"SaveGrade API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<ApiResponse<Grade>>();
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<Grade>>(JsonOptions);
             Console.WriteLine($"DEBUG: SaveGrade success: {result?.Success}");
             return result ?? new ApiResponse<Grade> { Success = false, Message = "Keine Antwort erhalten" };
         }
@@ -194,16 +196,16 @@ public class GradeApiService : IGradeService
         try
         {
             Console.WriteLine("DEBUG: GradeApiService.SaveGradesBulkAsync()");
-            
+
             var response = await _httpClient.PostAsJsonAsync("api/grades/bulk", grades);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"SaveGradesBulk API-Fehler ({response.StatusCode}): {errorContent}");
             }
-            
-            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<Grade>>>();
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<Grade>>>(JsonOptions);
             Console.WriteLine($"DEBUG: SaveGradesBulk success: {result?.Success}");
             return result ?? new ApiResponse<List<Grade>> { Success = false, Message = "Keine Antwort erhalten" };
         }

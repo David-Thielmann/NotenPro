@@ -9,3 +9,15 @@ C:\Users\David\Desktop\NotenProProject_studentpages_stage9_api_dev_authbypass\No
 C:\Users\David\Desktop\NotenProProject_studentpages_stage9_api_dev_authbypass\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\refint\NotenPro.Shared.dll
 C:\Users\David\Desktop\NotenProProject_studentpages_stage9_api_dev_authbypass\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.pdb
 C:\Users\David\Desktop\NotenProProject_studentpages_stage9_api_dev_authbypass\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\ref\NotenPro.Shared.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\bin\Debug\net8.0\NotenPro.Shared.deps.json
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\bin\Debug\net8.0\NotenPro.Shared.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\bin\Debug\net8.0\NotenPro.Shared.pdb
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.AssemblyInfoInputs.cache
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.AssemblyInfo.cs
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.sourcelink.json
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\refint\NotenPro.Shared.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\NotenPro.Shared.pdb
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Shared\obj\Debug\net8.0\ref\NotenPro.Shared.dll
