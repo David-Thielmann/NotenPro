@@ -1,4 +1,4 @@
-using NotenPro.Api.DTOs;
+using NotenPro.Shared.DTOs;
 
 namespace HTLKrems.GradeManagement.Services
 {

@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using HTLKrems.GradeManagement.Services;
-using NotenPro.Api.DTOs;
+using NotenPro.Shared.DTOs;
 
 public class CurrentUserApiService : ICurrentUserService
 {

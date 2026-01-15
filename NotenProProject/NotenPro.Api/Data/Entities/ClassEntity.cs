@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace NotenPro.Api.Data.Entities;
+namespace NotenPro.Domain.Entities;
 
 [Table("classes")]
 public class ClassEntity

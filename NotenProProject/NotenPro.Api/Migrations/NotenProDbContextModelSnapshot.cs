@@ -22,7 +22,7 @@ namespace NotenPro.Api.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.ClassEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.ClassEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -82,7 +82,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.EarlyWarningEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.EarlyWarningEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -141,7 +141,7 @@ namespace NotenPro.Api.Migrations
                     b.ToTable("early_warnings");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.GradeEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.GradeEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -215,7 +215,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.NotificationEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.NotificationEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -271,7 +271,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.SchoolEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.SchoolEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -322,7 +322,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.StudentClassEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.StudentClassEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -364,7 +364,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.SubjectEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.SubjectEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -450,7 +450,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.TeacherSubjectEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.TeacherSubjectEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -499,7 +499,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.TestEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.TestEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -582,7 +582,7 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.UserEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.UserEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
@@ -696,13 +696,13 @@ namespace NotenPro.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.ClassEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.ClassEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "ClassTeacher")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "ClassTeacher")
                         .WithMany()
                         .HasForeignKey("ClassTeacherId");
 
-                    b.HasOne("NotenPro.Api.Data.Entities.SchoolEntity", "School")
+                    b.HasOne("NotenPro.Domain.Entities.SchoolEntity", "School")
                         .WithMany("Classes")
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -713,21 +713,21 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("School");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.EarlyWarningEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.EarlyWarningEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Student")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.SubjectEntity", "Subject")
+                    b.HasOne("NotenPro.Domain.Entities.SubjectEntity", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Teacher")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -740,15 +740,15 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.GradeEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.GradeEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Student")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Student")
                         .WithMany("Grades")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.TestEntity", "Test")
+                    b.HasOne("NotenPro.Domain.Entities.TestEntity", "Test")
                         .WithMany("Grades")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -759,9 +759,9 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Test");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.NotificationEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.NotificationEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "User")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -770,15 +770,15 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.StudentClassEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.StudentClassEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.ClassEntity", "Class")
+                    b.HasOne("NotenPro.Domain.Entities.ClassEntity", "Class")
                         .WithMany("StudentClasses")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Student")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Student")
                         .WithMany("StudentClasses")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -789,9 +789,9 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.SubjectEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.SubjectEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.SchoolEntity", "School")
+                    b.HasOne("NotenPro.Domain.Entities.SchoolEntity", "School")
                         .WithMany("Subjects")
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -800,15 +800,15 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("School");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.TeacherSubjectEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.TeacherSubjectEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.SubjectEntity", "Subject")
+                    b.HasOne("NotenPro.Domain.Entities.SubjectEntity", "Subject")
                         .WithMany("TeacherSubjects")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Teacher")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Teacher")
                         .WithMany("TeacherSubjects")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -819,21 +819,21 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.TestEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.TestEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.ClassEntity", "Class")
+                    b.HasOne("NotenPro.Domain.Entities.ClassEntity", "Class")
                         .WithMany("Tests")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.SubjectEntity", "Subject")
+                    b.HasOne("NotenPro.Domain.Entities.SubjectEntity", "Subject")
                         .WithMany("Tests")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NotenPro.Api.Data.Entities.UserEntity", "Teacher")
+                    b.HasOne("NotenPro.Domain.Entities.UserEntity", "Teacher")
                         .WithMany("CreatedTests")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -846,23 +846,23 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.UserEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.UserEntity", b =>
                 {
-                    b.HasOne("NotenPro.Api.Data.Entities.SchoolEntity", "School")
+                    b.HasOne("NotenPro.Domain.Entities.SchoolEntity", "School")
                         .WithMany("Users")
                         .HasForeignKey("SchoolId");
 
                     b.Navigation("School");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.ClassEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.ClassEntity", b =>
                 {
                     b.Navigation("StudentClasses");
 
                     b.Navigation("Tests");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.SchoolEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.SchoolEntity", b =>
                 {
                     b.Navigation("Classes");
 
@@ -871,19 +871,19 @@ namespace NotenPro.Api.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.SubjectEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.SubjectEntity", b =>
                 {
                     b.Navigation("TeacherSubjects");
 
                     b.Navigation("Tests");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.TestEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.TestEntity", b =>
                 {
                     b.Navigation("Grades");
                 });
 
-            modelBuilder.Entity("NotenPro.Api.Data.Entities.UserEntity", b =>
+            modelBuilder.Entity("NotenPro.Domain.Entities.UserEntity", b =>
                 {
                     b.Navigation("CreatedTests");
 

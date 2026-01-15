@@ -113,9 +113,9 @@
         </MudDrawerHeader>
 
         <MudNavMenu>
-            <MudNavLink Href="/student"
+            <MudNavLink Href="/student/dashboard"
                         Icon="@Icons.Material.Filled.Dashboard"
-                        Match="NavLinkMatch.All">
+                        Match="NavLinkMatch.Prefix">
                 Dashboard
             </MudNavLink>
 
@@ -163,7 +163,7 @@
                                          Value="dashboard"
                                          Text="Dashboard"
                                          Icon="@Icons.Material.Filled.Dashboard"
-                                         OnClick="@(() => SelectPage("dashboard", "/student"))" />
+                                         OnClick="@(() => SelectPage("dashboard", "/student/dashboard"))" />
 
                 <MudBottomNavigationItem T="string"
                                          Value="grades"

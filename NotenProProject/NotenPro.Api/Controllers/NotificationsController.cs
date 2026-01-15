@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
-using NotenPro.Api.Data.Entities;
-using NotenPro.Api.DTOs;
+using NotenPro.Domain.Entities;
+using NotenPro.Shared.DTOs;
 
 
 namespace NotenPro.Api.Controllers;

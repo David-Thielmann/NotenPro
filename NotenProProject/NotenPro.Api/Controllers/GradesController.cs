@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
-using NotenPro.Api.Data.Entities;
-using NotenPro.Api.DTOs;
+using NotenPro.Domain.Entities;
 using HTLKrems.GradeManagement.Api.Services;
-using NotenPro.Api.DTOs;
-
-using HTLKrems.GradeManagement.Api.Services;
+using NotenPro.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -90,6 +87,73 @@ public class GradesController : ControllerBase
             .ToListAsync();
 
         return Ok(grades);
+    }
+
+    // ============ GET: api/grades/student/{studentId}/recent?count=5 ============
+
+    [HttpGet("student/{studentId}/recent")]
+    public async Task<ActionResult<List<GradeDto>>> GetStudentRecentGrades(string studentId, [FromQuery] int count = 5)
+    {
+        if (count <= 0) count = 5;
+
+        var grades = await _context.Grades
+            .Include(g => g.Test)
+                .ThenInclude(t => t.Subject)
+            .Include(g => g.Test)
+                .ThenInclude(t => t.Teacher)
+            .Include(g => g.Student)
+            .Where(g => g.StudentId == studentId)
+            .OrderByDescending(g => g.Test.Date)
+            .Take(count)
+            .Select(g => new GradeDto
+            {
+                Id = g.Id,
+                StudentId = g.StudentId,
+                StudentName = g.Student.Name,
+                TestId = g.TestId,
+                TestName = g.Test.Name,
+                Subject = g.Test.Subject.Name,
+                GradeValue = g.GradeValue,
+                Points = g.Points,
+                MaxPoints = g.MaxPoints,
+                Status = g.Status.ToString(),
+                Comment = g.Comment,
+                Date = g.Test.Date
+            })
+            .ToListAsync();
+
+        return Ok(grades);
+    }
+
+    // ============ GET: api/grades/student/{studentId}/averages ============
+
+    [HttpGet("student/{studentId}/averages")]
+    public async Task<ActionResult> GetStudentSubjectAverages(string studentId)
+    {
+        var rows = await _context.Grades
+            .Include(g => g.Test)
+                .ThenInclude(t => t.Subject)
+            .Where(g => g.StudentId == studentId)
+            .Select(g => new
+            {
+                SubjectName = g.Test.Subject.Name,
+                GradeValue = g.GradeValue
+            })
+            .ToListAsync();
+
+	        var result = rows
+	            .GroupBy(r => r.SubjectName)
+	            .Select(g => new
+	            {
+	                Name = g.Key,
+	                // Keep decimal rounding behavior as in the original implementation
+	                Average = Math.Round((decimal)g.Average(x => x.GradeValue), 2),
+	                TestCount = g.Count()
+	            })
+            .OrderBy(x => x.Name)
+            .ToList();
+
+        return Ok(result);
     }
 
     // ====== NEU: GET: api/grades/student/{studentId}/export ======
@@ -354,7 +418,7 @@ public class GradesController : ControllerBase
         }
     }
     [HttpGet("export/student/{studentId}")]
-    [Authorize] // falls du Auth verwendest
+    [AllowAnonymous] // falls du Auth verwendest
     public async Task<IActionResult> ExportStudentGrades(string studentId)
     {
         var grades = await _context.Grades

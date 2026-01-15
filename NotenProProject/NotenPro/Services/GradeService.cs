@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using HTLKrems.GradeManagement.Models;
 using HTLKrems.GradeManagement.Services;
-using NotenPro.Api.DTOs;
+using NotenPro.Shared.DTOs;
 
 namespace HTLKrems.GradeManagement.Services
 {
@@ -72,7 +72,7 @@ namespace HTLKrems.GradeManagement.Services
                     throw new Exception("Benutzerdaten konnten nicht geladen werden.");
                 }
                 
-                var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}?count={count}");
+                var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}/recent?count={count}");
                 
                 if (!response.IsSuccessStatusCode)
                 {

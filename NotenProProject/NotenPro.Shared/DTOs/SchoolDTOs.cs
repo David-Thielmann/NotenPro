@@ -1,4 +1,4 @@
-namespace NotenPro.Api.DTOs;
+namespace NotenPro.Shared.DTOs;
 
 public class SchoolDto
 {

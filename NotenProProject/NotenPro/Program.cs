@@ -1,64 +1,43 @@
-using HTLKrems.GradeManagement;
-using HTLKrems.GradeManagement.Services;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using HTLKrems.GradeManagement;
+using HTLKrems.GradeManagement.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// 🔐 MICROSOFT IDENTITY
+// 🧩 MudBlazor services (required for MudDialogProvider / IDialogService)
+builder.Services.AddMudServices();
+
+// 🔐 MSAL (Azure AD) – Login bleibt aktiv (ID token), aber wir benötigen kein Access Token für die API.
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-    options.UserOptions.RoleClaim = "roles";
+
+    // DefaultScopes können vorhanden sein, sind aber für die DEV-API-Aufrufe nicht nötig.
+    var scopes = builder.Configuration.GetSection("AzureAd:DefaultScopes").Get<string[]>() ?? Array.Empty<string>();
+    foreach (var s in scopes)
+        options.ProviderOptions.DefaultAccessTokenScopes.Add(s);
 });
 
-// 🔥 NUR EINEN HttpClient MIT BaseAddress
+// 🌐 Named HttpClient (DEV): sendet User-Claims als Header, kein Bearer Token erforderlich
+builder.Services.AddTransient<OidHeaderHandler>();
+
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5001/");
-    Console.WriteLine($"🌐 ApiClient BaseAddress: {client.BaseAddress}");
+    client.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"] ?? "https://localhost:5001/");
 })
-.AddHttpMessageHandler(sp =>
-{
-    var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
-    handler.ConfigureHandler(authorizedUrls: new[] { "https://localhost:5001/" });
-    return handler;
-});
+.AddHttpMessageHandler<OidHeaderHandler>();
 
-// 📦 ALLE SERVICES BEKOMMEN DENSELBEN CLIENT
-builder.Services.AddScoped<ICurrentUserService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var httpClient = httpClientFactory.CreateClient("ApiClient");
-    return new CurrentUserApiService(httpClient);
-});
+// Standard HttpClient NICHT für API verwenden!
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"));
 
-builder.Services.AddScoped<IGradeService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var currentUserService = sp.GetRequiredService<ICurrentUserService>();
-    return new GradeApiService(httpClientFactory, currentUserService);
-});
-
-builder.Services.AddScoped<IStudentService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var currentUserService = sp.GetRequiredService<ICurrentUserService>();
-    return new StudentApiService(httpClientFactory, currentUserService);
-});
-
-builder.Services.AddScoped<INotificationService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var currentUserService = sp.GetRequiredService<ICurrentUserService>();
-    return new NotificationApiService(httpClientFactory, currentUserService);
-});
-
-builder.Services.AddMudServices();
+// Deine Services müssen genau diesen Client bekommen
+builder.Services.AddScoped<ICurrentUserService, CurrentUserApiService>();
+builder.Services.AddScoped<IStudentService, StudentApiService>();
+builder.Services.AddScoped<IGradeService, GradeApiService>();
+builder.Services.AddScoped<INotificationService, NotificationApiService>();
 
 await builder.Build().RunAsync();

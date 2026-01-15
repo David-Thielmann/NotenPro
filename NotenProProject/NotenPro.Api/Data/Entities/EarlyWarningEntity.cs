@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace NotenPro.Api.Data.Entities;
+namespace NotenPro.Domain.Entities;
 
 [Table("early_warnings")]
 public class EarlyWarningEntity

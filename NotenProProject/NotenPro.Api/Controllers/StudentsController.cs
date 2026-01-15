@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
-using NotenPro.Api.Data.Entities;
+using NotenPro.Domain.Entities;
 
 namespace NotenPro.Api.Controllers
 {

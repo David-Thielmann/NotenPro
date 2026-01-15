@@ -1,11 +1,8 @@
 @page "/student/grades"
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IGradeService GradeService
 @inject IPdfExportService PdfExportService
-@inject NavigationManager Navigation
-@inject NavigationManager NavManager
 @inject IJSRuntime JS
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider AuthStateProvider
@@ -255,24 +252,14 @@ else
     {
         try
         {
-            var studentId = grades.FirstOrDefault()?.StudentId;
-
-            if (string.IsNullOrWhiteSpace(studentId))
+            if (grades.Count == 0)
             {
-                Snackbar.Add("Keine Schüler-ID gefunden – es sind keine Noten geladen.", Severity.Error);
+                Snackbar.Add("Keine Noten vorhanden – es gibt nichts zu exportieren.", Severity.Warning);
                 return;
             }
 
-            var response = await Http.GetAsync($"api/grades/export/student/{studentId}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var msg = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export fehlgeschlagen ({(int)response.StatusCode}): {msg}", Severity.Error);
-                return;
-            }
-
-            var bytes  = await response.Content.ReadAsByteArrayAsync();
+            // PDF lokal erzeugen (Daten kommen bereits aus der API)
+            var bytes = PdfExportService.CreateGradesPdf(grades);
             var base64 = Convert.ToBase64String(bytes);
 
             await JS.InvokeVoidAsync(

@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using HTLKrems.GradeManagement.Models;
 using HTLKrems.GradeManagement.Services;
-using NotenPro.Api.DTOs;
+using NotenPro.Shared.DTOs;
 
 public class StudentApiService : IStudentService
 {

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NotenPro.Api.Data.Entities;
+using NotenPro.Domain.Entities;
 
 namespace NotenPro.Api.Data;
 
