@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "CIxqG3PeNb4=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Domain\\NotenPro.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\9.0.0\\microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
