@@ -346,27 +346,27 @@ namespace NotenPro.Api.Migrations
             migrationBuilder.InsertData(
                 table: "schools",
                 columns: new[] { "id", "created_at", "location", "name", "status", "updated_at" },
-                values: new object[] { "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 31, 828, DateTimeKind.Utc).AddTicks(1758), "Krems an der Donau", "HTL Krems", "Active", new DateTime(2026, 1, 13, 9, 27, 31, 828, DateTimeKind.Utc).AddTicks(2191) });
+                values: new object[] { "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 254, DateTimeKind.Utc).AddTicks(2931), "Krems an der Donau", "HTL Krems", "Active", new DateTime(2026, 1, 16, 7, 18, 23, 254, DateTimeKind.Utc).AddTicks(3242) });
 
             migrationBuilder.InsertData(
                 table: "users",
                 columns: new[] { "id", "created_at", "email", "external_id", "is_active", "name", "password_hash", "role", "school_id", "updated_at" },
-                values: new object[] { "aa63eeaf-7628-44d5-8c41-0868d195fef6", new DateTime(2026, 1, 13, 9, 27, 31, 826, DateTimeKind.Utc).AddTicks(4489), "sysadmin@notenpro.at", "", true, "System Administrator", "$2a$11$oXWxpJJMr9h8zQFjqtG.Vu7MTWDnr0gPiPe79u.2d3HqR.AjmSN.u", 3, null, new DateTime(2026, 1, 13, 9, 27, 31, 826, DateTimeKind.Utc).AddTicks(5087) });
+                values: new object[] { "cfcdd489-e0cf-4274-b579-ae1afc964d61", new DateTime(2026, 1, 16, 7, 18, 23, 252, DateTimeKind.Utc).AddTicks(9499), "sysadmin@notenpro.at", "", true, "System Administrator", "$2a$11$cwDTglpdkXqqno1ZmWuG6Ohx7wFEMEpQu3XQat.9HjSR.bgtG3oLa", 3, null, new DateTime(2026, 1, 16, 7, 18, 23, 252, DateTimeKind.Utc).AddTicks(9833) });
 
             migrationBuilder.InsertData(
                 table: "classes",
                 columns: new[] { "id", "class_teacher_id", "created_at", "name", "school_id", "updated_at" },
-                values: new object[] { "5019655e-4dbc-4f5e-9e0a-85eb10161f07", null, new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(7477), "5BHIT", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(7478) });
+                values: new object[] { "1905611e-f2ae-4b79-bd61-5b7aa6244f64", null, new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(4286), "5BHIT", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(4286) });
 
             migrationBuilder.InsertData(
                 table: "subjects",
                 columns: new[] { "id", "created_at", "description", "is_active", "name", "school_id", "updated_at" },
                 values: new object[,]
                 {
-                    { "74ebf9f0-b178-4b80-a76e-56f744af573c", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6147), "English Language", true, "Englisch", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6148) },
-                    { "955d437b-25f0-41cc-a174-cb2c1331c3b3", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6120), "Deutsche Sprache und Literatur", true, "Deutsch", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6133) },
-                    { "9d9a2c26-0f79-490e-8db9-f1d750c05ece", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6164), "Software Engineering", true, "Programmieren", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6165) },
-                    { "d357c9d0-5296-4d0d-af55-84e9da2f6518", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(4708), "Angewandte Mathematik", true, "Mathematik", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(5348) }
+                    { "35e5d14a-ba00-49fb-ae47-6d752ba3ce88", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8233), "English Language", true, "Englisch", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8233) },
+                    { "9eb7dfc3-93ad-4b71-ad8b-7bbbd9fb624f", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8216), "Deutsche Sprache und Literatur", true, "Deutsch", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8222) },
+                    { "df3fbd45-39ed-4f13-b194-c64e2f55e291", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(7633), "Angewandte Mathematik", true, "Mathematik", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(7929) },
+                    { "ec8dec77-ecbd-4031-a601-8dd72428e450", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8264), "Software Engineering", true, "Programmieren", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8265) }
                 });
 
             migrationBuilder.InsertData(
@@ -374,44 +374,44 @@ namespace NotenPro.Api.Migrations
                 columns: new[] { "id", "created_at", "email", "external_id", "is_active", "name", "password_hash", "role", "school_id", "updated_at" },
                 values: new object[,]
                 {
-                    { "1a57c275-b107-4442-a8ae-513faa74143d", new DateTime(2026, 1, 13, 9, 27, 32, 75, DateTimeKind.Utc).AddTicks(2406), "admin@htl-krems.ac.at", "", true, "HTL Admin", "$2a$11$qoxsf5L05CckULJjWJwMVu4ymj/xgerlus4BZJwmoTW9MVLdLOIwO", 2, "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 75, DateTimeKind.Utc).AddTicks(2412) },
-                    { "6db9373f-5d9f-4186-82dd-26282371f2b1", new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(2769), "max.mustermann@students.htl-krems.ac.at", "", true, "Max Mustermann", "$2a$11$UbKyhg2CwTJZye21z.7OmO54XC/x06X5N7VELvAD5MAtV9AfGv4TW", 0, "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(2772) },
-                    { "ed4c5c9f-c09b-4424-987f-8782f828c07c", new DateTime(2026, 1, 13, 9, 27, 32, 311, DateTimeKind.Utc).AddTicks(7639), "maria.schmidt@htl-krems.ac.at", "", true, "Prof. Maria Schmidt", "$2a$11$/Ky6muhpQPW600xVJCX9wumKKs2SNSFmGFxCRB48FyRlWH4QJ2IoW", 1, "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 311, DateTimeKind.Utc).AddTicks(7647) }
+                    { "72401289-ab71-4d04-bd16-e374bb7fc257", new DateTime(2026, 1, 16, 7, 18, 23, 821, DateTimeKind.Utc).AddTicks(9198), "maria.schmidt@htl-krems.ac.at", "", true, "Prof. Maria Schmidt", "$2a$11$9lxohmpui3k7iidhkBtAOe0BLnpabBWBdR.wj9yK/ERXnPdTpw3LK", 1, "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 821, DateTimeKind.Utc).AddTicks(9202) },
+                    { "7c11c4de-8754-4864-a1cc-d69be562fa72", new DateTime(2026, 1, 16, 7, 18, 23, 649, DateTimeKind.Utc).AddTicks(5157), "admin@htl-krems.ac.at", "", true, "HTL Admin", "$2a$11$VskBSIPXQ/2NrJUHdq4ujem620MWYwoLh2U4VyHkgj1fMgzCS4m7.", 2, "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 649, DateTimeKind.Utc).AddTicks(5161) },
+                    { "faf52356-a0cf-4777-a518-ddefe7e20ffe", new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(1182), "max.mustermann@students.htl-krems.ac.at", "", true, "Max Mustermann", "$2a$11$5bkWWWhflciyB5Ta90eLyedISlwTZtTa8FQWLRSlKC3zhii1UbqX.", 0, "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(1186) }
                 });
 
             migrationBuilder.InsertData(
                 table: "classes",
                 columns: new[] { "id", "class_teacher_id", "created_at", "name", "school_id", "updated_at" },
-                values: new object[] { "b47ddd1b-48e3-45b0-ad11-3a817402e00c", "ed4c5c9f-c09b-4424-987f-8782f828c07c", new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(6065), "5AHIT", "db717465-da54-417d-bcf0-9867870774ba", new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(6789) });
+                values: new object[] { "f064126f-70fb-413c-9609-daf1e25979b9", "72401289-ab71-4d04-bd16-e374bb7fc257", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(3312), "5AHIT", "7ea2e317-112a-4673-967c-051882616f4e", new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(3723) });
 
             migrationBuilder.InsertData(
                 table: "notifications",
                 columns: new[] { "id", "is_read", "message", "timestamp", "title", "type", "user_id" },
-                values: new object[] { "1fd7a96b-d211-46a9-ba6c-ef46fa3b1386", false, "Deine Note für 'Algebra Test 1' wurde eingetragen: 2.00 (Gut)", new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(5092), "Neue Note verfügbar", 2, "6db9373f-5d9f-4186-82dd-26282371f2b1" });
+                values: new object[] { "008874fa-ae31-4822-9e70-2a10ae71ecc6", false, "Deine Note für 'Algebra Test 1' wurde eingetragen: 2.00 (Gut)", new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(8784), "Neue Note verfügbar", 2, "faf52356-a0cf-4777-a518-ddefe7e20ffe" });
 
             migrationBuilder.InsertData(
                 table: "teacher_subjects",
                 columns: new[] { "id", "assigned_at", "subject_id", "teacher_id" },
                 values: new object[,]
                 {
-                    { "5872c160-baa8-4532-a1a7-54038536050a", new DateTime(2026, 1, 13, 9, 27, 32, 314, DateTimeKind.Utc).AddTicks(998), "d357c9d0-5296-4d0d-af55-84e9da2f6518", "ed4c5c9f-c09b-4424-987f-8782f828c07c" },
-                    { "82a8cb90-676d-43b2-bece-0e7fb237e8db", new DateTime(2026, 1, 13, 9, 27, 32, 314, DateTimeKind.Utc).AddTicks(1676), "9d9a2c26-0f79-490e-8db9-f1d750c05ece", "ed4c5c9f-c09b-4424-987f-8782f828c07c" }
+                    { "2f50b156-7bd4-4947-87f2-b019bb7aece9", new DateTime(2026, 1, 16, 7, 18, 23, 823, DateTimeKind.Utc).AddTicks(397), "df3fbd45-39ed-4f13-b194-c64e2f55e291", "72401289-ab71-4d04-bd16-e374bb7fc257" },
+                    { "c02492f4-7ca5-4d2b-93da-437877196886", new DateTime(2026, 1, 16, 7, 18, 23, 823, DateTimeKind.Utc).AddTicks(1049), "ec8dec77-ecbd-4031-a601-8dd72428e450", "72401289-ab71-4d04-bd16-e374bb7fc257" }
                 });
 
             migrationBuilder.InsertData(
                 table: "student_classes",
                 columns: new[] { "id", "class_id", "enrolled_at", "student_id" },
-                values: new object[] { "8791934c-8aed-4206-8dc7-d03ccf83248f", "b47ddd1b-48e3-45b0-ad11-3a817402e00c", new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(7194), "6db9373f-5d9f-4186-82dd-26282371f2b1" });
+                values: new object[] { "e96ffab7-fab4-479a-8220-a3450621efc4", "f064126f-70fb-413c-9609-daf1e25979b9", new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(4452), "faf52356-a0cf-4777-a518-ddefe7e20ffe" });
 
             migrationBuilder.InsertData(
                 table: "tests",
                 columns: new[] { "id", "class_id", "created_at", "date", "description", "max_points", "name", "subject_id", "teacher_id", "type", "updated_at" },
-                values: new object[] { "40cfe18f-35a2-425e-94b1-09c2a639c19d", "b47ddd1b-48e3-45b0-ad11-3a817402e00c", new DateTime(2026, 1, 13, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(4178), new DateTime(2026, 1, 6, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(2545), "Lineare Gleichungen und Funktionen", 100, "Algebra Test 1", "d357c9d0-5296-4d0d-af55-84e9da2f6518", "ed4c5c9f-c09b-4424-987f-8782f828c07c", 0, new DateTime(2026, 1, 13, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(4555) });
+                values: new object[] { "3cbcd1c7-884b-4fa3-b3a2-2d7a10fe3761", "f064126f-70fb-413c-9609-daf1e25979b9", new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(67), new DateTime(2026, 1, 9, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(8723), "Lineare Gleichungen und Funktionen", 100, "Algebra Test 1", "df3fbd45-39ed-4f13-b194-c64e2f55e291", "72401289-ab71-4d04-bd16-e374bb7fc257", 0, new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(519) });
 
             migrationBuilder.InsertData(
                 table: "grades",
                 columns: new[] { "id", "comment", "created_at", "grade_value", "max_points", "points", "status", "student_id", "test_id", "updated_at" },
-                values: new object[] { "99e19ab9-8774-4550-9564-cf2c0e49f7ea", "Sehr gute Leistung!", new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(625), 2.00m, 100, 82, 0, "6db9373f-5d9f-4186-82dd-26282371f2b1", "40cfe18f-35a2-425e-94b1-09c2a639c19d", new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(983) });
+                values: new object[] { "1fd5e77c-033e-48bf-8da5-fa923a04483a", "Sehr gute Leistung!", new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(5150), 2.00m, 100, 82, 0, "faf52356-a0cf-4777-a518-ddefe7e20ffe", "3cbcd1c7-884b-4fa3-b3a2-2d7a10fe3761", new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(5425) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_classes_class_teacher_id",

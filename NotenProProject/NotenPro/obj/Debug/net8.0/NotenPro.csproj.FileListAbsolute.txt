@@ -2221,8 +2221,6 @@ C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\xs7njz78p1-tptq2av103.gz
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\cjbhusvmkn-lfu7j35m59.gz
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\aiv22fxcfw-oyz0vx2fzb.gz
-C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-wnbi04smsf.gz
-C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-x4cgdd5adv.gz
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\staticwebassets.development.json
@@ -2232,6 +2230,8 @@ C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\refint\NotenPro.dll
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\NotenPro.pdb
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\ref\NotenPro.dll
-C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-jxjs05ei41.gz
-C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-4fu8j07doc.gz
-C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-nuh28ea54p.gz
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-1evqcun08i.gz
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-5niyk4q9n4.gz
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-dyv1h0zst3.gz
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-1cfvxl7o7y.gz
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-1kku0l0h4p.gz

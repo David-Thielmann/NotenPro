@@ -12,7 +12,7 @@ using NotenPro.Api.Data;
 namespace NotenPro.Api.Migrations
 {
     [DbContext(typeof(NotenProDbContext))]
-    [Migration("20260113092734_Init")]
+    [Migration("20260116071825_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -68,20 +68,20 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b47ddd1b-48e3-45b0-ad11-3a817402e00c",
-                            ClassTeacherId = "ed4c5c9f-c09b-4424-987f-8782f828c07c",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(6065),
+                            Id = "f064126f-70fb-413c-9609-daf1e25979b9",
+                            ClassTeacherId = "72401289-ab71-4d04-bd16-e374bb7fc257",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(3312),
                             Name = "5AHIT",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(6789)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(3723)
                         },
                         new
                         {
-                            Id = "5019655e-4dbc-4f5e-9e0a-85eb10161f07",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(7477),
+                            Id = "1905611e-f2ae-4b79-bd61-5b7aa6244f64",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(4286),
                             Name = "5BHIT",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 312, DateTimeKind.Utc).AddTicks(7478)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(4286)
                         });
                 });
 
@@ -205,16 +205,16 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "99e19ab9-8774-4550-9564-cf2c0e49f7ea",
+                            Id = "1fd5e77c-033e-48bf-8da5-fa923a04483a",
                             Comment = "Sehr gute Leistung!",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(625),
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(5150),
                             GradeValue = 2.00m,
                             MaxPoints = 100,
                             Points = 82,
                             Status = 0,
-                            StudentId = "6db9373f-5d9f-4186-82dd-26282371f2b1",
-                            TestId = "40cfe18f-35a2-425e-94b1-09c2a639c19d",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(983)
+                            StudentId = "faf52356-a0cf-4777-a518-ddefe7e20ffe",
+                            TestId = "3cbcd1c7-884b-4fa3-b3a2-2d7a10fe3761",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(5425)
                         });
                 });
 
@@ -264,13 +264,13 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1fd7a96b-d211-46a9-ba6c-ef46fa3b1386",
+                            Id = "008874fa-ae31-4822-9e70-2a10ae71ecc6",
                             IsRead = false,
                             Message = "Deine Note für 'Algebra Test 1' wurde eingetragen: 2.00 (Gut)",
-                            Timestamp = new DateTime(2026, 1, 13, 9, 27, 32, 550, DateTimeKind.Utc).AddTicks(5092),
+                            Timestamp = new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(8784),
                             Title = "Neue Note verfügbar",
                             Type = 2,
-                            UserId = "6db9373f-5d9f-4186-82dd-26282371f2b1"
+                            UserId = "faf52356-a0cf-4777-a518-ddefe7e20ffe"
                         });
                 });
 
@@ -316,12 +316,12 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "db717465-da54-417d-bcf0-9867870774ba",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 31, 828, DateTimeKind.Utc).AddTicks(1758),
+                            Id = "7ea2e317-112a-4673-967c-051882616f4e",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 254, DateTimeKind.Utc).AddTicks(2931),
                             Location = "Krems an der Donau",
                             Name = "HTL Krems",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 31, 828, DateTimeKind.Utc).AddTicks(2191)
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 254, DateTimeKind.Utc).AddTicks(3242)
                         });
                 });
 
@@ -360,10 +360,10 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "8791934c-8aed-4206-8dc7-d03ccf83248f",
-                            ClassId = "b47ddd1b-48e3-45b0-ad11-3a817402e00c",
-                            EnrolledAt = new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(7194),
-                            StudentId = "6db9373f-5d9f-4186-82dd-26282371f2b1"
+                            Id = "e96ffab7-fab4-479a-8220-a3450621efc4",
+                            ClassId = "f064126f-70fb-413c-9609-daf1e25979b9",
+                            EnrolledAt = new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(4452),
+                            StudentId = "faf52356-a0cf-4777-a518-ddefe7e20ffe"
                         });
                 });
 
@@ -413,43 +413,43 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d357c9d0-5296-4d0d-af55-84e9da2f6518",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(4708),
+                            Id = "df3fbd45-39ed-4f13-b194-c64e2f55e291",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(7633),
                             Description = "Angewandte Mathematik",
                             IsActive = true,
                             Name = "Mathematik",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(5348)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(7929)
                         },
                         new
                         {
-                            Id = "955d437b-25f0-41cc-a174-cb2c1331c3b3",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6120),
+                            Id = "9eb7dfc3-93ad-4b71-ad8b-7bbbd9fb624f",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8216),
                             Description = "Deutsche Sprache und Literatur",
                             IsActive = true,
                             Name = "Deutsch",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6133)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8222)
                         },
                         new
                         {
-                            Id = "74ebf9f0-b178-4b80-a76e-56f744af573c",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6147),
+                            Id = "35e5d14a-ba00-49fb-ae47-6d752ba3ce88",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8233),
                             Description = "English Language",
                             IsActive = true,
                             Name = "Englisch",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6148)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8233)
                         },
                         new
                         {
-                            Id = "9d9a2c26-0f79-490e-8db9-f1d750c05ece",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6164),
+                            Id = "ec8dec77-ecbd-4031-a601-8dd72428e450",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8264),
                             Description = "Software Engineering",
                             IsActive = true,
                             Name = "Programmieren",
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 313, DateTimeKind.Utc).AddTicks(6165)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 822, DateTimeKind.Utc).AddTicks(8265)
                         });
                 });
 
@@ -488,17 +488,17 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5872c160-baa8-4532-a1a7-54038536050a",
-                            AssignedAt = new DateTime(2026, 1, 13, 9, 27, 32, 314, DateTimeKind.Utc).AddTicks(998),
-                            SubjectId = "d357c9d0-5296-4d0d-af55-84e9da2f6518",
-                            TeacherId = "ed4c5c9f-c09b-4424-987f-8782f828c07c"
+                            Id = "2f50b156-7bd4-4947-87f2-b019bb7aece9",
+                            AssignedAt = new DateTime(2026, 1, 16, 7, 18, 23, 823, DateTimeKind.Utc).AddTicks(397),
+                            SubjectId = "df3fbd45-39ed-4f13-b194-c64e2f55e291",
+                            TeacherId = "72401289-ab71-4d04-bd16-e374bb7fc257"
                         },
                         new
                         {
-                            Id = "82a8cb90-676d-43b2-bece-0e7fb237e8db",
-                            AssignedAt = new DateTime(2026, 1, 13, 9, 27, 32, 314, DateTimeKind.Utc).AddTicks(1676),
-                            SubjectId = "9d9a2c26-0f79-490e-8db9-f1d750c05ece",
-                            TeacherId = "ed4c5c9f-c09b-4424-987f-8782f828c07c"
+                            Id = "c02492f4-7ca5-4d2b-93da-437877196886",
+                            AssignedAt = new DateTime(2026, 1, 16, 7, 18, 23, 823, DateTimeKind.Utc).AddTicks(1049),
+                            SubjectId = "ec8dec77-ecbd-4031-a601-8dd72428e450",
+                            TeacherId = "72401289-ab71-4d04-bd16-e374bb7fc257"
                         });
                 });
 
@@ -571,17 +571,17 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "40cfe18f-35a2-425e-94b1-09c2a639c19d",
-                            ClassId = "b47ddd1b-48e3-45b0-ad11-3a817402e00c",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(4178),
-                            Date = new DateTime(2026, 1, 6, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(2545),
+                            Id = "3cbcd1c7-884b-4fa3-b3a2-2d7a10fe3761",
+                            ClassId = "f064126f-70fb-413c-9609-daf1e25979b9",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(67),
+                            Date = new DateTime(2026, 1, 9, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(8723),
                             Description = "Lineare Gleichungen und Funktionen",
                             MaxPoints = 100,
                             Name = "Algebra Test 1",
-                            SubjectId = "d357c9d0-5296-4d0d-af55-84e9da2f6518",
-                            TeacherId = "ed4c5c9f-c09b-4424-987f-8782f828c07c",
+                            SubjectId = "df3fbd45-39ed-4f13-b194-c64e2f55e291",
+                            TeacherId = "72401289-ab71-4d04-bd16-e374bb7fc257",
                             Type = 0,
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 549, DateTimeKind.Utc).AddTicks(4555)
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 998, DateTimeKind.Utc).AddTicks(519)
                         });
                 });
 
@@ -648,54 +648,54 @@ namespace NotenPro.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "aa63eeaf-7628-44d5-8c41-0868d195fef6",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 31, 826, DateTimeKind.Utc).AddTicks(4489),
+                            Id = "cfcdd489-e0cf-4274-b579-ae1afc964d61",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 252, DateTimeKind.Utc).AddTicks(9499),
                             Email = "sysadmin@notenpro.at",
                             ExternalId = "",
                             IsActive = true,
                             Name = "System Administrator",
-                            PasswordHash = "$2a$11$oXWxpJJMr9h8zQFjqtG.Vu7MTWDnr0gPiPe79u.2d3HqR.AjmSN.u",
+                            PasswordHash = "$2a$11$cwDTglpdkXqqno1ZmWuG6Ohx7wFEMEpQu3XQat.9HjSR.bgtG3oLa",
                             Role = 3,
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 31, 826, DateTimeKind.Utc).AddTicks(5087)
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 252, DateTimeKind.Utc).AddTicks(9833)
                         },
                         new
                         {
-                            Id = "1a57c275-b107-4442-a8ae-513faa74143d",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 75, DateTimeKind.Utc).AddTicks(2406),
+                            Id = "7c11c4de-8754-4864-a1cc-d69be562fa72",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 649, DateTimeKind.Utc).AddTicks(5157),
                             Email = "admin@htl-krems.ac.at",
                             ExternalId = "",
                             IsActive = true,
                             Name = "HTL Admin",
-                            PasswordHash = "$2a$11$qoxsf5L05CckULJjWJwMVu4ymj/xgerlus4BZJwmoTW9MVLdLOIwO",
+                            PasswordHash = "$2a$11$VskBSIPXQ/2NrJUHdq4ujem620MWYwoLh2U4VyHkgj1fMgzCS4m7.",
                             Role = 2,
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 75, DateTimeKind.Utc).AddTicks(2412)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 649, DateTimeKind.Utc).AddTicks(5161)
                         },
                         new
                         {
-                            Id = "ed4c5c9f-c09b-4424-987f-8782f828c07c",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 311, DateTimeKind.Utc).AddTicks(7639),
+                            Id = "72401289-ab71-4d04-bd16-e374bb7fc257",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 821, DateTimeKind.Utc).AddTicks(9198),
                             Email = "maria.schmidt@htl-krems.ac.at",
                             ExternalId = "",
                             IsActive = true,
                             Name = "Prof. Maria Schmidt",
-                            PasswordHash = "$2a$11$/Ky6muhpQPW600xVJCX9wumKKs2SNSFmGFxCRB48FyRlWH4QJ2IoW",
+                            PasswordHash = "$2a$11$9lxohmpui3k7iidhkBtAOe0BLnpabBWBdR.wj9yK/ERXnPdTpw3LK",
                             Role = 1,
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 311, DateTimeKind.Utc).AddTicks(7647)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 821, DateTimeKind.Utc).AddTicks(9202)
                         },
                         new
                         {
-                            Id = "6db9373f-5d9f-4186-82dd-26282371f2b1",
-                            CreatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(2769),
+                            Id = "faf52356-a0cf-4777-a518-ddefe7e20ffe",
+                            CreatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(1182),
                             Email = "max.mustermann@students.htl-krems.ac.at",
                             ExternalId = "",
                             IsActive = true,
                             Name = "Max Mustermann",
-                            PasswordHash = "$2a$11$UbKyhg2CwTJZye21z.7OmO54XC/x06X5N7VELvAD5MAtV9AfGv4TW",
+                            PasswordHash = "$2a$11$5bkWWWhflciyB5Ta90eLyedISlwTZtTa8FQWLRSlKC3zhii1UbqX.",
                             Role = 0,
-                            SchoolId = "db717465-da54-417d-bcf0-9867870774ba",
-                            UpdatedAt = new DateTime(2026, 1, 13, 9, 27, 32, 548, DateTimeKind.Utc).AddTicks(2772)
+                            SchoolId = "7ea2e317-112a-4673-967c-051882616f4e",
+                            UpdatedAt = new DateTime(2026, 1, 16, 7, 18, 23, 997, DateTimeKind.Utc).AddTicks(1186)
                         });
                 });
 
