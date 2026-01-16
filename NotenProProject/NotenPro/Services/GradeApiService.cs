@@ -45,7 +45,11 @@ public class GradeApiService : IGradeService
                 throw new HttpRequestException($"Grades API-Fehler ({response.StatusCode}): {errorContent}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
+            // IMPORTANT:
+            // API returns GradeDto where GradeValue can be NULL (Pending/Absent).
+            // Our UI model Grade has a non-nullable decimal -> NULL would become 0 and break averages.
+            var dtos = await response.Content.ReadFromJsonAsync<List<GradeDto>>(JsonOptions) ?? new();
+            var result = dtos.Select(MapToUiModel).ToList();
             Console.WriteLine($"DEBUG: My grades loaded: {result.Count}");
             return result;
         }
@@ -67,7 +71,7 @@ public class GradeApiService : IGradeService
             if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
                 throw new Exception("Benutzerdaten konnten nicht geladen werden.");
 
-            var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}?count={count}");
+            var response = await _httpClient.GetAsync($"api/grades/student/{currentUser.Id}/recent?count={count}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -75,7 +79,8 @@ public class GradeApiService : IGradeService
                 throw new HttpRequestException($"Grades API-Fehler ({response.StatusCode}): {errorContent}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
+            var dtos = await response.Content.ReadFromJsonAsync<List<GradeDto>>(JsonOptions) ?? new();
+            var result = dtos.Select(MapToUiModel).ToList();
             Console.WriteLine($"DEBUG: Real grades loaded: {result.Count}");
             return result;
         }
@@ -86,7 +91,7 @@ public class GradeApiService : IGradeService
         }
     }
 
-    public async Task<List<SubjectAverage>> GetSubjectAveragesAsync()
+    public async Task<List<SubjectAverageDto>> GetSubjectAveragesAsync()
     {
         try
         {
@@ -105,13 +110,40 @@ public class GradeApiService : IGradeService
                 throw new HttpRequestException($"Averages API-Fehler ({response.StatusCode}): {errorContent}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<List<SubjectAverage>>(JsonOptions) ?? new();
+            // API liefert { name, average, testCount }
+            var result = await response.Content.ReadFromJsonAsync<List<SubjectAverageDto>>(JsonOptions) ?? new();
             Console.WriteLine($"DEBUG: Real averages loaded: {result.Count}");
             return result;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"DEBUG: GetSubjectAverages error: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<byte[]> ExportMyGradesPdfAsync()
+    {
+        try
+        {
+            Console.WriteLine("DEBUG: GradeApiService.ExportMyGradesPdfAsync()");
+
+            var currentUser = await _currentUserService.GetMeAsync();
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
+                throw new Exception("Benutzerdaten konnten nicht geladen werden.");
+
+            var response = await _httpClient.GetAsync($"api/grades/export/student/{currentUser.Id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"PDF Export API-Fehler ({response.StatusCode}): {errorContent}");
+            }
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: ExportMyGradesPdfAsync error: {ex.Message}");
             throw;
         }
     }
@@ -155,7 +187,8 @@ public class GradeApiService : IGradeService
                 throw new HttpRequestException($"GetGradesByTest API-Fehler ({response.StatusCode}): {errorContent}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<List<Grade>>(JsonOptions) ?? new();
+            var dtos = await response.Content.ReadFromJsonAsync<List<GradeDto>>(JsonOptions) ?? new();
+            var result = dtos.Select(MapToUiModel).ToList();
             Console.WriteLine($"DEBUG: Grades by test loaded: {result.Count}");
             return result;
         }
@@ -164,6 +197,26 @@ public class GradeApiService : IGradeService
             Console.WriteLine($"DEBUG: GetGradesByTestAsync error: {ex.Message}");
             throw;
         }
+    }
+
+    private static Grade MapToUiModel(GradeDto dto)
+    {
+        Enum.TryParse(dto.Status, ignoreCase: true, out GradeStatus parsedStatus);
+
+        return new Grade
+        {
+            Id = dto.Id,
+            StudentId = dto.StudentId,
+            TestId = dto.TestId,
+            Subject = dto.Subject,
+            TestName = dto.TestName,
+            GradeValue = dto.GradeValue ?? 0m,
+            Points = dto.Points,
+            MaxPoints = dto.MaxPoints,
+            Date = dto.Date,
+            Status = parsedStatus,
+            Comment = dto.Comment
+        };
     }
 
     public async Task<ApiResponse<Grade>> SaveGradeAsync(Grade grade)

@@ -40,4 +40,8 @@ builder.Services.AddScoped<IStudentService, StudentApiService>();
 builder.Services.AddScoped<IGradeService, GradeApiService>();
 builder.Services.AddScoped<INotificationService, NotificationApiService>();
 
+//IPdf export
+builder.Services.AddScoped<IPdfExportService, PdfExportService>();
+
+
 await builder.Build().RunAsync();

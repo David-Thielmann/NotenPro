@@ -389,3 +389,5 @@ C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.pdb
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\NotenPro.Api.genruntimeconfig.cache
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\obj\Debug\net9.0\ref\NotenPro.Api.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\bin\Debug\net9.0\NotenPro.Domain.dll
+C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro.Api\bin\Debug\net9.0\NotenPro.Domain.pdb

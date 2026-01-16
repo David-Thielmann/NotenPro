@@ -43,7 +43,10 @@ public class NotificationApiService : INotificationService
                 throw new HttpRequestException($"Notifications API-Fehler ({response.StatusCode}): {errorContent}");
             }
             
-            var result = await response.Content.ReadFromJsonAsync<List<Notification>>() ?? new();
+            // API liefert NotificationDto (Type als string) -> Client Model verwendet NotificationType (enum)
+            var dtos = await response.Content.ReadFromJsonAsync<List<NotificationDto>>() ?? new();
+
+            var result = dtos.Select(Map).ToList();
             Console.WriteLine($"DEBUG: Notifications loaded: {result.Count}");
             return result;
         }
@@ -65,7 +68,8 @@ public class NotificationApiService : INotificationService
                 throw new Exception("Benutzerdaten konnten nicht geladen werden.");
             }
             
-            var response = await _httpClient.GetAsync($"api/notifications/user/{currentUser.Id}/unread/count");
+            // API Route: GET api/notifications/user/{userId}/count
+            var response = await _httpClient.GetAsync($"api/notifications/user/{currentUser.Id}/count");
             
             if (!response.IsSuccessStatusCode)
             {
@@ -104,5 +108,23 @@ public class NotificationApiService : INotificationService
             Console.WriteLine($"DEBUG: MarkAsReadAsync error: {ex.Message}");
             throw;
         }
+    }
+
+    private static Notification Map(NotificationDto dto)
+    {
+        // Type kommt als string ("Info", "Success", ...)
+        if (!Enum.TryParse<NotificationType>(dto.Type, ignoreCase: true, out var parsedType))
+            parsedType = NotificationType.Info;
+
+        return new Notification
+        {
+            Id = dto.Id,
+            UserId = dto.UserId,
+            Title = dto.Title,
+            Message = dto.Message,
+            Type = parsedType,
+            IsRead = dto.IsRead,
+            Timestamp = dto.Timestamp
+        };
     }
 }

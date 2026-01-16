@@ -1979,6 +1979,19 @@
           "lib/netcoreapp2.0/_._": {}
         }
       },
+      "NotenPro.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "9.0.0"
+        },
+        "compile": {
+          "bin/placeholder/NotenPro.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/NotenPro.Domain.dll": {}
+        }
+      },
       "NotenPro.Shared/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -5505,6 +5518,11 @@
         "version.txt"
       ]
     },
+    "NotenPro.Domain/1.0.0": {
+      "type": "project",
+      "path": "../NotenPro.Domain/NotenPro.Domain.csproj",
+      "msbuildProject": "../NotenPro.Domain/NotenPro.Domain.csproj"
+    },
     "NotenPro.Shared/1.0.0": {
       "type": "project",
       "path": "../NotenPro.Shared/NotenPro.Shared.csproj",
@@ -5520,6 +5538,7 @@
       "Microsoft.AspNetCore.WebUtilities >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Microsoft.Identity.Web >= 4.1.1",
+      "NotenPro.Domain >= 1.0.0",
       "NotenPro.Shared >= 1.0.0",
       "Pomelo.EntityFrameworkCore.MySql >= 9.0.0",
       "QuestPDF >= 2025.7.4",
@@ -5552,6 +5571,9 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
+            "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Domain\\NotenPro.Domain.csproj": {
+              "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Domain\\NotenPro.Domain.csproj"
+            },
             "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
               "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj"
             }

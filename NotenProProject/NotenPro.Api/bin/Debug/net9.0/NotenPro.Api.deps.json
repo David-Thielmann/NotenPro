@@ -15,6 +15,7 @@
           "Microsoft.AspNetCore.WebUtilities": "9.0.0",
           "Microsoft.EntityFrameworkCore.Design": "9.0.0",
           "Microsoft.Identity.Web": "4.1.1",
+          "NotenPro.Domain": "1.0.0",
           "NotenPro.Shared": "1.0.0",
           "Pomelo.EntityFrameworkCore.MySql": "9.0.0",
           "QuestPDF": "2025.7.4",
@@ -1178,6 +1179,17 @@
       "System.Threading.Channels/7.0.0": {},
       "System.Threading.Tasks.Extensions/4.5.4": {},
       "System.ValueTuple/4.5.0": {},
+      "NotenPro.Domain/1.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "9.0.0"
+        },
+        "runtime": {
+          "NotenPro.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "NotenPro.Shared/1.0.0": {
         "runtime": {
           "NotenPro.Shared.dll": {
@@ -1886,6 +1898,11 @@
       "sha512": "sha512-okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ==",
       "path": "system.valuetuple/4.5.0",
       "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
+    },
+    "NotenPro.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "NotenPro.Shared/1.0.0": {
       "type": "project",

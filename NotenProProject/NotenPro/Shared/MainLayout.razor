@@ -3,7 +3,9 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims
+@using HTLKrems.GradeManagement.Services
 @inject NavigationManager Nav
+@inject INotificationService NotificationService
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
@@ -11,8 +13,6 @@
 
 <AuthorizeView>
     <NotAuthorized>
-        @* Nicht eingeloggt: sofort zur Login-Seite weiterleiten *@
-        @* Dies wird sicherstellen, dass nicht authentifizierte Benutzer zur Login-Seite weitergeleitet werden *@
         <div>@Body</div>
     </NotAuthorized>
 
@@ -24,14 +24,36 @@
                                Style="color: white;"
                                OnClick="@ToggleDrawer" />
 
-                <MudText Typo="Typo.h6" Style="color: white;">
-                    NotenPro
-                </MudText>
+                <div class="d-flex flex-column">
+                    <MudText Typo="Typo.h6" Class="mb-n1" Style="color: white;">
+                        NotenPro
+                    </MudText>
+                    @if (_isStudent)
+                    {
+                        <MudText Typo="Typo.caption" Style="color: white;">
+                            Schülerportal
+                        </MudText>
+                    }
+                </div>
 
                 <MudSpacer />
 
-                <MudIconButton Icon="@Icons.Material.Filled.Notifications"
-                               Style="color: white;" />
+                @if (_isStudent)
+                {
+                    <MudBadge Content="@_unreadCount"
+                              Color="Color.Error"
+                              Overlap="true"
+                              Visible="@(_unreadCount > 0)">
+                        <MudIconButton Icon="@Icons.Material.Filled.Notifications"
+                                       Style="color: white;"
+                                       OnClick="@(() => Nav.NavigateTo("/student/notifications"))" />
+                    </MudBadge>
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Notifications"
+                                   Style="color: white;" />
+                }
 
                 <div class="d-flex align-center ml-2">
                     <MudMenu Color="Color.Inherit"
@@ -72,8 +94,7 @@
                             <MudDivider />
 
                             <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                                         OnClick="Logout"
-                            >
+                                         OnClick="Logout">
                                 Abmelden
                             </MudMenuItem>
                         </ChildContent>
@@ -82,8 +103,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Logout"
                                    Class="ml-2"
                                    Style="color: white;"
-                                   OnClick="Logout"
-                    />
+                                   OnClick="Logout" />
                 </div>
             </MudAppBar>
 
@@ -99,8 +119,33 @@
                 </MudDrawerHeader>
 
                 <MudNavMenu>
-                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Home</MudNavLink>
-                    <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock">Secure</MudNavLink>
+                    @if (_isStudent)
+                    {
+                        <MudNavLink Href="/student/dashboard" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.Prefix">
+                            Dashboard
+                        </MudNavLink>
+
+                        <MudNavLink Href="/student/grades" Icon="@Icons.Material.Filled.School">
+                            Meine Noten
+                        </MudNavLink>
+
+                        <MudNavLink Href="/student/notifications" Icon="@Icons.Material.Filled.Notifications">
+                            <div class="d-flex justify-space-between align-center" style="width: 100%;">
+                                <span>Benachrichtigungen</span>
+                                @if (_unreadCount > 0)
+                                {
+                                    <MudChip T="int" Size="Size.Small" Color="Color.Error">
+                                        @_unreadCount
+                                    </MudChip>
+                                }
+                            </div>
+                        </MudNavLink>
+                    }
+                    else
+                    {
+                        <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Home</MudNavLink>
+                        <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock">Secure</MudNavLink>
+                    }
                 </MudNavMenu>
             </MudDrawer>
 
@@ -109,6 +154,48 @@
                     @Body
                 </MudContainer>
             </MudMainContent>
+
+            @* Mobile Bottom Navigation (Student) *@
+            @if (_isStudent)
+            {
+                <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                    <MudPaper Square="true" Elevation="3" Style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;">
+                        <MudBottomNavigation T="string"
+                                             Color="Color.Primary"
+                                             SelectedValue="@_selectedPage"
+                                             SelectedValueChanged="@OnSelectedPageChanged">
+
+                            <MudBottomNavigationItem T="string"
+                                                     Value="dashboard"
+                                                     Text="Dashboard"
+                                                     Icon="@Icons.Material.Filled.Dashboard"
+                                                     OnClick="@(() => SelectPage("dashboard", "/student/dashboard"))" />
+
+                            <MudBottomNavigationItem T="string"
+                                                     Value="grades"
+                                                     Text="Noten"
+                                                     Icon="@Icons.Material.Filled.School"
+                                                     OnClick="@(() => SelectPage("grades", "/student/grades"))" />
+
+                            <MudBottomNavigationItem T="string"
+                                                     Value="notifications"
+                                                     Text="Nachrichten"
+                                                     Icon="@Icons.Material.Filled.Notifications"
+                                                     OnClick="@(() => SelectPage("notifications", "/student/notifications"))">
+                                <IconContent>
+                                    <MudBadge Content="@_unreadCount"
+                                              Color="Color.Error"
+                                              Overlap="true"
+                                              Visible="@(_unreadCount > 0)">
+                                        <MudIcon Icon="@Icons.Material.Filled.Notifications" />
+                                    </MudBadge>
+                                </IconContent>
+                            </MudBottomNavigationItem>
+
+                        </MudBottomNavigation>
+                    </MudPaper>
+                </MudHidden>
+            }
         </MudLayout>
     </Authorized>
 </AuthorizeView>
@@ -122,6 +209,10 @@
 
     private string? _displayName;
     private string? _userName;
+
+    private bool _isStudent;
+    private int _unreadCount;
+    private string _selectedPage = "dashboard";
 
     private readonly MudTheme _theme = new()
     {
@@ -143,20 +234,36 @@
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        // DisplayName und UserName aus den Claims extrahieren
-        _displayName = user.Identity?.Name ??
-                       user.FindFirst("name")?.Value ??
-                       user.FindFirst(ClaimTypes.Name)?.Value;
+        _displayName = user.Identity?.Name
+                       ?? user.FindFirst("name")?.Value
+                       ?? user.FindFirst(ClaimTypes.Name)?.Value;
 
-        _userName = user.FindFirst("preferred_username")?.Value ??
-                    user.FindFirst("upn")?.Value ??
-                    user.FindFirst(ClaimTypes.Email)?.Value;
+        _userName = user.FindFirst("preferred_username")?.Value
+                    ?? user.FindFirst("upn")?.Value
+                    ?? user.FindFirst(ClaimTypes.Email)?.Value;
 
-        // Wenn nicht authentifiziert, leite zur Login-Seite weiter
-        
+        _isStudent = RoleHelper.HasRole(user, "Student");
+
+        if (_isStudent)
+        {
+            try { _unreadCount = await NotificationService.GetUnreadCountAsync(); }
+            catch { _unreadCount = 0; }
+
+            var uri = Nav.Uri.ToLowerInvariant();
+            if (uri.Contains("/student/grades")) _selectedPage = "grades";
+            else if (uri.Contains("/student/notifications")) _selectedPage = "notifications";
+            else _selectedPage = "dashboard";
+        }
     }
 
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+    private void OnSelectedPageChanged(string value) => _selectedPage = value;
+
+    private void SelectPage(string value, string url)
+    {
+        _selectedPage = value;
+        Nav.NavigateTo(url);
+    }
 
     private string GetInitials(string name)
     {
@@ -166,10 +273,7 @@
         return name.Length >= 2 ? name[..2].ToUpper() : name[..1].ToUpper();
     }
 }
-@code {
-    void Logout()
-    {
-        Nav.NavigateToLogout("authentication/logout");
-    }
-}
 
+@code {
+    void Logout() => Nav.NavigateToLogout("authentication/logout");
+}
