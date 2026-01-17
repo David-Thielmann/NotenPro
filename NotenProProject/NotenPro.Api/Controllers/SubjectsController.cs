@@ -4,236 +4,113 @@ using NotenPro.Api.Data;
 using NotenPro.Domain.Entities;
 using NotenPro.Shared.DTOs;
 
-
-namespace NotenPro.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class SubjectsController : ControllerBase
+namespace NotenPro.Api.Controllers
 {
-    private readonly NotenProDbContext _context;
-    private readonly ILogger<SubjectsController> _logger;
-
-    public SubjectsController(NotenProDbContext context, ILogger<SubjectsController> logger)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class SubjectsController : ControllerBase
     {
-        _context = context;
-        _logger = logger;
-    }
+        private readonly NotenProDbContext _dbContext;
 
-    [HttpGet]
-    public async Task<ActionResult<List<SubjectDto>>> GetAllSubjects([FromQuery] string? schoolId = null)
-    {
-        var query = _context.Subjects.AsQueryable();
-
-        if (!string.IsNullOrEmpty(schoolId))
+        public SubjectsController(NotenProDbContext dbContext)
         {
-            query = query.Where(s => s.SchoolId == schoolId);
+            _dbContext = dbContext;
         }
 
-        var subjects = await query
-            .Select(s => new SubjectDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                SchoolId = s.SchoolId,
-                IsActive = s.IsActive
-            })
-            .OrderBy(s => s.Name)
-            .ToListAsync();
-
-        return Ok(subjects);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<SubjectDto>> GetSubject(string id)
-    {
-        var subject = await _context.Subjects
-            .Where(s => s.Id == id)
-            .Select(s => new SubjectDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                SchoolId = s.SchoolId,
-                IsActive = s.IsActive
-            })
-            .FirstOrDefaultAsync();
-
-        if (subject == null)
-            return NotFound();
-
-        return Ok(subject);
-    }
-
-    [HttpGet("teacher/{teacherId}")]
-    public async Task<ActionResult<List<SubjectDto>>> GetTeacherSubjects(string teacherId)
-    {
-        var subjects = await _context.TeacherSubjects
-            .Include(ts => ts.Subject)
-            .Where(ts => ts.TeacherId == teacherId)
-            .Select(ts => new SubjectDto
-            {
-                Id = ts.Subject.Id,
-                Name = ts.Subject.Name,
-                Description = ts.Subject.Description,
-                SchoolId = ts.Subject.SchoolId,
-                IsActive = ts.Subject.IsActive
-            })
-            .OrderBy(s => s.Name)
-            .ToListAsync();
-
-        return Ok(subjects);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<SubjectDto>> CreateSubject([FromBody] CreateSubjectRequest request)
-    {
-        try
+        [HttpGet]
+        public async Task<ActionResult<List<SubjectDto>>> GetAllSubjects()
         {
-            // Check if subject already exists in school
-            if (await _context.Subjects.AnyAsync(s => s.Name == request.Name && s.SchoolId == request.SchoolId))
+            // Hinweis: .AsNoTracking() verbessert die Performance bei reinen Lesezugriffen
+            var subjects = await _dbContext.Subjects
+                .AsNoTracking()
+                .Select(s => new SubjectDto
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Description = s.Description,
+                    IsActive = s.IsActive
+                })
+                .ToListAsync();
+
+            return Ok(subjects);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<SubjectDto>> CreateSubject([FromBody] SubjectDto subjectDto)
+        {
+            if (subjectDto == null) return BadRequest("Daten sind leer");
+
+            try 
             {
-                return BadRequest("A subject with this name already exists in this school");
+                // Wir erstellen die Entity aus dem DTO
+                var newSubject = new SubjectEntity
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = subjectDto.Name,
+                    Description = subjectDto.Description ?? "",
+                    IsActive = true,
+                    // WICHTIG: Hier muss eine existierende School-ID rein!
+                    // Ich nehme hier die ID "e1..." als Platzhalter, 
+                    // du solltest sie später dynamisch vom User/Admin laden.
+                    SchoolId = "e1000000-0000-0000-0000-000000000005", 
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _dbContext.Subjects.Add(newSubject);
+                await _dbContext.SaveChangesAsync();
+
+                subjectDto.Id = newSubject.Id;
+                return CreatedAtAction(nameof(GetAllSubjects), new { id = newSubject.Id }, subjectDto);
             }
-
-            var subject = new SubjectEntity
+            catch (Exception ex)
             {
-                Name = request.Name,
-                Description = request.Description,
-                SchoolId = request.SchoolId,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            _context.Subjects.Add(subject);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSubject), new { id = subject.Id }, subject);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating subject");
-            return StatusCode(500, "Error creating subject");
-        }
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateSubject(string id, [FromBody] UpdateSubjectRequest request)
-    {
-        try
-        {
-            var subject = await _context.Subjects.FindAsync(id);
-            if (subject == null)
-                return NotFound();
-
-            // Check if new name conflicts with existing subject
-            if (await _context.Subjects.AnyAsync(s => s.Name == request.Name && s.SchoolId == subject.SchoolId && s.Id != id))
-            {
-                return BadRequest("A subject with this name already exists in this school");
+                // Schau in deine Visual Studio Konsole (Ausgabe), hier steht der echte Fehler
+                Console.WriteLine($"DB-FEHLER: {ex.Message}");
+                if (ex.InnerException != null) Console.WriteLine($"Inner: {ex.InnerException.Message}");
+        
+                return StatusCode(500, $"Serverfehler: {ex.Message}");
             }
+        } 
+        
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSubject(string id, [FromBody] SubjectDto subjectDto)
+        {
+            if (id != subjectDto.Id) return BadRequest();
 
-            subject.Name = request.Name;
-            subject.Description = request.Description;
-            subject.IsActive = request.IsActive;
+            var subject = await _dbContext.Subjects.FindAsync(id);
+            if (subject == null) return NotFound();
+
+            subject.Name = subjectDto.Name;
+            subject.Description = subjectDto.Description ?? "";
+            subject.IsActive = subjectDto.IsActive;
             subject.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Update Fehler: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }
         }
-        catch (Exception ex)
+        
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSubject(string id)
         {
-            _logger.LogError(ex, "Error updating subject");
-            return StatusCode(500, "Error updating subject");
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteSubject(string id)
-    {
-        try
-        {
-            var subject = await _context.Subjects
-                .Include(s => s.Tests)
-                    .ThenInclude(t => t.Grades)
-                .Include(s => s.TeacherSubjects)
-                .FirstOrDefaultAsync(s => s.Id == id);
-
+            var subject = await _dbContext.Subjects.FindAsync(id);
             if (subject == null)
+            {
                 return NotFound();
-
-            // Delete all related data
-            foreach (var test in subject.Tests)
-            {
-                _context.Grades.RemoveRange(test.Grades);
-            }
-            _context.Tests.RemoveRange(subject.Tests);
-            _context.TeacherSubjects.RemoveRange(subject.TeacherSubjects);
-            _context.Subjects.Remove(subject);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting subject");
-            return StatusCode(500, "Error deleting subject");
-        }
-    }
-
-    [HttpPost("{subjectId}/teachers/{teacherId}")]
-    public async Task<ActionResult> AssignTeacherToSubject(string subjectId, string teacherId)
-    {
-        try
-        {
-            // Check if assignment already exists
-            if (await _context.TeacherSubjects.AnyAsync(ts => ts.SubjectId == subjectId && ts.TeacherId == teacherId))
-            {
-                return BadRequest("Teacher is already assigned to this subject");
             }
 
-            var teacherSubject = new TeacherSubjectEntity
-            {
-                SubjectId = subjectId,
-                TeacherId = teacherId,
-                AssignedAt = DateTime.UtcNow
-            };
-
-            _context.TeacherSubjects.Add(teacherSubject);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error assigning teacher to subject");
-            return StatusCode(500, "Error assigning teacher to subject");
-        }
-    }
-
-    [HttpDelete("{subjectId}/teachers/{teacherId}")]
-    public async Task<ActionResult> RemoveTeacherFromSubject(string subjectId, string teacherId)
-    {
-        try
-        {
-            var teacherSubject = await _context.TeacherSubjects
-                .FirstOrDefaultAsync(ts => ts.SubjectId == subjectId && ts.TeacherId == teacherId);
-
-            if (teacherSubject == null)
-                return NotFound();
-
-            _context.TeacherSubjects.Remove(teacherSubject);
-            await _context.SaveChangesAsync();
-
+            _dbContext.Subjects.Remove(subject);
+            await _dbContext.SaveChangesAsync();
+    
             return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error removing teacher from subject");
-            return StatusCode(500, "Error removing teacher from subject");
         }
     }
 }

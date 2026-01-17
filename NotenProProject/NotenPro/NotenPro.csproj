@@ -31,5 +31,9 @@
     <ItemGroup>
         <ProjectReference Include="..\NotenPro.Shared\NotenPro.Shared.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Remove="Pages\Admin\ShowCreateSubjectDialog.cs" />
+    </ItemGroup>
 
 </Project>

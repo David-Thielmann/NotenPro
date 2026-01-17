@@ -1,0 +1,34 @@
+@using MudBlazor
+@using NotenPro.Shared.DTOs
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @* Dynamischer Titel *@
+            @(string.IsNullOrEmpty(Subject.Id) ? "Neues Fach anlegen" : "Fach bearbeiten")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (Subject != null)
+        {
+            <MudTextField @bind-Value="Subject.Name" Label="Fachname*" Placeholder="z.B. Mathematik" Required="true" AutoFocuse="true" Margin="Margin.Dense" />
+            <MudTextField @bind-Value="Subject.Description" Label="Beschreibung" Placeholder="z.B. Höhere Mathematik" Margin="Margin.Dense" Lines="3" />
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Secondary">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit" Variant="Variant.Filled" 
+                   Disabled="@(string.IsNullOrWhiteSpace(Subject?.Name))">
+            @* Dynamischer Button-Text *@
+            @(string.IsNullOrEmpty(Subject.Id) ? "Erstellen" : "Speichern")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public SubjectDto Subject { get; set; } = new SubjectDto();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Subject));
+    private void Cancel() => MudDialog.Cancel();
+}
