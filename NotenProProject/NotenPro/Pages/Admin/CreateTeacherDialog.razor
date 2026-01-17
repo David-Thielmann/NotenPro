@@ -1,0 +1,55 @@
+@using MudBlazor
+@using NotenPro.Shared.DTOs
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(string.IsNullOrEmpty(Teacher.Id) ? "Neuer Lehrer" : "Lehrer bearbeiten")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Teacher.Name" Label="Name*" Required="true" Margin="Margin.Dense" />
+        <MudTextField @bind-Value="Teacher.Email" Label="E-Mail*" Required="true" Margin="Margin.Dense" />
+        
+        @if (string.IsNullOrEmpty(Teacher.Id))
+        {
+            <MudTextField @bind-Value="Password" Label="Passwort*" InputType="InputType.Password" Required="true" Margin="Margin.Dense" />
+        }
+
+        <MudText Typo="Typo.subtitle2" Class="mt-4">Primäres Fach wählen:</MudText>
+        <MudPaper Variant="Variant.Outlined" Class="pa-2 mt-2" Style="max-height: 200px; overflow-y: auto;">
+            @if (Subjects == null || !Subjects.Any())
+            {
+                <MudText Typo="Typo.body2" Color="Color.Error">Keine Fächer geladen. Bitte Fächerverwaltung prüfen.</MudText>
+            }
+            else
+            {
+                <MudRadioGroup @bind-Value="Teacher.PrimarySubjectId" T="string">
+                    <MudRadio Value="@((string)null)" Color="Color.Default" Dense="true">Kein Fach</MudRadio>
+                    @foreach (var sub in Subjects)
+                    {
+                        <MudRadio Value="@sub.Id" Color="Color.Primary" Dense="true">@sub.Name</MudRadio>
+                    }
+                </MudRadioGroup>
+            }
+        </MudPaper>
+
+        <MudSwitch @bind-Value="Teacher.IsActive" Label="Account Aktiv" Color="Color.Success" Class="mt-4" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit"
+                   Disabled="@(string.IsNullOrWhiteSpace(Teacher.Name) || string.IsNullOrWhiteSpace(Teacher.Email))">
+            Speichern
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public TeacherDto Teacher { get; set; } = new();
+    [Parameter] public List<SubjectDto> Subjects { get; set; } = new(); 
+    
+    private string Password { get; set; } = string.Empty;
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(new CreateTeacherRequest { Teacher = Teacher, Password = Password }));
+    private void Cancel() => MudDialog.Cancel();
+}

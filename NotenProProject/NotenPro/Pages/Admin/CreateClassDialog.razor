@@ -1,0 +1,44 @@
+@using MudBlazor
+@using NotenPro.Shared.DTOs
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(string.IsNullOrEmpty(ClassObj.Id) ? "Neue Klasse erstellen" : "Klasse bearbeiten")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="ClassObj.Name" Label="Klassenname*" Required="true" Margin="Margin.Dense" />
+
+        <MudText Typo="Typo.subtitle2" Class="mt-6 mb-2">Klassenlehrer zuweisen:</MudText>
+        <MudPaper Variant="Variant.Outlined" Class="pa-2" Style="max-height: 250px; overflow-y: auto; background: var(--mud-palette-background-grey);">
+            @if (Teachers == null || !Teachers.Any())
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">Keine Lehrer gefunden.</MudAlert>
+            }
+            else
+            {
+                <MudRadioGroup @bind-Value="ClassObj.TeacherId" T="string">
+                    <MudRadio Value="@((string)null)" Color="Color.Default" Dense="true"><i>Kein Lehrer</i></MudRadio>
+                    @foreach (var t in Teachers)
+                    {
+                        <MudRadio Value="@t.Id" Color="Color.Primary" Dense="true">@t.Name</MudRadio>
+                    }
+                </MudRadioGroup>
+            }
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Abbrechen</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit"
+                   Disabled="@(string.IsNullOrWhiteSpace(ClassObj.Name))">Speichern</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public ClassDto ClassObj { get; set; } = new();
+    [Parameter] public List<TeacherDto> Teachers { get; set; } = new();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(ClassObj));
+    private void Cancel() => MudDialog.Cancel();
+}

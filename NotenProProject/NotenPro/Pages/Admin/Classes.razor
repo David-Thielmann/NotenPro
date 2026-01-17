@@ -1,364 +1,122 @@
 @page "/admin/classes"
-@using Microsoft.AspNetCore.Authorization
-@inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Nav
-@using HTLKrems.GradeManagement.Models
-@inject IClassService ClassService
-@inject ITeacherService TeacherService
-@inject ISnackbar Snackbar
+@using NotenPro.Shared.DTOs
+@inject HttpClient Http
+@inject IDialogService DialogService
+@using MudBlazor
 
 <PageTitle>Klassenverwaltung</PageTitle>
 
-<div class="d-flex justify-space-between align-center mb-6">
-    <MudText Typo="Typo.h4">Klassenverwaltung</MudText>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" 
-               Variant="Variant.Filled" 
-               Color="Color.Primary"
-               OnClick="OpenCreateDialog">
-        Neue Klasse
-    </MudButton>
-</div>
-
-<!-- Search and Filter -->
-<MudCard Elevation="2" Class="mb-4">
-    <MudCardContent>
-        <MudTextField @bind-Value="searchText"
-                      Label="Suche"
-                      Placeholder="Klasse suchen..."
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      Immediate="true" />
-    </MudCardContent>
-</MudCard>
-
-<!-- Classes Table -->
-<MudCard Elevation="2">
-    <MudCardContent>
-        @if (loading)
-        {
-            <div class="d-flex justify-center pa-8">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
-        else
-        {
-            <MudTable Items="@FilteredClasses" Hover="true" Breakpoint="Breakpoint.Sm">
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Klassenvorstand</MudTh>
-                    <MudTh>Schüleranzahl</MudTh>
-                    <MudTh>Schuljahr</MudTh>
-                    <MudTh>Status</MudTh>
-                    <MudTh>Aktionen</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">
-                        <div>
-                            <MudText>@context.Name</MudText>
-                            @if (!string.IsNullOrEmpty(context.Description))
-                            {
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Description</MudText>
-                            }
-                        </div>
-                    </MudTd>
-                    <MudTd DataLabel="Klassenvorstand">
-                        @if (!string.IsNullOrEmpty(context.ClassTeacherId))
-                        {
-                            <MudChip T="bool"
-                                Size="Size.Small" Icon="@Icons.Material.Filled.Person">
-                                @GetTeacherName(context.ClassTeacherId)
-                            </MudChip>
-                        }
-                        else
-                        {
-                            <MudText Color="Color.Secondary" Typo="Typo.caption">Nicht zugewiesen</MudText>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Schüleranzahl">@context.StudentCount</MudTd>
-                    <MudTd DataLabel="Schuljahr">@context.SchoolYear</MudTd>
-                    <MudTd DataLabel="Status">
-                        @if (context.IsActive)
-                        {
-                            <MudChip T="bool"
-                                Size="Size.Small" Color="Color.Success">Aktiv</MudChip>
-                        }
-                        else
-                        {
-                            <MudChip T="bool"
-                                Size="Size.Small" Color="Color.Default">Inaktiv</MudChip>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Aktionen">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                                       Size="Size.Small"
-                                       Color="Color.Primary"
-                                       OnClick="@(() => OpenEditDialog(context))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                       Size="Size.Small"
-                                       Color="Color.Error"
-                                       OnClick="@(() => DeleteClass(context))" />
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-    </MudCardContent>
-</MudCard>
-
-<!-- Create/Edit Dialog -->
-@if (showDialog)
-{
-    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.5);"
-         @onclick="CloseDialog">
-        <div style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 16px;"
-             @onclick:stopPropagation="true">
-            <MudPaper Class="pa-6" Style="width: 100%; max-width: 720px;">
-                <div class="d-flex align-center mb-4">
-                    <MudIcon Icon="@(isEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
-                    <MudText Typo="Typo.h6">@(isEditMode ? "Klasse bearbeiten" : "Neue Klasse")</MudText>
-                </div>
-
-                <MudGrid>
-                    <MudItem xs="12" md="6">
-                        <MudTextField @bind-Value="editingClass.Name"
-                                      Label="Klassenname"
-                                      Required="true"
-                                      Variant="Variant.Outlined"
-                                      Placeholder="z.B. 1AHIF" />
-                    </MudItem>
-                    <MudItem xs="12" md="6">
-                        <MudTextField @bind-Value="editingClass.SchoolYear"
-                                      Label="Schuljahr"
-                                      Variant="Variant.Outlined"
-                                      Placeholder="z.B. 2024/25" />
-                    </MudItem>
-                    <MudItem xs="12">
-                        <MudTextField @bind-Value="editingClass.Description"
-                                      Label="Beschreibung"
-                                      Lines="2"
-                                      Variant="Variant.Outlined"
-                                      Placeholder="Optional" />
-                    </MudItem>
-                    <MudItem xs="12" md="6">
-                        <MudSelect @bind-Value="editingClass.ClassTeacherId"
-                                   Label="Klassenvorstand"
-                                   Variant="Variant.Outlined"
-                                   Clearable="true">
-                            @foreach (var teacher in teachers)
-                            {
-                                <MudSelectItem Value="@teacher.Id">@teacher.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="12" md="6">
-                        <MudNumericField @bind-Value="editingClass.StudentCount"
-                                         Label="Schüleranzahl"
-                                         Min="0"
-                                         Variant="Variant.Outlined" />
-                    </MudItem>
-                    <MudItem xs="12">
-                        <MudSwitch T="bool"
-                                   @bind-Value="editingClass.IsActive"
-                                   Color="Color.Primary"
-                                   Label="Klasse ist aktiv" />
-                    </MudItem>
-                </MudGrid>
-
-                <div class="d-flex justify-end gap-2 mt-6">
-                    <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
-                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveClass">
-                        @(isEditMode ? "Speichern" : "Erstellen")
-                    </MudButton>
-                </div>
-            </MudPaper>
-        </div>
+<MudContainer Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-4">
+        <MudText Typo="Typo.h4">Klassenverwaltung</MudText>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" OnClick="ShowCreateClassDialog">
+            Neue Klasse
+        </MudButton>
     </div>
-}
+
+    <MudTable Items="_classes" Hover="true" Striped="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Klassenname</MudTh>
+            <MudTh>Klassenlehrer</MudTh>
+            <MudTh>Schüler</MudTh>
+            <MudTh Style="text-align:right">Aktionen</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Klassenname">@context.Name</MudTd>
+            <MudTd DataLabel="Klassenlehrer">
+                @if (!string.IsNullOrEmpty(context.TeacherName))
+                {
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" Class="mr-2" Color="Color.Info" />
+                        <MudText Typo="Typo.body2">@context.TeacherName</MudText>
+                    </div>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Error"><i>Kein Lehrer</i></MudText>
+                }
+            </MudTd>
+            <MudTd DataLabel="Schüler">
+                <MudBadge Content="@context.StudentCount" Color="Color.Primary" Overlap="false" Bordered="true">
+                    <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Default" />
+                </MudBadge>
+            </MudTd>
+            <MudTd DataLabel="Aktionen" Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="() => EditClass(context)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteClass(context.Id)" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
 
 @code {
-    private List<ClassModel> classes = new();
-    private List<Teacher> teachers = new();
-    
-    private string searchText = "";
-    private bool loading = true;
-    
-    private bool showDialog = false;
-    private bool isEditMode = false;
-    private ClassModel editingClass = new();
-    
-    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private List<ClassDto> _classes = new();
+    private List<TeacherDto> _teachers = new();
 
-    private IEnumerable<ClassModel> FilteredClasses
+    protected override async Task OnInitializedAsync() 
     {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(searchText))
-                return classes;
-            
-            var search = searchText.ToLowerInvariant();
-            return classes.Where(c => 
-                c.Name.ToLowerInvariant().Contains(search) ||
-                (c.Description?.ToLowerInvariant().Contains(search) ?? false));
-        }
+        await LoadClasses();
+        await LoadTeachers();
     }
 
-   
-
-    private async Task LoadData()
+    private async Task LoadClasses()
     {
-        loading = true;
-        
-        var classesData = await ClassService.GetClassesAsync();
-        teachers = await TeacherService.GetTeachersAsync();
-        
-        // Convert to ClassModel with additional properties
-        classes = classesData.Select(c => new ClassModel
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Description = "",
-            ClassTeacherId = "",
-            StudentCount = 0,
-            SchoolYear = "2024/25",
-            IsActive = true
-        }).ToList();
-        
-        // Add mock data
-        if (classes.Count > 0)
-        {
-            classes[0].StudentCount = 25;
-            classes[0].Description = "Informatik Abteilung";
-            classes[0].ClassTeacherId = teachers.FirstOrDefault()?.Id ?? "";
-        }
-        
-        loading = false;
+        _classes = await Http.GetFromJsonAsync<List<ClassDto>>("api/classes") ?? new();
     }
 
-    private void OpenCreateDialog()
+    private async Task LoadTeachers()
     {
-        isEditMode = false;
-        editingClass = new ClassModel
-        {
-            SchoolYear = "2024/25",
-            IsActive = true,
-            StudentCount = 0
+        // Wir laden die Lehrer, um sie im Dialog zur Auswahl zu haben
+        _teachers = await Http.GetFromJsonAsync<List<TeacherDto>>("api/teachers") ?? new();
+    }
+
+    private async Task ShowCreateClassDialog()
+    {
+        var parameters = new DialogParameters 
+        { 
+            ["ClassObj"] = new ClassDto(),
+            ["Teachers"] = _teachers 
         };
-        showDialog = true;
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = DialogService.Show<CreateClassDialog>("Neue Klasse", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is ClassDto newClass)
+        {
+            var response = await Http.PostAsJsonAsync("api/classes", newClass);
+            if (response.IsSuccessStatusCode) await LoadClasses();
+        }
     }
 
-    private void OpenEditDialog(ClassModel classModel)
+    private async Task EditClass(ClassDto classObj)
     {
-        isEditMode = true;
-        editingClass = new ClassModel
-        {
-            Id = classModel.Id,
-            Name = classModel.Name,
-            Description = classModel.Description,
-            ClassTeacherId = classModel.ClassTeacherId,
-            StudentCount = classModel.StudentCount,
-            SchoolYear = classModel.SchoolYear,
-            IsActive = classModel.IsActive
+        var classCopy = new ClassDto 
+        { 
+            Id = classObj.Id, 
+            Name = classObj.Name, 
+            SchoolId = classObj.SchoolId,
+            TeacherId = classObj.TeacherId // Die ID für die Radio-Buttons
         };
-        showDialog = true;
-    }
 
-    private void CloseDialog()
-    {
-        showDialog = false;
-    }
+        var parameters = new DialogParameters 
+        { 
+            ["ClassObj"] = classCopy,
+            ["Teachers"] = _teachers 
+        };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = DialogService.Show<CreateClassDialog>("Klasse bearbeiten", parameters, options);
+        var result = await dialog.Result;
 
-    private async Task SaveClass()
-    {
-        if (string.IsNullOrWhiteSpace(editingClass.Name))
+        if (!result.Canceled && result.Data is ClassDto updatedClass)
         {
-            Snackbar.Add("Bitte geben Sie einen Klassennamen ein", Severity.Warning);
-            return;
+            var response = await Http.PutAsJsonAsync($"api/classes/{updatedClass.Id}", updatedClass);
+            if (response.IsSuccessStatusCode) await LoadClasses();
         }
-
-        if (isEditMode)
-        {
-            var existingClass = classes.FirstOrDefault(c => c.Id == editingClass.Id);
-            if (existingClass != null)
-            {
-                existingClass.Name           = editingClass.Name;
-                existingClass.Description    = editingClass.Description;
-                existingClass.ClassTeacherId = editingClass.ClassTeacherId;
-                existingClass.StudentCount   = editingClass.StudentCount;
-                existingClass.SchoolYear     = editingClass.SchoolYear;
-                existingClass.IsActive       = editingClass.IsActive;
-            }
-
-            Snackbar.Add("Klasse aktualisiert", Severity.Success);
-        }
-        else
-        {
-            // Domain-Objekt für den Service bauen
-            var newClass = new HTLKrems.GradeManagement.Models.Class
-            {
-                Name = editingClass.Name!
-                // falls deine Domain-Class mehr Felder hat, hier ergänzen
-            };
-
-            var result = await ClassService.CreateClassAsync(newClass);
-
-            if (result.Success)
-            {
-                editingClass.Id = Guid.NewGuid().ToString();
-
-                classes.Add(new ClassModel
-                {
-                    Id             = editingClass.Id,
-                    Name           = editingClass.Name,
-                    Description    = editingClass.Description,
-                    ClassTeacherId = editingClass.ClassTeacherId,
-                    StudentCount   = editingClass.StudentCount,
-                    SchoolYear     = editingClass.SchoolYear,
-                    IsActive       = editingClass.IsActive
-                });
-
-                Snackbar.Add("Klasse erstellt", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
-                return;
-            }
-        }
-
-        CloseDialog();
     }
 
-
-    private async Task DeleteClass(ClassModel classModel)
+    private async Task DeleteClass(string id)
     {
-        classes.Remove(classModel);
-        Snackbar.Add("Klasse gelöscht", Severity.Success);
-    }
-
-    private string GetTeacherName(string teacherId)
-    {
-        return teachers.FirstOrDefault(t => t.Id == teacherId)?.Name ?? "Unbekannt";
-    }
-
-    private class ClassModel
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string? Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string ClassTeacherId { get; set; } = string.Empty;
-        public int StudentCount { get; set; }
-        public string SchoolYear { get; set; } = string.Empty;
-        public bool IsActive { get; set; } = true;
-    }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Admin"))
-        {
-            Nav.NavigateTo("/login", true);
-        }
+        var response = await Http.DeleteAsync($"api/classes/{id}");
+        if (response.IsSuccessStatusCode) await LoadClasses();
     }
 }

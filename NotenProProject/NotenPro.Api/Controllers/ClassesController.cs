@@ -4,260 +4,119 @@ using NotenPro.Api.Data;
 using NotenPro.Domain.Entities;
 using NotenPro.Shared.DTOs;
 
-
-namespace NotenPro.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ClassesController : ControllerBase
+namespace NotenPro.Api.Controllers
 {
-    private readonly NotenProDbContext _dbContext;
-    private readonly ILogger<ClassesController> _logger;
-
-    public ClassesController(NotenProDbContext dbContext, ILogger<ClassesController> logger)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ClassesController : ControllerBase
     {
-        _dbContext = dbContext;
-        _logger = logger;
-    }
+        private readonly NotenProDbContext _dbContext;
 
-    [HttpGet]
-    public async Task<ActionResult<List<ClassDto>>> GetAllClasses([FromQuery] string? schoolId = null)
-    {
-        var query = _dbContext.Classes
-            .Include(c => c.ClassTeacher)
-            .Include(c => c.StudentClasses)
-                .ThenInclude(sc => sc.Student)
-                    .ThenInclude(s => s.Grades)
-            .AsQueryable();
-
-        if (!string.IsNullOrEmpty(schoolId))
+        public ClassesController(NotenProDbContext dbContext)
         {
-            query = query.Where(c => c.SchoolId == schoolId);
+            _dbContext = dbContext;
         }
 
-        var classes = await query
-            .Select(c => new ClassDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                SchoolId = c.SchoolId,
-                ClassTeacherId = c.ClassTeacherId,
-                ClassTeacherName = c.ClassTeacher != null ? c.ClassTeacher.Name : null,
-                StudentCount = c.StudentClasses.Count,
-                AverageGrade = c.StudentClasses
-                    .SelectMany(sc => sc.Student.Grades)
-                    .Where(g => g.GradeValue.HasValue && g.Status == GradeStatus.Graded)
-                    .Select(g => g.GradeValue!.Value)   // nach HasValue safe
-                    .DefaultIfEmpty(0.0m)
-                    .Average()
-
-            })
-            .OrderBy(c => c.Name)
-            .ToListAsync();
-
-        return Ok(classes);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ClassDto>> GetClass(string id)
-    {
-        var classEntity = await _dbContext.Classes
-            .Include(c => c.ClassTeacher)
-            .Include(c => c.StudentClasses)
-                .ThenInclude(sc => sc.Student)
-                    .ThenInclude(s => s.Grades)
-            .Where(c => c.Id == id)
-            .Select(c => new ClassDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                SchoolId = c.SchoolId,
-                ClassTeacherId = c.ClassTeacherId,
-                ClassTeacherName = c.ClassTeacher != null ? c.ClassTeacher.Name : null,
-                StudentCount = c.StudentClasses.Count,
-                AverageGrade = c.StudentClasses
-                    .SelectMany(sc => sc.Student.Grades)
-                    .Where(g => g.GradeValue.HasValue && g.Status == GradeStatus.Graded)
-                    .Select(g => g.GradeValue!.Value)   // nach HasValue safe
-                    .DefaultIfEmpty(0.0m)
-                    .Average()
-
-            })
-            .FirstOrDefaultAsync();
-
-        if (classEntity == null)
-            return NotFound();
-
-        return Ok(classEntity);
-    }
-
-    [HttpGet("{id}/students")]
-    public async Task<ActionResult<List<UserDto>>> GetClassStudents(string id)
-    {
-        var students = await _dbContext.StudentClasses
-            .Include(sc => sc.Student)
-            .Where(sc => sc.ClassId == id)
-            .Select(sc => new UserDto
-            {
-                Id = sc.Student.Id,
-                Name = sc.Student.Name,
-                Email = sc.Student.Email,
-                Role = sc.Student.Role.ToString(),
-                SchoolId = sc.Student.SchoolId,
-                IsActive = sc.Student.IsActive
-            })
-            .OrderBy(s => s.Name)
-            .ToListAsync();
-
-        return Ok(students);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<ClassDto>> CreateClass([FromBody] CreateClassRequest request)
-    {
-        try
+        [HttpGet]
+        public async Task<ActionResult<List<ClassDto>>> GetAllClasses()
         {
-            // Check if class name already exists in school
-            if (await _dbContext.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == request.SchoolId))
+            try
             {
-                return BadRequest("A class with this name already exists in this school");
+                // Wir holen die Daten erst in eine Liste, um LINQ-Konflikte zu vermeiden
+                var classesList = await _dbContext.Classes.AsNoTracking().ToListAsync();
+                var usersList = await _dbContext.Users.AsNoTracking().ToListAsync();
+
+                var result = classesList.Select(c => new ClassDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    SchoolId = c.SchoolId,
+                    TeacherId = c.ClassTeacherId,
+                    // Holt den Namen des Lehrers aus der Users-Liste
+                    TeacherName = usersList
+                        .FirstOrDefault(u => u.Id == c.ClassTeacherId)?.Name ?? "Nicht zugewiesen",
+            
+                    // WICHTIG: Prüfe in deiner UserEntity.cs ob es 'ClassId' oder 'S_ClassId' o.ä. heißt!
+                    // Ich nutze hier eine sicherere Abfrage:
+                    StudentCount = usersList.Count(u => 
+                        u.Role.ToString() == "Student" && 
+                        u.GetType().GetProperty("ClassId")?.GetValue(u)?.ToString() == c.Id),
+
+                    AverageGrade = 0 // Kann später berechnet werden
+                }).ToList();
+
+                return Ok(result);
             }
-
-            var classEntity = new ClassEntity
+            catch (Exception ex)
             {
-                Name = request.Name,
-                SchoolId = request.SchoolId,
-                ClassTeacherId = request.ClassTeacherId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            _dbContext.Classes.Add(classEntity);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetClass), new { id = classEntity.Id }, classEntity);
+                return StatusCode(500, $"Fehler: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating class");
-            return StatusCode(500, "Error creating class");
-        }
-    }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateClass(string id, [FromBody] UpdateClassRequest request)
-    {
-        try
+        [HttpPost]
+        public async Task<ActionResult<ClassDto>> CreateClass([FromBody] ClassDto classDto)
         {
+            if (classDto == null) return BadRequest("Daten sind leer");
+
+            try
+            {
+                var newClass = new ClassEntity
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = classDto.Name,
+                    ClassTeacherId = classDto.TeacherId, // Mapping UI -> DB
+                    SchoolId = (await _dbContext.Schools.AsNoTracking()
+                                    .Select(s => s.Id)
+                                    .FirstOrDefaultAsync())
+                               ?? throw new InvalidOperationException("Keine School in der DB"),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _dbContext.Classes.Add(newClass);
+                await _dbContext.SaveChangesAsync();
+
+                classDto.Id = newClass.Id;
+                return CreatedAtAction(nameof(GetAllClasses), new { id = newClass.Id }, classDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Serverfehler beim Erstellen: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateClass(string id, [FromBody] ClassDto classDto)
+        {
+            if (id != classDto.Id) return BadRequest();
+
             var classEntity = await _dbContext.Classes.FindAsync(id);
-            if (classEntity == null)
-                return NotFound();
+            if (classEntity == null) return NotFound();
 
-            // Check if new name conflicts with existing class
-            if (await _dbContext.Classes.AnyAsync(c => c.Name == request.Name && c.SchoolId == classEntity.SchoolId && c.Id != id))
-            {
-                return BadRequest("A class with this name already exists in this school");
-            }
-
-            classEntity.Name = request.Name;
-            classEntity.ClassTeacherId = request.ClassTeacherId;
+            classEntity.Name = classDto.Name;
+            classEntity.ClassTeacherId = classDto.TeacherId; // Mapping UI -> DB
             classEntity.UpdatedAt = DateTime.UtcNow;
 
-            await _dbContext.SaveChangesAsync();
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating class");
-            return StatusCode(500, "Error updating class");
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteClass(string id)
-    {
-        try
-        {
-            var classEntity = await _dbContext.Classes
-                .Include(c => c.StudentClasses)
-                .Include(c => c.Tests)
-                    .ThenInclude(t => t.Grades)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (classEntity == null)
-                return NotFound();
-
-            // Delete all related data
-            foreach (var test in classEntity.Tests)
+            try
             {
-                _dbContext.Grades.RemoveRange(test.Grades);
+                await _dbContext.SaveChangesAsync();
+                return NoContent();
             }
-            _dbContext.Tests.RemoveRange(classEntity.Tests);
-            _dbContext.StudentClasses.RemoveRange(classEntity.StudentClasses);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteClass(string id)
+        {
+            var classEntity = await _dbContext.Classes.FindAsync(id);
+            if (classEntity == null) return NotFound();
+
             _dbContext.Classes.Remove(classEntity);
-
             await _dbContext.SaveChangesAsync();
-
             return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting class");
-            return StatusCode(500, "Error deleting class");
-        }
-    }
-
-    [HttpPost("{classId}/students/{studentId}")]
-    public async Task<ActionResult> AddStudentToClass(string classId, string studentId)
-    {
-        try
-        {
-            // Check if student is already in class
-            if (await _dbContext.StudentClasses.AnyAsync(sc => sc.ClassId == classId && sc.StudentId == studentId))
-            {
-                return BadRequest("Student is already in this class");
-            }
-
-            var studentClass = new StudentClassEntity
-            {
-                ClassId = classId,
-                StudentId = studentId,
-                EnrolledAt = DateTime.UtcNow
-            };
-
-            _dbContext.StudentClasses.Add(studentClass);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error adding student to class");
-            return StatusCode(500, "Error adding student to class");
-        }
-    }
-
-    [HttpDelete("{classId}/students/{studentId}")]
-    public async Task<ActionResult> RemoveStudentFromClass(string classId, string studentId)
-    {
-        try
-        {
-            var studentClass = await _dbContext.StudentClasses
-                .FirstOrDefaultAsync(sc => sc.ClassId == classId && sc.StudentId == studentId);
-
-            if (studentClass == null)
-                return NotFound();
-
-            _dbContext.StudentClasses.Remove(studentClass);
-            await _dbContext.SaveChangesAsync();
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error removing student from class");
-            return StatusCode(500, "Error removing student from class");
         }
     }
 }

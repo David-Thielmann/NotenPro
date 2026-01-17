@@ -1,186 +1,172 @@
 @page "/admin/teachers"
-@using Microsoft.AspNetCore.Authorization
-@inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Nav
-@inject ITeacherService TeacherService
+@using NotenPro.Shared.DTOs
+@inject HttpClient Http
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@using MudBlazor
 
 <PageTitle>Lehrerverwaltung</PageTitle>
 
-<div class="d-flex justify-space-between align-center mb-6">
-    <MudText Typo="Typo.h4">Lehrerverwaltung</MudText>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" 
-               Variant="Variant.Filled" 
-               Color="Color.Primary"
-               OnClick="OpenAddDialog">
-        Lehrer hinzufügen
-    </MudButton>
-</div>
-
-<MudCard Elevation="2">
-    <MudCardContent>
-        <MudTable Items="@teachers" 
-                  Hover="true" 
-                  Filter="new Func<Teacher,bool>(FilterFunc)"
-                  Dense="true">
-            <ToolBarContent>
-                <MudTextField @bind-Value="searchString" 
-                              Placeholder="Suchen..." 
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search" 
-                              IconSize="Size.Medium" 
-                              Class="mt-0" />
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh>Fächer</MudTh>
-                <MudTh>E-Mail</MudTh>
-                <MudTh>Status</MudTh>
-                <MudTh Style="text-align: right">Aktionen</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Name">@context.Name</MudTd>
-                <MudTd DataLabel="Fächer">@string.Join(", ", context.Subjects)</MudTd>
-                <MudTd DataLabel="E-Mail">@context.Email</MudTd>
-                <MudTd DataLabel="Status">
-                    <MudChip T="bool"
-                        Color="@(context.IsActive ? Color.Success : Color.Default)" Size="Size.Small">
-                        @(context.IsActive ? "Aktiv" : "Inaktiv")
-                    </MudChip>
-                </MudTd>
-                <MudTd Style="text-align: right">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                   Size="Size.Small" 
-                                   Color="Color.Error"
-                                   OnClick="@(async () => await DeleteTeacher(context.Id))" />
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    </MudCardContent>
-</MudCard>
-
-@if (isDialogOpen)
-{
-    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.5);" @onclick="CloseDialog">
-        <div style="display: flex; height: 100%; width: 100%; align-items: center; justify-content: center; padding: 16px;" @onclick:stopPropagation="true">
-            <MudPaper Elevation="6" Class="pa-6" Style="max-width: 520px; width: 100%;">
-                <MudText Typo="Typo.h6" Class="mb-4">Neuen Lehrer hinzufügen</MudText>
-
-                <MudTextField @bind-Value="newTeacher.Name"
-                              Label="Name"
-                              Variant="Variant.Outlined"
-                              Required="true"
-                              Class="mb-4" />
-                <MudTextField @bind-Value="newTeacher.Email"
-                              Label="E-Mail"
-                              Variant="Variant.Outlined"
-                              Required="true"
-                              Class="mb-4" />
-                <MudTextField @bind-Value="subjectsInput"
-                              Label="Fächer (kommagetrennt)"
-                              Variant="Variant.Outlined"
-                              Class="mb-4" />
-
-                <div class="d-flex justify-end gap-2">
-                    <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
-                    <MudButton Color="Color.Primary" OnClick="HandleCreate">Erstellen</MudButton>
-                </div>
-            </MudPaper>
-        </div>
+<MudContainer Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-4">
+        <MudText Typo="Typo.h4">Lehrerverwaltung</MudText>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="ShowCreateTeacherDialog">
+            Neuer Lehrer
+        </MudButton>
     </div>
-}
+
+    @if (_subjects == null || !_subjects.Any())
+    {
+        <MudAlert Severity="Severity.Warning" Class="mb-4">
+            Achtung: Es wurden keine Fächer gefunden. Bitte erstelle zuerst Fächer in der Fächerverwaltung, damit du sie Lehrern zuweisen kannst.
+        </MudAlert>
+    }
+
+    <MudTable Items="_teachers" Hover="true" Striped="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Fach</MudTh>
+            <MudTh>E-Mail</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh Style="text-align:right">Aktionen</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Fach">@context.SubjectName</MudTd>
+            <MudTd DataLabel="E-Mail">@context.Email</MudTd>
+            <MudTd DataLabel="Status">
+                <MudChip T="string" Color="@(context.IsActive ? Color.Success : Color.Error)" Size="Size.Small">
+                    @(context.IsActive ? "Aktiv" : "Inaktiv")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Aktionen" Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="() => EditTeacher(context)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteTeacher(context.Id)" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
 
 @code {
-    private List<Teacher> teachers = new();
-    private string searchString = "";
-    private bool isDialogOpen = false;
-    private Teacher newTeacher = new();
-    private string subjectsInput = "";
+    private List<TeacherDto> _teachers = new();
+    private List<SubjectDto> _subjects = new();
 
-
+    protected override async Task OnInitializedAsync() 
+    {
+        await LoadTeachers();
+        await LoadSubjects();
+    }
 
     private async Task LoadTeachers()
     {
-        teachers = await TeacherService.GetAllTeachersAsync();
-    }
-
-    private bool FilterFunc(Teacher teacher)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (teacher.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (teacher.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
-
-    private void OpenAddDialog()
-    {
-        newTeacher = new Teacher();
-        subjectsInput = "";
-        isDialogOpen = true;
-    }
-
-    private void CloseDialog()
-    {
-        isDialogOpen = false;
-    }
-
-    private async Task HandleCreate()
-    {
-        if (!string.IsNullOrWhiteSpace(subjectsInput))
-        {
-            newTeacher.Subjects = subjectsInput.Split(',').Select(s => s.Trim()).ToList();
+        try {
+            _teachers = await Http.GetFromJsonAsync<List<TeacherDto>>("api/teachers") ?? new();
+        } catch (Exception ex) {
+            Console.WriteLine($"Fehler Lehrer: {ex.Message}");
         }
+    }
 
-        var result = await TeacherService.CreateTeacherAsync(newTeacher);
+    private async Task LoadSubjects()
+    {
+        try 
+        {
+            Console.WriteLine("DEBUG: Starte Laden der Fächer von api/subjects...");
         
-        if (result.Success)
+            // 1. Roh-Antwort abrufen, um den Statuscode zu prüfen
+            var response = await Http.GetAsync("api/subjects");
+            Console.WriteLine($"DEBUG: API Status Code: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // 2. Den Inhalt als Text lesen, um zu sehen, was WIRKLICH ankommt
+                var jsonString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"DEBUG: Rohdaten vom Server: {jsonString}");
+
+                if (string.IsNullOrWhiteSpace(jsonString) || jsonString == "[]")
+                {
+                    Console.WriteLine("DEBUG: WARNUNG - Der Server hat eine leere Liste [] zurückgegeben.");
+                    _subjects = new List<SubjectDto>();
+                }
+                else
+                {
+                    // 3. Deserialisieren
+                    _subjects = await response.Content.ReadFromJsonAsync<List<SubjectDto>>() ?? new();
+                    Console.WriteLine($"DEBUG: Erfolg! {_subjects.Count} Fächer erfolgreich in Liste geladen.");
+                }
+            }
+            else 
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"DEBUG: FEHLER beim API-Aufruf: {errorBody}");
+            }
+        } 
+        catch (Exception ex) 
         {
-            Snackbar.Add("Lehrer erfolgreich hinzugefügt!", Severity.Success);
-            await LoadTeachers();
-            CloseDialog();
+            Console.WriteLine($"DEBUG: CRASH in LoadSubjects: {ex.Message}");
         }
-        else
+    }
+
+    private async Task ShowCreateTeacherDialog()
+    {
+        // DEBUG: Prüfen, ob wir hier wirklich Daten haben
+        Console.WriteLine($"Öffne Dialog mit {_subjects.Count} Fächern");
+
+        var parameters = new DialogParameters 
+        { 
+            ["Teacher"] = new TeacherDto { IsActive = true },
+            ["Subjects"] = _subjects  // <--- Hier muss die Liste rein
+        };
+    
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+    
+        // Wichtig: Warte nicht auf das Resultat, bevor der Dialog überhaupt erscheint
+        var dialog = DialogService.Show<CreateTeacherDialog>("Neuer Lehrer", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is CreateTeacherRequest request)
         {
-            Snackbar.Add("Fehler beim Erstellen", Severity.Error);
+            await Http.PostAsJsonAsync("api/teachers", request);
+            await LoadTeachers();
+        }
+    }
+
+    private async Task EditTeacher(TeacherDto teacher)
+    {
+        var parameters = new DialogParameters 
+        { 
+            ["Teacher"] = new TeacherDto 
+            { 
+                Id = teacher.Id, 
+                Name = teacher.Name, 
+                Email = teacher.Email,
+                IsActive = teacher.IsActive,
+                PrimarySubjectId = teacher.PrimarySubjectId // <--- WICHTIG: Muss hier mitgegeben werden
+            },
+            ["Subjects"] = _subjects 
+        };
+    
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = DialogService.Show<CreateTeacherDialog>("Lehrer bearbeiten", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is CreateTeacherRequest request)
+        {
+            // PUT-Aufruf an das Backend
+            var response = await Http.PutAsJsonAsync($"api/teachers/{request.Teacher.Id}", request.Teacher);
+            if (response.IsSuccessStatusCode) 
+            {
+                Snackbar.Add("Änderungen gespeichert", Severity.Success);
+                await LoadTeachers(); // Liste neu laden, um das neue Fach anzuzeigen
+            }
         }
     }
 
     private async Task DeleteTeacher(string id)
     {
-        bool? result = await DialogService.ShowMessageBox(
-            "Bestätigung",
-            "Möchten Sie diesen Lehrer wirklich löschen?",
-            yesText: "Löschen", cancelText: "Abbrechen");
-        
-        if (result == true)
-        {
-            var deleteResult = await TeacherService.DeleteTeacherAsync(id);
-            if (deleteResult.Success)
-            {
-                await LoadTeachers();
-                Snackbar.Add("Lehrer gelöscht", Severity.Success);
-            }
-        }
-    }
-}
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTeachers();
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Admin"))
-        {
-            Nav.NavigateTo("/login", true);
-        }
+        var response = await Http.DeleteAsync($"api/teachers/{id}");
+        if (response.IsSuccessStatusCode) await LoadTeachers();
     }
 }
