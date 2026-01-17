@@ -184,7 +184,7 @@ namespace HTLKrems.GradeManagement.Models
         public DateTime Date { get; set; }
         public string ClassId { get; set; } = string.Empty;
         public int MaxPoints { get; set; }
-        public TestType Type { get; set; }
+        public string Type { get; set; }
         public string? Description { get; set; }
     }
 

@@ -1,5 +1,6 @@
 @page "/teacher/classes"
 @using Microsoft.AspNetCore.Authorization
+@using NotenPro.Shared.DTOs
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IClassService ClassService
@@ -13,111 +14,107 @@
 @if (loading)
 {
     <div class="d-flex justify-center pa-8">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     </div>
 }
 else
 {
     <MudGrid>
-        @foreach (var classInfo in myClasses)
+        @if (!myClasses.Any())
         {
-            <MudItem xs="12" md="6" lg="4">
-                <MudCard Elevation="2" Class="hover-card">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h5">@classInfo.Name</MudText>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                @classInfo.Subject
-                            </MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.MoreVert"
-                                           Color="Color.Default"
-                                           OnClick="@(() => ToggleClassDetails(classInfo.Id))"/>
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudGrid>
-                            <MudItem xs="6">
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">Schüler</MudText>
-                                <MudText Typo="Typo.h6">@classInfo.StudentCount</MudText>
-                            </MudItem>
-                            <MudItem xs="6">
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">Durchschnitt</MudText>
-                                <MudText Typo="Typo.h6">@classInfo.AverageGrade.ToString("F2")</MudText>
-                            </MudItem>
-                        </MudGrid>
-
-                        @if (expandedClassId == classInfo.Id)
-                        {
-                            <MudDivider Class="my-4"/>
-
-                            <!-- Class Statistics -->
-                            <MudText Typo="Typo.subtitle2" Class="mb-2">Notenverteilung</MudText>
-                            <div class="d-flex gap-2 mb-4">
-                                <MudChip T="bool"
-                                         Size="Size.Small" Color="Color.Success">Sehr gut: @classInfo.GradeDistribution.Count(g => g == 1)</MudChip>
-                                <MudChip T="bool"
-                                         Size="Size.Small" Color="Color.Info">Gut: @classInfo.GradeDistribution.Count(g => g == 2)</MudChip>
-                                <MudChip T="bool"
-                                         Size="Size.Small" Color="Color.Warning">Befriedigend: @classInfo.GradeDistribution.Count(g => g == 3)</MudChip>
-                                <MudChip T="bool"
-                                         Size="Size.Small" Color="Color.Error">Nicht genügend: @classInfo.GradeDistribution.Count(g => g >= 4)</MudChip>
-                            </div>
-
-                            <!-- Student List -->
-                            <MudText Typo="Typo.subtitle2" Class="mb-2">Schülerliste</MudText>
-                            <MudTable Items="@classInfo.Students" Dense="true" Hover="true" Elevation="0">
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Durchschnitt</MudTh>
-                                    <MudTh>Status</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                                    <MudTd DataLabel="Durchschnitt">
-                                        <MudChip T="bool"
-                                                 Size="Size.Small" Color="@GetGradeColor(context.Average)">
-                                            @context.Average.ToString("F2")
-                                        </MudChip>
-                                    </MudTd>
-                                    <MudTd DataLabel="Status">
-                                        @if (context.Average >= 4.5m)
-                                        {
-                                            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Small" Title="Gefährdet"/>
-                                        }
-                                        else if (context.Average >= 3.5m)
-                                        {
-                                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Warning" Size="Size.Small" Title="Beobachten"/>
-                                        }
-                                        else
-                                        {
-                                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" Title="Gut"/>
-                                        }
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        }
-                    </MudCardContent>
-                    <MudCardActions>
-                        <MudButton Variant="Variant.Text"
-                                   Color="Color.Primary"
-                                   OnClick="@(() => ToggleClassDetails(classInfo.Id))">
-                            @(expandedClassId == classInfo.Id ? "Weniger anzeigen" : "Details anzeigen")
-                        </MudButton>
-                    </MudCardActions>
-                </MudCard>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+                    Sie sind derzeit keinen Klassen zugeordnet oder es wurden keine Daten gefunden.
+                </MudAlert>
             </MudItem>
         }
+        else
+        {
+            @foreach (var classInfo in myClasses)
+            {
+                <MudItem xs="12" md="6" lg="4">
+                    <MudCard Elevation="2" Class="hover-card">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5">@classInfo.Name</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    @classInfo.Subject
+                                </MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.MoreVert"
+                                               Color="Color.Default"
+                                               OnClick="@(() => ToggleClassDetails(classInfo.Id))"/>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Schüler</MudText>
+                                    <MudText Typo="Typo.h6">@classInfo.StudentCount</MudText>
+                                </MudItem>
+                                <MudItem xs="6">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Durchschnitt</MudText>
+                                    <MudText Typo="Typo.h6">@classInfo.AverageGrade.ToString("F2")</MudText>
+                                </MudItem>
+                            </MudGrid>
+
+                            @if (expandedClassId == classInfo.Id)
+                            {
+                                <MudDivider Class="my-4"/>
+
+                                <MudText Typo="Typo.subtitle2" Class="mb-2">Notenverteilung</MudText>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Success">1er: @classInfo.GradeDistribution.Count(g => g == 1)</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Info">2er: @classInfo.GradeDistribution.Count(g => g == 2)</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Warning">3er: @classInfo.GradeDistribution.Count(g => g == 3)</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Error">4+5er: @classInfo.GradeDistribution.Count(g => g >= 4)</MudChip>
+                                </div>
+
+                                <MudText Typo="Typo.subtitle2" Class="mb-2">Schülerliste</MudText>
+                                <MudTable Items="@classInfo.Students" Dense="true" Hover="true" Elevation="0" Context="studentContext">
+                                    <HeaderContent>
+                                        <MudTh>Name</MudTh>
+                                        <MudTh>Ø</MudTh>
+                                        <MudTh>Status</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd>@studentContext.Name</MudTd>
+                                        <MudTd>
+                                            <MudChip T="string" Size="Size.Small" Color="@GetGradeColor(studentContext.Average)" Variant="Variant.Text">
+                                                @studentContext.Average.ToString("F2")
+                                            </MudChip>
+                                        </MudTd>
+                                        <MudTd>
+                                            @if (studentContext.Average >= 4.5m)
+                                            {
+                                                <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Small"/>
+                                            }
+                                            else if (studentContext.Average >= 3.5m)
+                                            {
+                                                <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Warning" Size="Size.Small"/>
+                                            }
+                                            else
+                                            {
+                                                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small"/>
+                                            }
+                                        </MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                            }
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => ToggleClassDetails(classInfo.Id))">
+                                @(expandedClassId == classInfo.Id ? "Weniger anzeigen" : "Details anzeigen")
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        }
     </MudGrid>
-
-    @if (!myClasses.Any())
-    {
-        <MudAlert Severity="Severity.Info">
-            Sie sind derzeit keinen Klassen zugeordnet. Bitte wenden Sie sich an Ihren Administrator.
-        </MudAlert>
-    }
-
 }
 
 @code {
@@ -125,66 +122,75 @@ else
     private bool loading = true;
     private string? expandedClassId;
 
-    
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = auth.User;
+
+        // 1. Rollenprüfung
+        if (!RoleHelper.HasRole(user, "Teacher"))
+        {
+            Nav.NavigateTo("/login", true);
+            return;
+        }
+
+        // 2. Daten laden
+        await LoadData();
+    }
+
     private async Task LoadData()
     {
         loading = true;
+        StateHasChanged();
 
-        var allClasses = await ClassService.GetClassesAsync();
-
-        myClasses = new List<ClassOverview>
+        try
         {
-            new ClassOverview
-            {
-                Id = "c1",
-                Name = "1AHIF",
-                Subject = "Programmieren",
-                StudentCount = 25,
-                AverageGrade = 2.4m,
-                GradeDistribution = new List<int> { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5 },
-                Students = new List<StudentGrade>
-                {
-                    new StudentGrade { Name = "Anna Müller", Average = 1.8m },
-                    new StudentGrade { Name = "Ben Schmidt", Average = 2.2m },
-                    new StudentGrade { Name = "Clara Weber", Average = 3.5m },
-                    new StudentGrade { Name = "David Fischer", Average = 2.8m },
-                    new StudentGrade { Name = "Emma Wagner", Average = 4.2m }
-                }
-            },
-            new ClassOverview
-            {
-                Id = "c2",
-                Name = "2AHIF",
-                Subject = "Datenbanken",
-                StudentCount = 22,
-                AverageGrade = 2.8m,
-                GradeDistribution = new List<int> { 1, 2, 2, 3, 3, 3, 3, 4, 4, 5 },
-                Students = new List<StudentGrade>
-                {
-                    new StudentGrade { Name = "Felix Bauer", Average = 2.1m },
-                    new StudentGrade { Name = "Greta Hoffmann", Average = 3.2m },
-                    new StudentGrade { Name = "Hans Schneider", Average = 2.5m },
-                    new StudentGrade { Name = "Iris Koch", Average = 3.8m }
-                }
-            },
-            new ClassOverview
-            {
-                Id = "c3",
-                Name = "3AHIF",
-                Subject = "Webentwicklung",
-                StudentCount = 20,
-                AverageGrade = 2.2m,
-                GradeDistribution = new List<int> { 1, 1, 1, 2, 2, 2, 3, 3, 4 },
-                Students = new List<StudentGrade>
-                {
-                    new StudentGrade { Name = "Julia Becker", Average = 1.5m },
-                    new StudentGrade { Name = "Karl Zimmermann", Average = 2.0m },
-                    new StudentGrade { Name = "Laura Schulz", Average = 2.8m }
-                }
-            }
-        };
+            // Optional: Echter API Aufruf (auskommentiert lassen falls noch nicht fertig)
+            // var realData = await ClassService.GetClassesAsync(); 
 
-        loading = false;
+            // Mock-Daten zur Anzeige
+            myClasses = new List<ClassOverview>
+            {
+                new ClassOverview
+                {
+                    Id = "c1",
+                    Name = "1AHIF",
+                    Subject = "Programmieren",
+                    StudentCount = 25,
+                    AverageGrade = 2.45m,
+                    GradeDistribution = new List<int> { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5 },
+                    Students = new List<StudentGrade>
+                    {
+                        new StudentGrade { Name = "Anna Müller", Average = 1.8m },
+                        new StudentGrade { Name = "Ben Schmidt", Average = 2.2m },
+                        new StudentGrade { Name = "Emma Wagner", Average = 4.6m }
+                    }
+                },
+                new ClassOverview
+                {
+                    Id = "c2",
+                    Name = "2AHIF",
+                    Subject = "Datenbanken",
+                    StudentCount = 22,
+                    AverageGrade = 2.8m,
+                    GradeDistribution = new List<int> { 2, 2, 3, 3, 3, 4, 5 },
+                    Students = new List<StudentGrade>
+                    {
+                        new StudentGrade { Name = "Felix Bauer", Average = 2.1m },
+                        new StudentGrade { Name = "Iris Koch", Average = 3.8m }
+                    }
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Fehler beim Laden der Klassen: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
     }
 
     private void ToggleClassDetails(string classId)
@@ -200,8 +206,7 @@ else
         return Color.Error;
     }
 
-
-    private class ClassOverview
+    public class ClassOverview
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -212,22 +217,9 @@ else
         public List<StudentGrade> Students { get; set; } = new();
     }
 
-    private class StudentGrade
+    public class StudentGrade
     {
         public string Name { get; set; } = string.Empty;
         public decimal Average { get; set; }
     }
-    protected override async Task OnInitializedAsync()
-    {
-        
-        await LoadData();
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Teacher"))
-        {
-            Nav.NavigateTo("/login", true);
-        }
-    }
 }
-

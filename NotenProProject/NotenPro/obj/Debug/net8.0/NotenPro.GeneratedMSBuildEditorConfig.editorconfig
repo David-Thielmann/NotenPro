@@ -99,6 +99,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhY2hlclxDbGFzc2VzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/diese/Desktop/ITPP Code/NotenPro/NotenProProject/NotenPro/Pages/Teacher/CreateTestDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhY2hlclxDcmVhdGVUZXN0RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/diese/Desktop/ITPP Code/NotenPro/NotenProProject/NotenPro/Pages/Teacher/Dashboard.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhY2hlclxEYXNoYm9hcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 

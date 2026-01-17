@@ -1,355 +1,63 @@
 @page "/teacher/tests"
-@using Microsoft.AspNetCore.Authorization
-@inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Nav
-@inject ITestService TestService
-@inject IClassService ClassService
-@inject ISubjectService SubjectService
-@inject ISnackbar Snackbar
-@inject NavigationManager Navigation
+@using NotenPro.Shared.DTOs
+@using CreateTestRequest = NotenPro.Shared.DTOs.CreateTestRequest
+@inject HttpClient Http
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
 
+<PageTitle>Tests & Prüfungen</PageTitle>
 
-<PageTitle>Tests verwalten</PageTitle>
-
-<div class="d-flex justify-space-between align-center mb-6">
-    <MudText Typo="Typo.h4">Meine Tests</MudText>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreateDialog">
-        <div class="d-flex justify-start gap-3 mb-4">
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       OnClick="OpenNewTestDialog">
-            </MudButton>
-        </div>
-    </MudButton>
-</div>
-
-<!-- Filters -->
-<MudCard Elevation="2" Class="mb-4">
-    <MudCardContent>
-        <MudGrid>
-            <MudItem xs="12" md="4">
-                <MudSelect T="string" Label="Klasse" @bind-Value="selectedClassId" Clearable="true">
-                    <MudSelectItem T="string" Value="@("")">Alle Klassen</MudSelectItem>
-                    @foreach (var cls in classes)
-                    {
-                        <MudSelectItem T="string" Value="@cls.Id">@cls.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="4">
-                <MudSelect T="string" Label="Fach" @bind-Value="selectedSubjectId" Clearable="true">
-                    <MudSelectItem T="string" Value="@("")">Alle Fächer</MudSelectItem>
-                    @foreach (var subject in subjects)
-                    {
-                        <MudSelectItem T="string" Value="@subject.Id">@subject.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="4">
-                <MudSelect T="string" Label="Typ" @bind-Value="selectedTestType" Clearable="true">
-                    <MudSelectItem T="string" Value="@("")">Alle Typen</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Test")">Test</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Schularbeit")">Schularbeit</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Mitarbeit")">Mitarbeit</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Hausübung")">Hausübung</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-        </MudGrid>
-    </MudCardContent>
-</MudCard>
-
-<!-- Tests Table -->
-<MudCard Elevation="2">
-    <MudCardContent>
-        @if (loading)
-        {
-            <div class="d-flex justify-center pa-8">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
-        else
-        {
-            <MudTable Items="@FilteredTests" Hover="true" Dense="false" Breakpoint="Breakpoint.Sm">
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Fach</MudTh>
-                    <MudTh>Klasse</MudTh>
-                    <MudTh>Datum</MudTh>
-                    <MudTh>Typ</MudTh>
-                    <MudTh>Max. Punkte</MudTh>
-                    <MudTh>Aktionen</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
-                    <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
-                    <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
-                    <MudTd DataLabel="Typ">
-                        <MudChip T="bool"
-                            Size="Size.Small" Color="@GetTestTypeColor(context.Type)">
-                            @context.Type
-                        </MudChip>
-                    </MudTd>
-                    <MudTd DataLabel="Max. Punkte">@context.MaxPoints</MudTd>
-                    <MudTd DataLabel="Aktionen">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                                       Size="Size.Small" 
-                                       Color="Color.Primary"
-                                       Title="Noten eintragen"
-                                       OnClick="@(() => NavigateToGradeEntry(context.Id))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                       Size="Size.Small" 
-                                       Color="Color.Error"
-                                       Title="Löschen"
-                                       OnClick="@(() => DeleteTest(context))" />
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-    </MudCardContent>
-</MudCard>
-
-<!-- Create Test Dialog -->
-@if (showCreateDialog)
-{
-    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,0.5);" @onclick="CloseCreateDialog">
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 16px;" @onclick:stopPropagation="true">
-            <MudPaper Elevation="8" Class="pa-6" Style="max-width: 700px; width: 100%;">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" /> Neuer Test
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudGrid>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="newTest.Name" 
-                              Label="Testname" 
-                              Required="true"
-                              Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudSelect @bind-Value="newTest.SubjectId" 
-                           Label="Fach" 
-                           Required="true"
-                           Variant="Variant.Outlined">
-                    @foreach (var subject in subjects)
-                    {
-                        <MudSelectItem Value="@subject.Id">@subject.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudSelect @bind-Value="newTest.ClassId" 
-                           Label="Klasse" 
-                           Required="true"
-                           Variant="Variant.Outlined">
-                    @foreach (var cls in classes)
-                    {
-                        <MudSelectItem Value="@cls.Id">@cls.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudDatePicker @bind-Date="testDate" 
-                               Label="Datum" 
-                               Required="true"
-                               Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudNumericField @bind-Value="newTest.MaxPoints" 
-                                 Label="Maximale Punkte" 
-                                 Required="true"
-                                 Min="1"
-                                 Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudSelect @bind-Value="newTest.Type" 
-                           Label="Typ" 
-                           Required="true"
-                           Variant="Variant.Outlined">
-                    <MudSelectItem Value="TestType.Test">Test</MudSelectItem>
-                    <MudSelectItem Value="TestType.Schularbeit">Schularbeit</MudSelectItem>
-                    <MudSelectItem Value="TestType.Mitarbeit">Mitarbeit</MudSelectItem>
-                    <MudSelectItem Value="TestType.Hausübung">Hausübung</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-        </MudGrid>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseCreateDialog">Abbrechen</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CreateTest">Erstellen</MudButton>
-    </DialogActions>
-            </MudPaper>
-        </div>
+<MudContainer Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-6">
+        <MudText Typo="Typo.h4">Tests & Prüfungen</MudText>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" 
+                   Color="Color.Primary" OnClick="OpenCreateDialog">Neuer Test</MudButton>
     </div>
-}
+
+    <MudTable Items="@tests" T="TestDto" Hover="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Titel</MudTh>
+            <MudTh>Fach</MudTh>
+            <MudTh>Datum</MudTh>
+            <MudTh Style="text-align:right">Durchschnitt</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.SubjectName</MudTd>
+            <MudTd>@context.Date.ToString("dd.MM.yyyy")</MudTd>
+            <MudTd Style="text-align:right">
+                <MudChip T="string" Color="Color.Info" Size="Size.Small">2.0</MudChip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
 
 @code {
-    private List<Test> tests = new();
-    private List<Class> classes = new();
-    private List<Subject> subjects = new();
-    
-    private string selectedClassId = "";
-    private string selectedSubjectId = "";
-    private string selectedTestType = "";
-    
-    private bool loading = true;
-    private bool showCreateDialog = false;
-    
-    private CreateTestRequest newTest = new();
-    private DateTime? testDate = DateTime.Today;
-    
-    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private List<TestDto> tests = new();
+    private List<SubjectDto> subjects = new();
 
-    private IEnumerable<Test> FilteredTests
-    {
-        get
-        {
-            var filtered = tests.AsEnumerable();
-            
-            if (!string.IsNullOrEmpty(selectedClassId))
-                filtered = filtered.Where(t => t.ClassId == selectedClassId);
-            
-            if (!string.IsNullOrEmpty(selectedSubjectId))
-                filtered = filtered.Where(t => t.SubjectId == selectedSubjectId);
-            
-            if (!string.IsNullOrEmpty(selectedTestType))
-                filtered = filtered.Where(t => t.Type.ToString() == selectedTestType);
-            
-            return filtered.OrderByDescending(t => t.Date);
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData() {
+        try {
+            // FEHLERBEHEBUNG: Nur DTOs nutzen
+            tests = await Http.GetFromJsonAsync<List<TestDto>>("api/tests/my-tests") ?? new();
+            subjects = await Http.GetFromJsonAsync<List<SubjectDto>>("api/subjects") ?? new();
+        } catch (Exception ex) {
+            Snackbar.Add("Fehler beim Laden", Severity.Error);
         }
     }
 
-   
-
-  
-
-    private async Task LoadData()
-    {
-        loading = true;
-        tests = await TestService.GetMyTestsAsync();
-        classes = await ClassService.GetClassesAsync();
-        subjects = await SubjectService.GetSubjectsAsync();
-        loading = false;
-    }
-
-    private void OpenCreateDialog()
-    {
-        newTest = new CreateTestRequest();
-        testDate = DateTime.Today;
-        showCreateDialog = true;
-    }
-
-    private void CloseCreateDialog()
-    {
-        showCreateDialog = false;
-    }
-
-    private async Task CreateTest()
-    {
-        if (string.IsNullOrWhiteSpace(newTest.Name) || 
-            string.IsNullOrWhiteSpace(newTest.SubjectId) || 
-            string.IsNullOrWhiteSpace(newTest.ClassId))
-        {
-            Snackbar.Add("Bitte alle Pflichtfelder ausfüllen", Severity.Warning);
-            return;
-        }
-
-        newTest.Date = testDate ?? DateTime.Today;
-        
-        var result = await TestService.CreateTestAsync(newTest);
-        
-        if (result.Success)
-        {
-            Snackbar.Add("Test erfolgreich erstellt", Severity.Success);
-            showCreateDialog = false;
-            await LoadData();
-        }
-        else
-        {
-            Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
-        }
-    }
-
-    private async Task DeleteTest(Test test)
-    {
-        var result = await TestService.DeleteTestAsync(test.Id);
-        
-        if (result.Success)
-        {
-            Snackbar.Add("Test gelöscht", Severity.Success);
-            await LoadData();
-        }
-        else
-        {
-            Snackbar.Add($"Fehler: {result.Message}", Severity.Error);
-        }
-    }
-
-    private void NavigateToGradeEntry(string testId)
-    {
-        Navigation.NavigateTo($"/teacher/grades/{testId}");
-    }
-
-    private Color GetTestTypeColor(TestType type)
-    {
-        return type switch
-        {
-            TestType.Schularbeit => Color.Error,
-            TestType.Test => Color.Primary,
-            TestType.Mitarbeit => Color.Success,
-            TestType.Hausübung => Color.Info,
-            _ => Color.Default
-        };
-    }
-    
-    private async Task OpenNewTestDialog()
-    {
-        var parameters = new DialogParameters
-        {
-            ["Model"] = new NewTestModel
-            {
-                Date = DateTime.Today,
-                MaxPoints = 100,
-                WeightPercentage = 100
-            }
-        };
-
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true
-        };
-
-        var dialog = DialogService.Show<NewTestDialog>("Neuen Test anlegen", parameters, options);
+    private async Task OpenCreateDialog() {
+        var parameters = new DialogParameters { ["Model"] = new CreateTestRequest(), ["Subjects"] = subjects };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = DialogService.Show<CreateTestDialog>("", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data is NewTestModel model)
-        {
-            // TODO: hier an dein Backend schicken
-            // await GradeService.CreateTestAsync(model);
-
-            Snackbar.Add($"Test \"{model.Title}\" wurde erstellt.", Severity.Success);
-
-            // Optional: Noten neu laden
-            // await OnInitializedAsync();  // oder eigene Reload-Methode
-        }
-    }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-        
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Teacher"))
-        {
-            Nav.NavigateTo("/login", true);
+        if (!result.Canceled && result.Data is CreateTestRequest req) {
+            var res = await Http.PostAsJsonAsync("api/tests", req);
+            if (res.IsSuccessStatusCode) await LoadData();
         }
     }
 }

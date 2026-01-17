@@ -3,263 +3,82 @@ using Microsoft.EntityFrameworkCore;
 using NotenPro.Api.Data;
 using NotenPro.Domain.Entities;
 using NotenPro.Shared.DTOs;
+using System.Security.Claims;
+using NotenPro.Shared.DTOs;
 
-
-namespace NotenPro.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class TestsController : ControllerBase
+namespace NotenPro.Api.Controllers
 {
-    private readonly NotenProDbContext _context;
-    private readonly ILogger<TestsController> _logger;
-
-    public TestsController(NotenProDbContext context, ILogger<TestsController> logger)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TestsController : ControllerBase
     {
-        _context = context;
-        _logger = logger;
-    }
+        private readonly NotenProDbContext _dbContext;
 
-    [HttpGet]
-    public async Task<ActionResult<List<TestDto>>> GetAllTests()
-    {
-        var tests = await _context.Tests
-            .Include(t => t.Subject)
-            .Include(t => t.Class)
-            .Include(t => t.Teacher)
-            .Include(t => t.Grades)
-            .Select(t => new TestDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                SubjectId = t.SubjectId,
-                Subject = t.Subject.Name,
-                ClassId = t.ClassId,
-                ClassName = t.Class.Name,
-                TeacherId = t.TeacherId,
-                TeacherName = t.Teacher.Name,
-                Date = t.Date,
-                MaxPoints = t.MaxPoints,
-                Type = t.Type.ToString(),
-                Description = t.Description,
-                GradedCount = t.Grades.Count(g => g.Status == GradeStatus.Graded),
-                TotalStudents = t.Class.StudentClasses.Count
-            })
-            .OrderByDescending(t => t.Date)
-            .ToListAsync();
-
-        return Ok(tests);
-    }
-
-    [HttpGet("teacher/{teacherId}")]
-    public async Task<ActionResult<List<TestDto>>> GetTeacherTests(string teacherId)
-    {
-        var tests = await _context.Tests
-            .Include(t => t.Subject)
-            .Include(t => t.Class)
-                .ThenInclude(c => c.StudentClasses)
-            .Include(t => t.Teacher)
-            .Include(t => t.Grades)
-            .Where(t => t.TeacherId == teacherId)
-            .Select(t => new TestDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                SubjectId = t.SubjectId,
-                Subject = t.Subject.Name,
-                ClassId = t.ClassId,
-                ClassName = t.Class.Name,
-                TeacherId = t.TeacherId,
-                TeacherName = t.Teacher.Name,
-                Date = t.Date,
-                MaxPoints = t.MaxPoints,
-                Type = t.Type.ToString(),
-                Description = t.Description,
-                GradedCount = t.Grades.Count(g => g.Status == GradeStatus.Graded),
-                TotalStudents = t.Class.StudentClasses.Count
-            })
-            .OrderByDescending(t => t.Date)
-            .ToListAsync();
-
-        return Ok(tests);
-    }
-
-    [HttpGet("class/{classId}")]
-    public async Task<ActionResult<List<TestDto>>> GetClassTests(string classId)
-    {
-        var tests = await _context.Tests
-            .Include(t => t.Subject)
-            .Include(t => t.Class)
-                .ThenInclude(c => c.StudentClasses)
-            .Include(t => t.Teacher)
-            .Include(t => t.Grades)
-            .Where(t => t.ClassId == classId)
-            .Select(t => new TestDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                SubjectId = t.SubjectId,
-                Subject = t.Subject.Name,
-                ClassId = t.ClassId,
-                ClassName = t.Class.Name,
-                TeacherId = t.TeacherId,
-                TeacherName = t.Teacher.Name,
-                Date = t.Date,
-                MaxPoints = t.MaxPoints,
-                Type = t.Type.ToString(),
-                Description = t.Description,
-                GradedCount = t.Grades.Count(g => g.Status == GradeStatus.Graded),
-                TotalStudents = t.Class.StudentClasses.Count
-            })
-            .OrderByDescending(t => t.Date)
-            .ToListAsync();
-
-        return Ok(tests);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TestDto>> GetTest(string id)
-    {
-        var test = await _context.Tests
-            .Include(t => t.Subject)
-            .Include(t => t.Class)
-                .ThenInclude(c => c.StudentClasses)
-            .Include(t => t.Teacher)
-            .Include(t => t.Grades)
-            .Where(t => t.Id == id)
-            .Select(t => new TestDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                SubjectId = t.SubjectId,
-                Subject = t.Subject.Name,
-                ClassId = t.ClassId,
-                ClassName = t.Class.Name,
-                TeacherId = t.TeacherId,
-                TeacherName = t.Teacher.Name,
-                Date = t.Date,
-                MaxPoints = t.MaxPoints,
-                Type = t.Type.ToString(),
-                Description = t.Description,
-                GradedCount = t.Grades.Count(g => g.Status == GradeStatus.Graded),
-                TotalStudents = t.Class.StudentClasses.Count
-            })
-            .FirstOrDefaultAsync();
-
-        if (test == null)
-            return NotFound();
-
-        return Ok(test);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<TestDto>> CreateTest([FromBody] CreateTestRequest request, [FromQuery] string teacherId)
-    {
-        try
+        public TestsController(NotenProDbContext dbContext)
         {
-            var test = new TestEntity
-            {
-                Name = request.Name,
-                SubjectId = request.SubjectId,
-                ClassId = request.ClassId,
-                TeacherId = teacherId,
-                Date = request.Date,
-                MaxPoints = request.MaxPoints,
-                Type = Enum.Parse<TestType>(request.Type),
-                Description = request.Description,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            _dbContext = dbContext;
+        }
 
-            _context.Tests.Add(test);
-            await _context.SaveChangesAsync();
-
-            // Create pending grades for all students in the class
-            var studentIds = await _context.StudentClasses
-                .Where(sc => sc.ClassId == request.ClassId)
-                .Select(sc => sc.StudentId)
+        // GET: api/Tests/my-tests
+        [HttpGet("my-tests")]
+        public async Task<ActionResult<List<TestDto>>> GetMyTests()
+        {
+            var tests = await _dbContext.Tests
+                .Include(t => t.Class)
+                .Include(t => t.Subject)
+                .Select(t => new TestDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Date = t.Date,
+                    // FEHLERBEHEBUNG: .ToString() konvertiert das Enum zum String für das DTO
+                    Type = t.Type.ToString(), 
+                    MaxPoints = t.MaxPoints,
+                    ClassId = t.ClassId,
+                    ClassName = t.Class != null ? t.Class.Name : "Unbekannt",
+                    SubjectId = t.SubjectId,
+                    SubjectName = t.Subject != null ? t.Subject.Name : "Unbekannt"
+                })
                 .ToListAsync();
 
-            foreach (var studentId in studentIds)
-            {
-                var grade = new GradeEntity
-                {
-                    StudentId = studentId,
-                    TestId = test.Id,
-                    MaxPoints = request.MaxPoints,
-                    Status = GradeStatus.Pending,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                _context.Grades.Add(grade);
-            }
-
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTest), new { id = test.Id }, test);
+            return Ok(tests);
         }
-        catch (Exception ex)
+
+// POST: api/Tests
+        [HttpPost]
+        public async Task<ActionResult<TestDto>> CreateTest([FromBody] CreateTestRequest request)
         {
-            _logger.LogError(ex, "Error creating test");
-            return StatusCode(500, "Error creating test");
-        }
-    }
+            if (request == null) return BadRequest();
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateTest(string id, [FromBody] UpdateTestRequest request)
-    {
-        try
-        {
-            var test = await _context.Tests.FindAsync(id);
-            if (test == null)
-                return NotFound();
-
-            test.Name = request.Name;
-            test.Date = request.Date;
-            test.MaxPoints = request.MaxPoints;
-            test.Type = Enum.Parse<TestType>(request.Type);
-            test.Description = request.Description;
-            test.UpdatedAt = DateTime.UtcNow;
-
-            // Update max points in all related grades
-            var grades = await _context.Grades.Where(g => g.TestId == id).ToListAsync();
-            foreach (var grade in grades)
+            var newTest = new TestEntity
             {
-                grade.MaxPoints = request.MaxPoints;
-            }
+                Id = Guid.NewGuid().ToString(),
+                Name = request.Name,
+                ClassId = request.ClassId,
+                SubjectId = request.SubjectId,
+                Date = request.Date,
+                // FEHLERBEHEBUNG: Wandelt den String vom Request zurück in das Backend-Enum um
+                Type = Enum.Parse<TestType>(request.Type), 
+                MaxPoints = request.MaxPoints,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            await _context.SaveChangesAsync();
+            _dbContext.Tests.Add(newTest);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new TestDto { Id = newTest.Id, Name = newTest.Name });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTest(string id)
+        {
+            var test = await _dbContext.Tests.FindAsync(id);
+            if (test == null) return NotFound();
+
+            _dbContext.Tests.Remove(test);
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating test");
-            return StatusCode(500, "Error updating test");
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteTest(string id)
-    {
-        try
-        {
-            var test = await _context.Tests.Include(t => t.Grades).FirstOrDefaultAsync(t => t.Id == id);
-            if (test == null)
-                return NotFound();
-
-            // Delete all related grades
-            _context.Grades.RemoveRange(test.Grades);
-
-            _context.Tests.Remove(test);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting test");
-            return StatusCode(500, "Error deleting test");
         }
     }
 }

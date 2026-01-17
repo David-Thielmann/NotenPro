@@ -39,6 +39,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserApiService>();
 builder.Services.AddScoped<IStudentService, StudentApiService>();
 builder.Services.AddScoped<IGradeService, GradeApiService>();
 builder.Services.AddScoped<INotificationService, NotificationApiService>();
+builder.Services.AddScoped<IGradeService, GradeApiService>();
 
 //IPdf export
 builder.Services.AddScoped<IPdfExportService, PdfExportService>();

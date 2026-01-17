@@ -1,0 +1,59 @@
+@using NotenPro.Shared.DTOs
+@using CreateTestRequest = NotenPro.Shared.DTOs.CreateTestRequest
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Neuen Test anlegen</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">Geben Sie die Details für den neuen Test ein</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm>
+            <MudText Typo="Typo.subtitle2" Class="mb-1">Titel</MudText>
+            <MudTextField @bind-Value="Model.Name" Placeholder="z.B. Schularbeit 1" 
+                          Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" />
+
+            <MudText Typo="Typo.subtitle2" Class="mb-1">Fach</MudText>
+            <MudSelect T="string" @bind-Value="Model.SubjectId" Placeholder="z.B. Mathematik" 
+                       Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4">
+                @foreach (var sub in Subjects)
+                {
+                    <MudSelectItem Value="@sub.Id">@sub.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudText Typo="Typo.subtitle2" Class="mb-1">Datum</MudText>
+            <MudDatePicker @bind-Date="testDate" Placeholder="tt.mm.jjjj" 
+                           Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" />
+
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudText Typo="Typo.subtitle2" Class="mb-1">Max. Punkte</MudText>
+                    <MudNumericField @bind-Value="Model.MaxPoints" Required="true" 
+                                    Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudText Typo="Typo.subtitle2" Class="mb-1">Gewichtung (%)</MudText>
+                    <MudNumericField T="int" Value="100" Disabled="true" 
+                                    Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" 
+                   OnClick="Submit" Class="mt-4 py-3" Style="border-radius: 8px;">Test erstellen</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public CreateTestRequest Model { get; set; } = new();
+    [Parameter] public List<SubjectDto> Subjects { get; set; } = new();
+    private DateTime? testDate = DateTime.Today;
+
+    private void Submit() {
+        Model.Date = testDate ?? DateTime.Today;
+        MudDialog.Close(DialogResult.Ok(Model));
+    }
+}
