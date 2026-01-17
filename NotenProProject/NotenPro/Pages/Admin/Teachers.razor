@@ -64,31 +64,36 @@
     </MudCardContent>
 </MudCard>
 
-<MudDialog @bind-IsVisible="isDialogOpen">
-    <TitleContent>
-        <MudText Typo="Typo.h6">Neuen Lehrer hinzufügen</MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="newTeacher.Name" 
-                      Label="Name" 
-                      Variant="Variant.Outlined"
-                      Required="true"
-                      Class="mb-4" />
-        <MudTextField @bind-Value="newTeacher.Email" 
-                      Label="E-Mail" 
-                      Variant="Variant.Outlined"
-                      Required="true"
-                      Class="mb-4" />
-        <MudTextField @bind-Value="subjectsInput" 
-                      Label="Fächer (kommagetrennt)" 
-                      Variant="Variant.Outlined"
-                      Class="mb-4" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
-        <MudButton Color="Color.Primary" OnClick="HandleCreate">Erstellen</MudButton>
-    </DialogActions>
-</MudDialog>
+@if (isDialogOpen)
+{
+    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.5);" @onclick="CloseDialog">
+        <div style="display: flex; height: 100%; width: 100%; align-items: center; justify-content: center; padding: 16px;" @onclick:stopPropagation="true">
+            <MudPaper Elevation="6" Class="pa-6" Style="max-width: 520px; width: 100%;">
+                <MudText Typo="Typo.h6" Class="mb-4">Neuen Lehrer hinzufügen</MudText>
+
+                <MudTextField @bind-Value="newTeacher.Name"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Class="mb-4" />
+                <MudTextField @bind-Value="newTeacher.Email"
+                              Label="E-Mail"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Class="mb-4" />
+                <MudTextField @bind-Value="subjectsInput"
+                              Label="Fächer (kommagetrennt)"
+                              Variant="Variant.Outlined"
+                              Class="mb-4" />
+
+                <div class="d-flex justify-end gap-2">
+                    <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
+                    <MudButton Color="Color.Primary" OnClick="HandleCreate">Erstellen</MudButton>
+                </div>
+            </MudPaper>
+        </div>
+    </div>
+}
 
 @code {
     private List<Teacher> teachers = new();

@@ -34,6 +34,18 @@
                             Schülerportal
                         </MudText>
                     }
+                    else if (_isTeacher)
+                    {
+                        <MudText Typo="Typo.caption" Style="color: white;">
+                            Lehrerportal
+                        </MudText>
+                    }
+                    else if (_isAdmin)
+                    {
+                        <MudText Typo="Typo.caption" Style="color: white;">
+                            Adminportal
+                        </MudText>
+                    }
                 </div>
 
                 <MudSpacer />
@@ -141,6 +153,48 @@
                             </div>
                         </MudNavLink>
                     }
+                    else if (_isTeacher)
+                    {
+                        <MudNavLink Href="/teacher/dashboard" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.Prefix">
+                            Dashboard
+                        </MudNavLink>
+                        <MudNavLink Href="/teacher/classes" Icon="@Icons.Material.Filled.Class">
+                            Klassen
+                        </MudNavLink>
+                        <MudNavLink Href="/teacher/tests" Icon="@Icons.Material.Filled.Quiz">
+                            Tests
+                        </MudNavLink>
+                        <MudNavLink Href="/teacher/gradeentry" Icon="@Icons.Material.Filled.EditNote">
+                            Noten eintragen
+                        </MudNavLink>
+                        <MudNavLink Href="/teacher/warnings" Icon="@Icons.Material.Filled.WarningAmber">
+                            Frühwarnsystem
+                        </MudNavLink>
+                    }
+                    else if (_isAdmin)
+                    {
+                        <MudNavLink Href="/admin/dashboard" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.Prefix">
+                            Dashboard
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/teachers" Icon="@Icons.Material.Filled.People">
+                            Lehrer
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/classes" Icon="@Icons.Material.Filled.Class">
+                            Klassen
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/subjects" Icon="@Icons.Material.Filled.MenuBook">
+                            Fächer
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/backups" Icon="@Icons.Material.Filled.Backup">
+                            Backups
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/audit" Icon="@Icons.Material.Filled.History">
+                            Audit
+                        </MudNavLink>
+                        <MudNavLink Href="/admin/maps" Icon="@Icons.Material.Filled.Map">
+                            Maps
+                        </MudNavLink>
+                    }
                     else
                     {
                         <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Home</MudNavLink>
@@ -211,6 +265,8 @@
     private string? _userName;
 
     private bool _isStudent;
+    private bool _isTeacher;
+    private bool _isAdmin;
     private int _unreadCount;
     private string _selectedPage = "dashboard";
 
@@ -243,6 +299,8 @@
                     ?? user.FindFirst(ClaimTypes.Email)?.Value;
 
         _isStudent = RoleHelper.HasRole(user, "Student");
+        _isTeacher = RoleHelper.HasRole(user, "Teacher");
+        _isAdmin = RoleHelper.HasRole(user, "Admin");
 
         if (_isStudent)
         {

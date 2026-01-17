@@ -43,5 +43,7 @@ builder.Services.AddScoped<INotificationService, NotificationApiService>();
 //IPdf export
 builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 
+//Admin Dash 
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardApiService>();
 
 await builder.Build().RunAsync();

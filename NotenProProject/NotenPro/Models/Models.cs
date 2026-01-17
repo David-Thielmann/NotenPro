@@ -194,5 +194,7 @@ namespace HTLKrems.GradeManagement.Models
         public T? Data { get; set; }
         public string? ErrorMessage { get; set; }
         public string Message { get; set; }
+
+
     }
 }

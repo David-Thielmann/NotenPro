@@ -29,6 +29,7 @@ namespace HTLKrems.GradeManagement.Services
     }
 
     // ==================== TEACHER SERVICE ====================
+    /*
     public interface ITeacherService
     {
         Task<List<Teacher>> GetAllTeachersAsync();
@@ -36,7 +37,7 @@ namespace HTLKrems.GradeManagement.Services
         Task<ApiResponse<bool>> DeleteTeacherAsync(string id);
         Task<List<Teacher>> GetTeachersAsync();
     }
-
+*/
     // ==================== CLASS SERVICE ====================
     public interface IClassService
     {

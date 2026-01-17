@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {}
+    "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {}
   },
   "projects": {
-    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
+    "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
+        "projectUniqueName": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
         "projectName": "NotenPro.Shared",
-        "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
-        "packagesPath": "C:\\Users\\diese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\obj\\",
+        "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\diese\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -57,15 +57,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             }
           ],
           "frameworkReferences": {
@@ -73,21 +73,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\David\\.dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
+    "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
+        "projectUniqueName": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
         "projectName": "NotenPro",
-        "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
-        "packagesPath": "C:\\Users\\diese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro\\obj\\",
+        "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\NotenPro.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\diese\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -99,8 +99,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
-                "projectPath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj"
+              "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj": {
+                "projectPath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Shared\\NotenPro.Shared.csproj"
               }
             }
           }
@@ -145,13 +145,13 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.20, )",
+              "version": "[8.0.22, )",
               "autoReferenced": true
             },
             "Microsoft.NET.Sdk.WebAssembly.Pack": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.9, )",
+              "version": "[9.0.11, )",
               "autoReferenced": true
             },
             "MudBlazor": {
@@ -177,19 +177,19 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.20, 8.0.20]"
+              "version": "[8.0.22, 8.0.22]"
             }
           ],
           "frameworkReferences": {
@@ -197,7 +197,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\David\\.dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {

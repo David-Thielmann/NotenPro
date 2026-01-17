@@ -60,7 +60,7 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudSwitch T="bool"
-                           @bind-Checked="autoBackupEnabled" 
+                           @bind-Value="autoBackupEnabled"
                            Color="Color.Primary"
                            Label="Automatisches Backup aktivieren" />
             </MudItem>
@@ -201,14 +201,19 @@
 </MudCard>
 
 <!-- Backup Info Dialog -->
-<MudDialog @bind-IsVisible="showInfoDialog" Options="dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
-            Backup Details
-        </MudText>
-    </TitleContent>
-    <DialogContent>
+@if (showInfoDialog)
+{
+    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.32);" @onclick="CloseInfoDialog">
+        <div style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px;" @onclick:stopPropagation="true">
+            <MudPaper Elevation="8" Class="pa-6" Style="width: 100%; max-width: 900px;">
+                <div class="d-flex align-center mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
+                    <MudText Typo="Typo.h6">Backup Details</MudText>
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="CloseInfoDialog" />
+                </div>
+
+                <div>
         @if (selectedBackup != null)
         {
             <MudGrid>
@@ -253,11 +258,15 @@
                 </MudItem>
             </MudGrid>
         }
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseInfoDialog">Schließen</MudButton>
-    </DialogActions>
-</MudDialog>
+                </div>
+
+                <div class="d-flex justify-end mt-4">
+                    <MudButton OnClick="CloseInfoDialog">Schließen</MudButton>
+                </div>
+            </MudPaper>
+        </div>
+    </div>
+}
 
 @code {
     private List<BackupInfo> backups = new();

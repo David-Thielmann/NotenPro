@@ -141,7 +141,50 @@
 </MudCard>
 
 <!-- Warning Dialog -->
-<MudDialog @bind-IsVisible="showWarningDialog" Options="dialogOptions">
+@if (showWarningDialog)
+{
+    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,0.5);" @onclick="CloseWarningDialog">
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 24px;" @onclick:stopPropagation="true">
+            <MudPaper Elevation="12" Class="pa-6" Style="width: 100%; max-width: 720px;">
+                <MudText Typo="Typo.h6" Class="mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" />
+                    Frühwarnung erstellen
+                </MudText>
+                @if (selectedStudent != null)
+                {
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudAlert Severity="Severity.Warning" Dense="true">
+                                <strong>@selectedStudent.StudentName</strong> (@selectedStudent.ClassName)<br />
+                                Fach: <strong>@selectedStudent.Subject</strong><br />
+                                Aktueller Durchschnitt: <strong>@selectedStudent.Average.ToString("F2")</strong>
+                            </MudAlert>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="warningComment"
+                                          Label="Kommentar / Begründung"
+                                          Lines="5"
+                                          Variant="Variant.Outlined"
+                                          Placeholder="Bitte geben Sie einen Kommentar zur Frühwarnung ein..." />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudCheckBox T="bool" @bind-Checked="notifyParents" Color="Color.Primary">
+                                Eltern per E-Mail benachrichtigen
+                            </MudCheckBox>
+                        </MudItem>
+                    </MudGrid>
+                }
+
+                <div class="d-flex justify-end gap-2 mt-6">
+                    <MudButton OnClick="CloseWarningDialog">Abbrechen</MudButton>
+                    <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">
+                        Frühwarnung senden
+                    </MudButton>
+                </div>
+            </MudPaper>
+        </div>
+    </div>
+}
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" />
@@ -175,13 +218,12 @@
             </MudGrid>
         }
     </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseWarningDialog">Abbrechen</MudButton>
-        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">
-            Frühwarnung senden
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+<DialogActions>
+    <MudButton OnClick="CloseWarningDialog">Abbrechen</MudButton>
+    <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">
+        Frühwarnung senden
+    </MudButton>
+</DialogActions>
 
 @code {
     private List<Class> classes = new();

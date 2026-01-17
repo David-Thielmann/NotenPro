@@ -49,10 +49,12 @@ namespace NotenPro.Api.Controllers
                     Name = subjectDto.Name,
                     Description = subjectDto.Description ?? "",
                     IsActive = true,
-                    // WICHTIG: Hier muss eine existierende School-ID rein!
-                    // Ich nehme hier die ID "e1..." als Platzhalter, 
-                    // du solltest sie später dynamisch vom User/Admin laden.
-                    SchoolId = "e1000000-0000-0000-0000-000000000005", 
+                    // WICHTIG: In der Dev-DB kann die SchoolId anders sein.
+                    // Nimm eine existierende School (erste School in der DB).
+                    SchoolId = (await _dbContext.Schools.AsNoTracking()
+                                    .Select(s => s.Id)
+                                    .FirstOrDefaultAsync())
+                               ?? throw new InvalidOperationException("Keine School in der DB vorhanden"),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };

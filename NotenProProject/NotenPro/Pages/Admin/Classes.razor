@@ -105,69 +105,74 @@
 </MudCard>
 
 <!-- Create/Edit Dialog -->
-<MudDialog @bind-IsVisible="showDialog" Options="dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@(isEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
-            @(isEditMode ? "Klasse bearbeiten" : "Neue Klasse")
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudGrid>
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="editingClass.Name"
-                              Label="Klassenname"
-                              Required="true"
-                              Variant="Variant.Outlined"
-                              Placeholder="z.B. 1AHIF" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="editingClass.SchoolYear"
-                              Label="Schuljahr"
-                              Variant="Variant.Outlined"
-                              Placeholder="z.B. 2024/25" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="editingClass.Description"
-                              Label="Beschreibung"
-                              Lines="2"
-                              Variant="Variant.Outlined"
-                              Placeholder="Optional" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudSelect @bind-Value="editingClass.ClassTeacherId"
-                           Label="Klassenvorstand"
-                           Variant="Variant.Outlined"
-                           Clearable="true">
-                    @foreach (var teacher in teachers)
-                    {
-                        <MudSelectItem Value="@teacher.Id">@teacher.Name</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudNumericField @bind-Value="editingClass.StudentCount"
-                                 Label="Schüleranzahl"
-                                 Min="0"
-                                 Variant="Variant.Outlined" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudSwitch T="bool"
-                           @bind-Checked="editingClass.IsActive" 
-                           Color="Color.Primary"
-                           Label="Klasse ist aktiv" />
-            </MudItem>
-        </MudGrid>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
-        <MudButton Color="Color.Primary" 
-                   Variant="Variant.Filled" 
-                   OnClick="SaveClass">
-            @(isEditMode ? "Speichern" : "Erstellen")
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+@if (showDialog)
+{
+    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.5);"
+         @onclick="CloseDialog">
+        <div style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 16px;"
+             @onclick:stopPropagation="true">
+            <MudPaper Class="pa-6" Style="width: 100%; max-width: 720px;">
+                <div class="d-flex align-center mb-4">
+                    <MudIcon Icon="@(isEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
+                    <MudText Typo="Typo.h6">@(isEditMode ? "Klasse bearbeiten" : "Neue Klasse")</MudText>
+                </div>
+
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="editingClass.Name"
+                                      Label="Klassenname"
+                                      Required="true"
+                                      Variant="Variant.Outlined"
+                                      Placeholder="z.B. 1AHIF" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="editingClass.SchoolYear"
+                                      Label="Schuljahr"
+                                      Variant="Variant.Outlined"
+                                      Placeholder="z.B. 2024/25" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="editingClass.Description"
+                                      Label="Beschreibung"
+                                      Lines="2"
+                                      Variant="Variant.Outlined"
+                                      Placeholder="Optional" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="editingClass.ClassTeacherId"
+                                   Label="Klassenvorstand"
+                                   Variant="Variant.Outlined"
+                                   Clearable="true">
+                            @foreach (var teacher in teachers)
+                            {
+                                <MudSelectItem Value="@teacher.Id">@teacher.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField @bind-Value="editingClass.StudentCount"
+                                         Label="Schüleranzahl"
+                                         Min="0"
+                                         Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudSwitch T="bool"
+                                   @bind-Value="editingClass.IsActive"
+                                   Color="Color.Primary"
+                                   Label="Klasse ist aktiv" />
+                    </MudItem>
+                </MudGrid>
+
+                <div class="d-flex justify-end gap-2 mt-6">
+                    <MudButton OnClick="CloseDialog">Abbrechen</MudButton>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveClass">
+                        @(isEditMode ? "Speichern" : "Erstellen")
+                    </MudButton>
+                </div>
+            </MudPaper>
+        </div>
+    </div>
+}
 
 @code {
     private List<ClassModel> classes = new();

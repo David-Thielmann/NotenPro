@@ -1,11 +1,85 @@
 @page "/admin/dashboard"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using NotenPro.Shared.DTOs
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject IAdminDashboardService AdminDashboardService
 <PageTitle>Dashboard - Schuladministrator</PageTitle>
 
+@if (showDebug)
+{
+    <MudAlert Severity="Severity.Info" Class="mb-3">
+        <MudAlertTitle>Debug Info</MudAlertTitle>
+        <MudText>User: @currentUserName</MudText>
+        <MudText>Rolle: @userRole</MudText>
+        <MudText>Object ID: @azureObjectId</MudText>
+        <MudText>Email: @userEmail</MudText>
+        <MudText>Status: @(isLoading ? "Lädt..." : hasError ? "Fehler" : "Geladen")</MudText>
+        <MudText>API Calls: @apiCallCount</MudText>
+
+        @if (showAllClaims)
+        {
+            <div class="mt-3">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Alle Claims:</MudText>
+                <MudPaper Elevation="1" Class="pa-3" Style="max-height: 200px; overflow-y: auto;">
+                    @foreach (var claim in allClaims)
+                    {
+                        <div class="d-flex">
+                            <MudText Typo="Typo.caption" Style="min-width: 300px;">@claim.Type</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@claim.Value</MudText>
+                        </div>
+                    }
+                </MudPaper>
+            </div>
+        }
+
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small">
+                Debug ausblenden
+            </MudButton>
+            <MudButton Color="Color.Info" OnClick="ToggleClaims" Size="Size.Small" Variant="Variant.Outlined">
+                @(showAllClaims ? "Claims ausblenden" : "Alle Claims anzeigen")
+            </MudButton>
+            <MudButton Color="Color.Warning" OnClick="CopyObjectId" Size="Size.Small" Variant="Variant.Outlined">
+                Object ID kopieren
+            </MudButton>
+        </div>
+    </MudAlert>
+}
+
+<MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small" Class="mb-2">
+    Debug anzeigen
+</MudButton>
+
 <MudText Typo="Typo.h4" Class="mb-6">Schuladministrator Dashboard</MudText>
+
+@if (isLoading)
+{
+    <div class="text-center py-12">
+        <MudCircularProgress Color="Color.Primary" />
+        <MudText Typo="Typo.body1" Class="mt-4">Dashboard wird geladen...</MudText>
+    </div>
+}
+else if (hasError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" Variant="Variant.Filled">
+        <MudAlertTitle>Daten konnten nicht geladen werden</MudAlertTitle>
+        <MudText>Die Admin-Dashboard-Daten sind derzeit nicht verfügbar.</MudText>
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <MudText Typo="Typo.caption" Class="mt-2">Fehler: @errorMessage</MudText>
+        }
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Primary" OnClick="Reload" StartIcon="@Icons.Material.Filled.Refresh">
+                Erneut versuchen
+            </MudButton>
+        </div>
+    </MudAlert>
+}
 
 <MudGrid Class="mb-6">
     <MudItem xs="12" sm="6" md="3">
@@ -14,7 +88,7 @@
                 <div class="d-flex justify-space-between align-center">
                     <div>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Lehrer</MudText>
-                        <MudText Typo="Typo.h4">45</MudText>
+                        <MudText Typo="Typo.h4">@stats.TeacherCount</MudText>
                     </div>
                     <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
                 </div>
@@ -28,7 +102,7 @@
                 <div class="d-flex justify-space-between align-center">
                     <div>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Klassen</MudText>
-                        <MudText Typo="Typo.h4">18</MudText>
+                        <MudText Typo="Typo.h4">@stats.ClassCount</MudText>
                     </div>
                     <MudIcon Icon="@Icons.Material.Filled.Class" Color="Color.Success" Size="Size.Large" />
                 </div>
@@ -42,7 +116,7 @@
                 <div class="d-flex justify-space-between align-center">
                     <div>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Schüler</MudText>
-                        <MudText Typo="Typo.h4">520</MudText>
+                        <MudText Typo="Typo.h4">@stats.StudentCount</MudText>
                     </div>
                     <MudIcon Icon="@Icons.Material.Filled.School" Color="Color.Info" Size="Size.Large" />
                 </div>
@@ -56,7 +130,7 @@
                 <div class="d-flex justify-space-between align-center">
                     <div>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Fächer</MudText>
-                        <MudText Typo="Typo.h4">25</MudText>
+                        <MudText Typo="Typo.h4">@stats.SubjectCount</MudText>
                     </div>
                     <MudIcon Icon="@Icons.Material.Filled.MenuBook" Color="Color.Warning" Size="Size.Large" />
                 </div>
@@ -88,6 +162,21 @@
 </MudCard>
 
 @code {
+    private bool isLoading = true;
+    private bool hasError;
+    private bool showDebug;
+    private bool showAllClaims;
+    private int apiCallCount;
+    private string errorMessage = string.Empty;
+
+    private AdminDashboardStatsDto stats = new();
+
+    private string currentUserName = string.Empty;
+    private string userRole = string.Empty;
+    private string azureObjectId = string.Empty;
+    private string userEmail = string.Empty;
+    private List<ClaimInfo> allClaims = new();
+
     protected override async Task OnInitializedAsync()
     {
         var auth = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -96,6 +185,126 @@
         if (!RoleHelper.HasRole(user, "Admin"))
         {
             Nav.NavigateTo("/login", true);
+            return;
         }
+
+        try
+        {
+            currentUserName = user.Identity?.Name ?? user.FindFirst("name")?.Value ?? "Unbekannt";
+            userRole = GetUserRole(user);
+            azureObjectId = GetAzureObjectId(user);
+            userEmail = GetUserEmail(user);
+
+            allClaims = user.Claims
+                .Select(c => new ClaimInfo { Type = c.Type, Value = c.Value })
+                .ToList();
+
+            apiCallCount++;
+            stats = await AdminDashboardService.GetStatsAsync() ?? new AdminDashboardStatsDto();
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = ex.InnerException?.Message ?? ex.Message;
+            Snackbar.Add($"Admin-Dashboard konnte nicht geladen werden: {errorMessage}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleDebug()
+    {
+        showDebug = !showDebug;
+        if (!showDebug) showAllClaims = false;
+    }
+
+    private void ToggleClaims() => showAllClaims = !showAllClaims;
+
+    private async Task CopyObjectId()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", azureObjectId);
+            Snackbar.Add("Object ID in Zwischenablage kopiert!", Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add($"Object ID: {azureObjectId}", Severity.Info);
+        }
+    }
+
+    private async Task Reload()
+    {
+        isLoading = true;
+        hasError = false;
+        errorMessage = string.Empty;
+        apiCallCount = 0;
+        StateHasChanged();
+
+        await Task.Delay(300);
+        try
+        {
+            apiCallCount++;
+            stats = await AdminDashboardService.GetStatsAsync() ?? new AdminDashboardStatsDto();
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = ex.InnerException?.Message ?? ex.Message;
+            Snackbar.Add($"Admin-Dashboard konnte nicht geladen werden: {errorMessage}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetAzureObjectId(ClaimsPrincipal user)
+    {
+        var objectId = user.FindFirst("oid")?.Value
+                    ?? user.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+                    ?? user.FindFirst("objectidentifier")?.Value
+                    ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+        return objectId ?? "Nicht gefunden";
+    }
+
+    private string GetUserEmail(ClaimsPrincipal user)
+    {
+        var email = user.FindFirst("preferred_username")?.Value
+                 ?? user.FindFirst("email")?.Value
+                 ?? user.FindFirst("upn")?.Value
+                 ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+
+        return email ?? "Nicht gefunden";
+    }
+
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole("Admin")) return "Admin";
+
+        var roleClaim = user.Claims.FirstOrDefault(c =>
+            c.Type == "roles" ||
+            c.Type == "role" ||
+            c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
+
+        if (roleClaim != null)
+        {
+            var value = roleClaim.Value;
+            if (value.Contains("Admin")) return "Admin";
+            if (value.Contains("[") && value.Contains("\"Admin\"")) return "Admin";
+            return value;
+        }
+
+        return "Unbekannt";
+    }
+
+    private class ClaimInfo
+    {
+        public string Type { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
     }
 }
