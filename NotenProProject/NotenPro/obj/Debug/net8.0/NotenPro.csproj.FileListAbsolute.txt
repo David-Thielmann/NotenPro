@@ -3349,8 +3349,8 @@ C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-ye8o4ooanz.gz
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-iun6ttkee6.gz
 C:\Users\David\Documents\PROJEKT\NotenPro\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-xukv5xdcoj.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-d9t0t50qsx.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-hr79rp6p56.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-gsyob6gxz3.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-3sayid3k7s.gz
-C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-orxkrkkozr.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\y1y6z55qmj-5qc4hkpfce.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\fnbnf2tye7-lemhszd4jm.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\6o32qxjk5v-721jz6fnk1.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\uaka06s2y0-azie19moga.gz
+C:\Users\diese\Desktop\ITPP Code\NotenPro\NotenProProject\NotenPro\obj\Debug\net8.0\compressed\46090vo8hr-m53pnpkulj.gz
