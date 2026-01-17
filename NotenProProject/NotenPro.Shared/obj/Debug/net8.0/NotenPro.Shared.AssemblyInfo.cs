@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NotenPro.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d6d6734d3c6d6de8c5bc21b4296f211eb141877")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+716d4ad46ddd0ac4fe5aabd767d804f5d458abd6")]
 [assembly: System.Reflection.AssemblyProductAttribute("NotenPro.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NotenPro.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
