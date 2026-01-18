@@ -70,6 +70,6 @@ public class TestEntity
 
     [ForeignKey("TeacherId")]
     public UserEntity Teacher { get; set; } = null!;
-
+    
     public ICollection<GradeEntity> Grades { get; set; } = new List<GradeEntity>();
 }

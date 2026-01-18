@@ -1,59 +1,120 @@
 @using NotenPro.Shared.DTOs
-@using CreateTestRequest = NotenPro.Shared.DTOs.CreateTestRequest
 @inject ISnackbar Snackbar
 
-<MudDialog>
+<MudDialog Class="pa-4" Style="border-radius: 16px; position: relative;">
     <TitleContent>
-        <MudText Typo="Typo.h6">Neuen Test anlegen</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Close" 
+                       OnClick="Cancel" 
+                       Style="position: absolute; right: 8px; top: 8px;" />
+        
+        <MudText Typo="Typo.h5" Style="font-weight: 600;">Neuen Test anlegen</MudText>
         <MudText Typo="Typo.body2" Class="mud-text-secondary">Geben Sie die Details für den neuen Test ein</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm>
-            <MudText Typo="Typo.subtitle2" Class="mb-1">Titel</MudText>
-            <MudTextField @bind-Value="Model.Name" Placeholder="z.B. Schularbeit 1" 
-                          Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" />
+            @* Titel *@
+            <div class="mb-6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2" Style="color: #444;">Titel</MudText>
+                <MudTextField @bind-Value="Model.Name" 
+                              Placeholder="z.B. Schularbeit 1" 
+                              Variant="Variant.Outlined" 
+                              Margin="Margin.Dense" />
+            </div>
 
-            <MudText Typo="Typo.subtitle2" Class="mb-1">Fach</MudText>
-            <MudSelect T="string" @bind-Value="Model.SubjectId" Placeholder="z.B. Mathematik" 
-                       Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4">
-                @foreach (var sub in Subjects)
-                {
-                    <MudSelectItem Value="@sub.Id">@sub.Name</MudSelectItem>
-                }
-            </MudSelect>
+            @* Fächer Auswahl als Radio Buttons *@
+            <div class="mb-6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2" Style="color: #444;">Primäres Fach wählen:</MudText>
+                <MudRadioGroup @bind-Value="Model.SubjectId" T="string">
+                    <div class="d-flex flex-wrap gap-3">
+                        <MudRadio Value="@("")" Color="Color.Default">Kein Fach</MudRadio>
+                        @if (Subjects != null)
+                        {
+                            @foreach (var sub in Subjects)
+                            {
+                                <MudRadio Value="@sub.Id" Color="Color.Primary">@sub.Name</MudRadio>
+                            }
+                        }
+                    </div>
+                </MudRadioGroup>
+            </div>
 
-            <MudText Typo="Typo.subtitle2" Class="mb-1">Datum</MudText>
-            <MudDatePicker @bind-Date="testDate" Placeholder="tt.mm.jjjj" 
-                           Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" />
+            @* Datum - Jetzt editierbar und gebunden *@
+            <div class="mb-6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2" Style="color: #444;">Datum</MudText>
+                <MudDatePicker @bind-Date="_tempDate" 
+                               Variant="Variant.Outlined" 
+                               Margin="Margin.Dense" 
+                               Editable="true"
+                               Placeholder="Datum auswählen" />
+            </div>
 
-            <MudGrid>
+            @* Punkte & Gewichtung - Beides änderbar *@
+            <MudGrid Class="mb-4">
                 <MudItem xs="6">
-                    <MudText Typo="Typo.subtitle2" Class="mb-1">Max. Punkte</MudText>
-                    <MudNumericField @bind-Value="Model.MaxPoints" Required="true" 
-                                    Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudText Typo="Typo.subtitle2" Class="mb-2" Style="color: #444;">Max. Punkte</MudText>
+                    <MudNumericField @bind-Value="Model.MaxPoints" 
+                                    Variant="Variant.Outlined" 
+                                    Margin="Margin.Dense" 
+                                    Min="0" />
                 </MudItem>
                 <MudItem xs="6">
-                    <MudText Typo="Typo.subtitle2" Class="mb-1">Gewichtung (%)</MudText>
-                    <MudNumericField T="int" Value="100" Disabled="true" 
-                                    Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudText Typo="Typo.subtitle2" Class="mb-2" Style="color: #444;">Gewichtung (%)</MudText>
+                    @* Bindung an lokale Variable für die UI-Interaktion *@
+                    <MudNumericField @bind-Value="_weight" 
+                                    T="int"
+                                    Variant="Variant.Outlined" 
+                                    Margin="Margin.Dense" 
+                                    Min="1" Max="100" />
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" 
-                   OnClick="Submit" Class="mt-4 py-3" Style="border-radius: 8px;">Test erstellen</MudButton>
+        <div class="d-flex flex-column align-end w-100 px-4 pb-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       OnClick="Submit" 
+                       Class="py-2 px-8 mb-2" 
+                       Style="border-radius: 12px; text-transform: none; font-size: 1.1rem; min-width: 200px; box-shadow: none;">
+                Test erstellen
+            </MudButton>
+            <MudButton OnClick="Cancel" 
+                       Variant="Variant.Text" 
+                       Style="text-transform: none; color: #757575;">
+                Abbrechen
+            </MudButton>
+        </div>
     </DialogActions>
 </MudDialog>
 
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
-    [Parameter] public CreateTestRequest Model { get; set; } = new();
+    
+    [Parameter] public NotenPro.Shared.DTOs.CreateTestRequest Model { get; set; } = new();
     [Parameter] public List<SubjectDto> Subjects { get; set; } = new();
-    private DateTime? testDate = DateTime.Today;
 
-    private void Submit() {
-        Model.Date = testDate ?? DateTime.Today;
+    private DateTime? _tempDate = DateTime.Today;
+    private int _weight = 100;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() 
+    {
+        if (string.IsNullOrWhiteSpace(Model.Name) || string.IsNullOrEmpty(Model.SubjectId))
+        {
+            Snackbar.Add("Bitte Titel und Fach wählen!", Severity.Warning);
+            return; 
+        }
+
+        // WICHTIG: Hier werden die Werte aus den UI-Feldern in das Model übertragen
+        Model.Date = _tempDate ?? DateTime.Today;
+        Model.Type = "Test"; 
+        
+        // Da 'CreateTestRequest' eventuell kein Feld 'Weight' hat, stellen wir sicher, 
+        // dass die Gewichtung (falls im DTO vorhanden) gesetzt wird.
+        // Wenn dein DTO das Feld 'Weight' hat, aktiviere die nächste Zeile:
+        // Model.Weight = _weight; 
+
         MudDialog.Close(DialogResult.Ok(Model));
     }
 }

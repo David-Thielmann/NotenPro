@@ -4,7 +4,6 @@ using NotenPro.Api.Data;
 using NotenPro.Domain.Entities;
 using NotenPro.Shared.DTOs;
 using System.Security.Claims;
-using NotenPro.Shared.DTOs;
 
 namespace NotenPro.Api.Controllers
 {
@@ -23,62 +22,105 @@ namespace NotenPro.Api.Controllers
         [HttpGet("my-tests")]
         public async Task<ActionResult<List<TestDto>>> GetMyTests()
         {
-            var tests = await _dbContext.Tests
-                .Include(t => t.Class)
-                .Include(t => t.Subject)
-                .Select(t => new TestDto
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Date = t.Date,
-                    // FEHLERBEHEBUNG: .ToString() konvertiert das Enum zum String für das DTO
-                    Type = t.Type.ToString(), 
-                    MaxPoints = t.MaxPoints,
-                    ClassId = t.ClassId,
-                    ClassName = t.Class != null ? t.Class.Name : "Unbekannt",
-                    SubjectId = t.SubjectId,
-                    SubjectName = t.Subject != null ? t.Subject.Name : "Unbekannt"
-                })
-                .ToListAsync();
+            try
+            {
+                var tests = await _dbContext.Tests
+                    .Include(t => t.Class)
+                    .Include(t => t.Subject)
+                    .Select(t => new TestDto
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                        Date = t.Date,
+                        // Konvertiert das Enum zum String für das DTO
+                        Type = t.Type.ToString(), 
+                        MaxPoints = t.MaxPoints,
+                        ClassId = t.ClassId,
+                        ClassName = t.Class != null ? t.Class.Name : "Unbekannt",
+                        SubjectId = t.SubjectId,
+                        SubjectName = t.Subject != null ? t.Subject.Name : "Unbekannt"
+                    })
+                    .ToListAsync();
 
-            return Ok(tests);
+                return Ok(tests);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Laden der Tests: {ex.Message}");
+                return StatusCode(500, "Interner Serverfehler beim Laden der Daten");
+            }
         }
 
-// POST: api/Tests
         [HttpPost]
-        public async Task<ActionResult<TestDto>> CreateTest([FromBody] CreateTestRequest request)
+        public async Task<ActionResult<TestDto>> CreateTest([FromBody] NotenPro.Shared.DTOs.CreateTestRequest request)
         {
             if (request == null) return BadRequest();
 
-            var newTest = new TestEntity
+            try 
             {
-                Id = Guid.NewGuid().ToString(),
-                Name = request.Name,
-                ClassId = request.ClassId,
-                SubjectId = request.SubjectId,
-                Date = request.Date,
-                // FEHLERBEHEBUNG: Wandelt den String vom Request zurück in das Backend-Enum um
-                Type = Enum.Parse<TestType>(request.Type), 
-                MaxPoints = request.MaxPoints,
-                CreatedAt = DateTime.UtcNow
-            };
+                // 1. TeacherId holen (WICHTIG: Das Entity verlangt das!)
+                // Wenn du ein Identity-System hast, nutzt man meist User.FindFirstValue
+                var teacherId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+                // Falls kein Teacher eingeloggt ist (Fallback für Tests, falls nötig)
+                if (string.IsNullOrEmpty(teacherId))
+                {
+                    teacherId = await _dbContext.Users.Select(u => u.Id).FirstOrDefaultAsync();
+                }
 
-            _dbContext.Tests.Add(newTest);
-            await _dbContext.SaveChangesAsync();
+                // 2. ClassId Fallback (wie bisher)
+                var finalClassId = request.ClassId;
+                if (string.IsNullOrEmpty(finalClassId)) 
+                {
+                    finalClassId = await _dbContext.Classes.Select(c => c.Id).FirstOrDefaultAsync();
+                }
 
-            return Ok(new TestDto { Id = newTest.Id, Name = newTest.Name });
+                // 3. Entity erstellen
+                var newTest = new TestEntity {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = request.Name,
+                    SubjectId = request.SubjectId,
+                    ClassId = finalClassId!, 
+                    TeacherId = teacherId!, // DIESE ZEILE HAT GEFEHLT!
+                    Date = request.Date,
+                    Type = Enum.TryParse<TestType>(request.Type, out var t) ? t : TestType.Test,
+                    MaxPoints = request.MaxPoints,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _dbContext.Tests.Add(newTest);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new TestDto { Id = newTest.Id, Name = newTest.Name });
+            }
+            catch (Exception ex) 
+            {
+                // Logge den Fehler in die Konsole
+                Console.WriteLine($"Fehler beim Erstellen des Tests: {ex.Message}");
+                return StatusCode(500, $"Interner Fehler: {ex.Message}");
+            }
         }
 
+        // DELETE: api/Tests/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTest(string id)
         {
-            var test = await _dbContext.Tests.FindAsync(id);
-            if (test == null) return NotFound();
+            try
+            {
+                var test = await _dbContext.Tests.FindAsync(id);
+                if (test == null) return NotFound();
 
-            _dbContext.Tests.Remove(test);
-            await _dbContext.SaveChangesAsync();
+                _dbContext.Tests.Remove(test);
+                await _dbContext.SaveChangesAsync();
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Löschfehler: {ex.Message}");
+                return StatusCode(500, "Fehler beim Löschen des Tests");
+            }
         }
     }
 }

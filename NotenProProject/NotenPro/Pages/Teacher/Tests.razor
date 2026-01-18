@@ -1,63 +1,104 @@
 @page "/teacher/tests"
 @using NotenPro.Shared.DTOs
-@using CreateTestRequest = NotenPro.Shared.DTOs.CreateTestRequest
 @inject HttpClient Http
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject NavigationManager Nav
 
-<PageTitle>Tests & Prüfungen</PageTitle>
-
-<MudContainer Class="mt-8">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    @* Header Bereich mit modernem Button *@
     <div class="d-flex justify-space-between align-center mb-6">
-        <MudText Typo="Typo.h4">Tests & Prüfungen</MudText>
-        <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" 
-                   Color="Color.Primary" OnClick="OpenCreateDialog">Neuer Test</MudButton>
+        <MudText Typo="Typo.h4" Style="font-weight: 600;">Tests & Prüfungen</MudText>
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="ShowCreateTestDialog"
+                   Style="border-radius: 10px; text-transform: none; padding: 10px 20px;">
+            Neuer Test
+        </MudButton>
     </div>
 
-    <MudTable Items="@tests" T="TestDto" Hover="true" Elevation="2">
-        <HeaderContent>
-            <MudTh>Titel</MudTh>
-            <MudTh>Fach</MudTh>
-            <MudTh>Datum</MudTh>
-            <MudTh Style="text-align:right">Durchschnitt</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.SubjectName</MudTd>
-            <MudTd>@context.Date.ToString("dd.MM.yyyy")</MudTd>
-            <MudTd Style="text-align:right">
-                <MudChip T="string" Color="Color.Info" Size="Size.Small">2.0</MudChip>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+    @* Tabelle in einer Card (MudPaper) mit abgerundeten Ecken *@
+    <MudPaper Elevation="0" Outlined="true" Style="border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+        <MudTable Items="_tests" Hover="true" Elevation="0" Class="pa-2">
+            <HeaderContent>
+                <MudTh Style="font-weight: 600; color: #000;">Titel</MudTh>
+                <MudTh Style="font-weight: 600; color: #000;">Fach</MudTh>
+                <MudTh Style="font-weight: 600; color: #000;">Datum</MudTh>
+                <MudTh Style="font-weight: 600; color: #000;">Gewichtung</MudTh>
+                <MudTh Style="font-weight: 600; color: #000;">Durchschnitt</MudTh>
+                <MudTh Style="text-align:right"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Titel">@context.Name</MudTd>
+                <MudTd DataLabel="Fach">@context.SubjectName</MudTd>
+                @* Formatiertes Datum *@
+                <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                <MudTd DataLabel="Gewichtung">100%</MudTd>
+                @* Durchschnitt als Badge *@
+                <MudTd DataLabel="Durchschnitt">
+                    <MudChip T="string" Size="Size.Small" 
+                             Style="background-color: #4eb7e2; color: white; font-weight: bold; min-width: 45px; border-radius: 8px;">
+                        2.3
+                    </MudChip>
+                </MudTd>
+                <MudTd Style="text-align:right">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                   Color="Color.Error" 
+                                   Size="Size.Small"
+                                   OnClick="() => DeleteTest(context.Id)" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
 </MudContainer>
 
 @code {
-    private List<TestDto> tests = new();
-    private List<SubjectDto> subjects = new();
+    private List<TestDto> _tests = new();
+    private List<SubjectDto> _subjects = new();
 
-    protected override async Task OnInitializedAsync() => await LoadData();
-
-    private async Task LoadData() {
-        try {
-            // FEHLERBEHEBUNG: Nur DTOs nutzen
-            tests = await Http.GetFromJsonAsync<List<TestDto>>("api/tests/my-tests") ?? new();
-            subjects = await Http.GetFromJsonAsync<List<SubjectDto>>("api/subjects") ?? new();
-        } catch (Exception ex) {
-            Snackbar.Add("Fehler beim Laden", Severity.Error);
-        }
+    protected override async Task OnInitializedAsync() {
+        await LoadTests();
+        await LoadSubjects();
     }
 
-    private async Task OpenCreateDialog() {
-        var parameters = new DialogParameters { ["Model"] = new CreateTestRequest(), ["Subjects"] = subjects };
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+    private async Task LoadTests() {
+        _tests = await Http.GetFromJsonAsync<List<TestDto>>("api/tests/my-tests") ?? new();
+    }
+
+    private async Task LoadSubjects() {
+        _subjects = await Http.GetFromJsonAsync<List<SubjectDto>>("api/subjects") ?? new();
+    }
+
+    private async Task ShowCreateTestDialog()
+    {
+        // Benutze den voll qualifizierten Namen, um den "Specified cast is not valid" Fehler zu vermeiden
+        var parameters = new DialogParameters 
+        { 
+            ["Model"] = new NotenPro.Shared.DTOs.CreateTestRequest(), 
+            ["Subjects"] = _subjects 
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialog = DialogService.Show<CreateTestDialog>("", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data is CreateTestRequest req) {
-            var res = await Http.PostAsJsonAsync("api/tests", req);
-            if (res.IsSuccessStatusCode) await LoadData();
+        if (!result.Canceled && result.Data is NotenPro.Shared.DTOs.CreateTestRequest newTest)
+        {
+            var response = await Http.PostAsJsonAsync("api/tests", newTest);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Test erfolgreich erstellt", Severity.Success);
+                await LoadTests(); 
+            }
+        }
+    }
+
+    private async Task DeleteTest(string id)
+    {
+        var response = await Http.DeleteAsync($"api/tests/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadTests();
         }
     }
 }

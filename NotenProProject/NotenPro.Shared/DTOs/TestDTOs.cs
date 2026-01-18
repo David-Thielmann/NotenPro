@@ -28,6 +28,7 @@ namespace NotenPro.Shared.DTOs
         public DateTime Date { get; set; } = DateTime.Today;
         public string Type { get; set; } = "Test";
         public int MaxPoints { get; set; } = 100;
+        
     }
 }
 
