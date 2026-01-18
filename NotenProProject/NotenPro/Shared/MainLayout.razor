@@ -50,7 +50,7 @@
 
                 <MudSpacer />
 
-                @if (_isStudent)
+                @if (_isStudent || _isTeacher)
                 {
                     <MudBadge Content="@_unreadCount"
                               Color="Color.Error"
@@ -58,7 +58,7 @@
                               Visible="@(_unreadCount > 0)">
                         <MudIconButton Icon="@Icons.Material.Filled.Notifications"
                                        Style="color: white;"
-                                       OnClick="@(() => Nav.NavigateTo("/student/notifications"))" />
+                                       OnClick="@(() => Nav.NavigateTo(_isStudent ? "/student/notifications" : "/teacher/notifications"))" />
                     </MudBadge>
                 }
                 else
@@ -164,8 +164,19 @@
                         <MudNavLink Href="/teacher/tests" Icon="@Icons.Material.Filled.Quiz">
                             Tests
                         </MudNavLink>
-                        <MudNavLink Href="/teacher/gradeentry" Icon="@Icons.Material.Filled.EditNote">
+                        <MudNavLink Href="/teacher/grades" Icon="@Icons.Material.Filled.EditNote">
                             Noten eintragen
+                        </MudNavLink>
+                        <MudNavLink Href="/teacher/notifications" Icon="@Icons.Material.Filled.Notifications">
+                            <div class="d-flex justify-space-between align-center" style="width: 100%;">
+                                <span>Benachrichtigungen</span>
+                                @if (_unreadCount > 0)
+                                {
+                                    <MudChip T="int" Size="Size.Small" Color="Color.Error">
+                                        @_unreadCount
+                                    </MudChip>
+                                }
+                            </div>
                         </MudNavLink>
                         <MudNavLink Href="/teacher/warnings" Icon="@Icons.Material.Filled.WarningAmber">
                             Frühwarnsystem
@@ -300,15 +311,18 @@
         _isTeacher = RoleHelper.HasRole(user, "Teacher");
         _isAdmin = RoleHelper.HasRole(user, "Admin");
 
-        if (_isStudent)
+        if (_isStudent || _isTeacher)
         {
             try { _unreadCount = await NotificationService.GetUnreadCountAsync(); }
             catch { _unreadCount = 0; }
 
-            var uri = Nav.Uri.ToLowerInvariant();
-            if (uri.Contains("/student/grades")) _selectedPage = "grades";
-            else if (uri.Contains("/student/notifications")) _selectedPage = "notifications";
-            else _selectedPage = "dashboard";
+            if (_isStudent)
+            {
+                var uri = Nav.Uri.ToLowerInvariant();
+                if (uri.Contains("/student/grades")) _selectedPage = "grades";
+                else if (uri.Contains("/student/notifications")) _selectedPage = "notifications";
+                else _selectedPage = "dashboard";
+            }
         }
     }
 

@@ -179,7 +179,13 @@ public class GradeApiService : IGradeService
         {
             Console.WriteLine("DEBUG: GradeApiService.GetGradesByTestAsync()");
 
-            var response = await _httpClient.GetAsync($"api/grades/test/{testId}");
+            // Frühwarnungen haben bisher mit "" gearbeitet -> das darf nicht in /test/ landen.
+            // Wenn kein TestId vorhanden ist, holen wir alle Noten.
+            var url = string.IsNullOrWhiteSpace(testId)
+                ? "api/grades"
+                : $"api/grades/test/{testId}";
+
+            var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -250,7 +256,28 @@ public class GradeApiService : IGradeService
         {
             Console.WriteLine("DEBUG: GradeApiService.SaveGradesBulkAsync()");
 
-            var response = await _httpClient.PostAsJsonAsync("api/grades/bulk", grades);
+            if (grades == null || grades.Count == 0)
+                return new ApiResponse<List<Grade>> { Success = false, Message = "Keine Noten zum Speichern" };
+
+            var testId = grades.FirstOrDefault(g => !string.IsNullOrWhiteSpace(g.TestId))?.TestId;
+            if (string.IsNullOrWhiteSpace(testId))
+                return new ApiResponse<List<Grade>> { Success = false, Message = "TestId fehlt" };
+
+            // API erwartet BulkGradeRequest
+            var request = new BulkGradeRequest
+            {
+                TestId = testId,
+                Grades = grades.Select(g => new StudentGradeInput
+                {
+                    StudentId = g.StudentId,
+                    GradeValue = g.Status == GradeStatus.Graded && g.GradeValue > 0m ? g.GradeValue : null,
+                    Points = g.Points,
+                    Status = g.Status.ToString(),
+                    Comment = g.Comment
+                }).ToList()
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("api/grades/bulk", request, JsonOptions);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -258,9 +285,9 @@ public class GradeApiService : IGradeService
                 throw new HttpRequestException($"SaveGradesBulk API-Fehler ({response.StatusCode}): {errorContent}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<Grade>>>(JsonOptions);
-            Console.WriteLine($"DEBUG: SaveGradesBulk success: {result?.Success}");
-            return result ?? new ApiResponse<List<Grade>> { Success = false, Message = "Keine Antwort erhalten" };
+            // Controller liefert aktuell nur { message = "..." } -> wir geben trotzdem Success zurück
+            Console.WriteLine("DEBUG: SaveGradesBulk success: true");
+            return new ApiResponse<List<Grade>> { Success = true, Data = grades, Message = "Gespeichert" };
         }
         catch (Exception ex)
         {

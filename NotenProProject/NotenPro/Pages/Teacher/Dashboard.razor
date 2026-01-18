@@ -1,183 +1,353 @@
 @page "/teacher/dashboard"
 @using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using NotenPro.Shared.DTOs
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject ITestService TestService
-@inject IDialogService DialogService
+@inject IClassService ClassService
+@inject IEarlyWarningService EarlyWarningService
+@inject INotificationService NotificationService
 @inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Dashboard - Lehrer</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-6">Lehrer Dashboard</MudText>
+@if (showDebug)
+{
+    <MudAlert Severity="Severity.Info" Class="mb-3">
+        <MudAlertTitle>Debug Info</MudAlertTitle>
+        <MudText>User: @currentUserName</MudText>
+        <MudText>Rolle: @userRole</MudText>
+        <MudText>Object ID: @azureObjectId</MudText>
+        <MudText>Email: @userEmail</MudText>
+        <MudText>Status: @(isLoading ? "Lädt..." : hasError ? "Fehler" : "Geladen")</MudText>
+        <MudText>API Calls: @apiCallCount</MudText>
 
-<!-- Statistics Cards -->
-<MudGrid Class="mb-6">
-    <MudItem xs="12" sm="6" md="3">
-        <MudCard Elevation="2" Class="hover-card">
-            <MudCardContent>
-                <div class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Tests diese Woche</MudText>
-                        <MudText Typo="Typo.h4">5</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Primary" Size="Size.Large" />
-                </div>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
+        @if (showAllClaims)
+        {
+            <div class="mt-3">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Alle Claims:</MudText>
+                <MudPaper Elevation="1" Class="pa-3" Style="max-height: 200px; overflow-y: auto;">
+                    @foreach (var claim in allClaims)
+                    {
+                        <div class="d-flex">
+                            <MudText Typo="Typo.caption" Style="min-width: 300px;">@claim.Type</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@claim.Value</MudText>
+                        </div>
+                    }
+                </MudPaper>
+            </div>
+        }
 
-    <MudItem xs="12" sm="6" md="3">
-        <MudCard Elevation="2" Class="hover-card">
-            <MudCardContent>
-                <div class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Ausstehende Benotungen</MudText>
-                        <MudText Typo="Typo.h4">12</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Grade" Color="Color.Warning" Size="Size.Large" />
-                </div>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="6" md="3">
-        <MudCard Elevation="2" Class="hover-card">
-            <MudCardContent>
-                <div class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Meine Klassen</MudText>
-                        <MudText Typo="Typo.h4">3</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Class" Color="Color.Success" Size="Size.Large" />
-                </div>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="6" md="3">
-        <MudCard Elevation="2" Class="hover-card">
-            <MudCardContent>
-                <div class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Frühwarnungen</MudText>
-                        <MudText Typo="Typo.h4">2</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Large" />
-                </div>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-</MudGrid>
-
-<!-- Quick Actions -->
-<MudCard Elevation="2" Class="mb-6">
-    <MudCardHeader>
-        <MudText Typo="Typo.h6">Schnellaktionen</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        <div class="d-flex justify-start gap-3 mb-4">
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       OnClick="OpenNewTestDialog">
-                NEUER TEST
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small">
+                Debug ausblenden
             </MudButton>
-
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Outlined"
-                       StartIcon="@Icons.Material.Filled.Edit">
-                NOTEN EINTRAGEN
+            <MudButton Color="Color.Info" OnClick="ToggleClaims" Size="Size.Small" Variant="Variant.Outlined">
+                @(showAllClaims ? "Claims ausblenden" : "Alle Claims anzeigen")
             </MudButton>
-
-            <MudButton Color="Color.Warning"
-                       Variant="Variant.Outlined"
-                       StartIcon="@Icons.Material.Filled.Warning">
-                FRÜHWARNUNG ERSTELLEN
+            <MudButton Color="Color.Warning" OnClick="CopyObjectId" Size="Size.Small" Variant="Variant.Outlined">
+                Object ID kopieren
             </MudButton>
         </div>
+    </MudAlert>
+}
 
-    </MudCardContent>
-</MudCard>
+<MudButton Color="Color.Secondary" OnClick="ToggleDebug" Size="Size.Small" Class="mb-2">
+    Debug anzeigen
+</MudButton>
 
-<!-- Upcoming Tests -->
-<MudCard Elevation="2">
-    <MudCardHeader>
-        <MudText Typo="Typo.h6">Anstehende Tests</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudTable Items="@upcomingTests" Hover="true" Dense="true">
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh>Fach</MudTh>
-                <MudTh>Klasse</MudTh>
-                <MudTh>Datum</MudTh>
-                <MudTh>Typ</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Name">@context.Name</MudTd>
-                <MudTd DataLabel="Fach">@context.Subject</MudTd>
-                <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
-                <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
-                <MudTd DataLabel="Typ">
-                    <MudChip T="bool"
-                        Size="Size.Small">@context.Type</MudChip>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    </MudCardContent>
-</MudCard>
+@if (isLoading)
+{
+    <div class="text-center py-12">
+        <MudCircularProgress Color="Color.Primary" />
+        <MudText Typo="Typo.body1" Class="mt-4">Dashboard wird geladen...</MudText>
+        <MudText Typo="Typo.caption">@GetLoadStepText()</MudText>
+    </div>
+}
+else if (hasError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" Variant="Variant.Filled">
+        <MudAlertTitle>Daten konnten nicht geladen werden</MudAlertTitle>
+        <MudText>Fehler: @errorMessage</MudText>
+        <MudButton Color="Color.Inherit" OnClick="Reload" StartIcon="@Icons.Material.Filled.Refresh" Class="mt-2">
+            Erneut versuchen
+        </MudButton>
+    </MudAlert>
+}
+else
+{
+    <MudText Typo="Typo.h4" Class="mb-6">Lehrer Dashboard</MudText>
+
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Tests diese Woche</MudText>
+                            <MudText Typo="Typo.h4">@testsThisWeekCount</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Primary" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Offene Benachrichtigungen</MudText>
+                            <MudText Typo="Typo.h4">@unreadNotificationsCount</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Warning" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Meine Klassen</MudText>
+                            <MudText Typo="Typo.h4">@classCount</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Class" Color="Color.Success" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="hover-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Frühwarnungen (offen)</MudText>
+                            <MudText Typo="Typo.h4">@earlyWarningCount</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Large" />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <MudCard Elevation="2" Class="mb-6">
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Schnellaktionen</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <div class="d-flex justify-start gap-3 mb-4">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick='() => Nav.NavigateTo("/teacher/tests")'>
+                    NEUER TEST
+                </MudButton>
+
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Edit"
+                           OnClick='() => Nav.NavigateTo("/teacher/grades")'>
+                    NOTEN EINTRAGEN
+                </MudButton>
+
+                <MudButton Color="Color.Warning"
+                           Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Warning"
+                           OnClick='() => Nav.NavigateTo("/teacher/early-warnings")'>
+                    FRÜHWARNUNG ERSTELLEN
+                </MudButton>
+            </div>
+        </MudCardContent>
+    </MudCard>
+
+    <MudCard Elevation="2">
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Anstehende Tests</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (upcomingTests.Any())
+            {
+                <MudTable Items="@upcomingTests" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Fach</MudTh>
+                        <MudTh>Klasse</MudTh>
+                        <MudTh>Datum</MudTh>
+                        <MudTh>Typ</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Fach">@context.Subject</MudTd>
+                        <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
+                        <MudTd DataLabel="Datum">@context.Date.ToString("dd.MM.yyyy")</MudTd>
+                        <MudTd DataLabel="Typ">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info">@context.Type</MudChip>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+            else
+            {
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="text-center py-4">Keine anstehenden Tests gefunden.</MudText>
+            }
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
+    // UI State
+    private bool isLoading = true;
+    private bool hasError = false;
+    private bool showDebug = false;
+    private bool showAllClaims = false;
+    private int loadStep = 0;
+    private int apiCallCount = 0;
+    private string errorMessage = string.Empty;
+
+    // User Info
+    private string currentUserName = string.Empty;
+    private string userRole = string.Empty;
+    private string azureObjectId = string.Empty;
+    private string userEmail = string.Empty;
+    private List<ClaimInfo> allClaims = new();
+
+    // Data
     private List<Test> upcomingTests = new();
+    private int testsThisWeekCount = 0;
+    private int unreadNotificationsCount = 0;
+    private int classCount = 0;
+    private int earlyWarningCount = 0;
 
-  
-    
-    private async Task OpenNewTestDialog()
-    {
-        var parameters = new DialogParameters
-        {
-            ["Model"] = new NewTestModel
-            {
-                Date = DateTime.Today,
-                MaxPoints = 100,
-                WeightPercentage = 100
-            }
-        };
-
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true
-        };
-
-        var dialog = DialogService.Show<NewTestDialog>("Neuen Test anlegen", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data is NewTestModel model)
-        {
-            // TODO: hier an dein Backend schicken
-            // await GradeService.CreateTestAsync(model);
-
-            Snackbar.Add($"Test \"{model.Title}\" wurde erstellt.", Severity.Success);
-
-            // Optional: Noten neu laden
-            // await OnInitializedAsync();  // oder eigene Reload-Methode
-        }
-    }
     protected override async Task OnInitializedAsync()
     {
-        var allTests = await TestService.GetMyTestsAsync();
-        upcomingTests = allTests.Where(t => t.Date >= DateTime.Now).OrderBy(t => t.Date).ToList();
-
-        
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Teacher"))
+        try
         {
-            Nav.NavigateTo("/login", true);
+            loadStep = 1; // Auth check
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity == null || !user.Identity.IsAuthenticated)
+            {
+                Nav.NavigateTo("/login");
+                return;
+            }
+
+            // User Info für Debugger extrahieren
+            currentUserName = user.Identity.Name ?? "Unbekannt";
+            azureObjectId = GetAzureObjectId(user);
+            userEmail = GetUserEmail(user);
+            userRole = GetUserRole(user);
+            allClaims = user.Claims.Select(c => new ClaimInfo { Type = c.Type, Value = c.Value }).ToList();
+
+            if (userRole != "Teacher" && !user.IsInRole("Teacher"))
+            {
+                Nav.NavigateTo("/login"); // Oder Access Denied
+                return;
+            }
+
+            await LoadDashboardData();
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = ex.Message;
+            Snackbar.Add("Fehler beim Initialisieren des Dashboards", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
-    
+
+    private async Task LoadDashboardData()
+    {
+        try
+        {
+            loadStep = 2; // API Calls
+            apiCallCount = 0;
+
+            // 1. Tests laden
+            apiCallCount++;
+            var allTests = await TestService.GetMyTestsAsync() ?? new();
+            upcomingTests = allTests
+                .Where(t => t.Date.Date >= DateTime.Today)
+                .OrderBy(t => t.Date)
+                .ToList();
+
+            testsThisWeekCount = upcomingTests.Count(t => t.Date.Date <= DateTime.Today.AddDays(7));
+
+            // 2. Klassen laden
+            apiCallCount++;
+            var classes = await ClassService.GetClassesAsync() ?? new();
+            classCount = classes.Count;
+
+            // 3. Frühwarnungen (Pending) laden
+            apiCallCount++;
+            var warnings = await EarlyWarningService.GetPendingWarningsAsync(azureObjectId) ?? new();
+            earlyWarningCount = warnings.Count;
+
+            // 4. Benachrichtigungen laden
+            apiCallCount++;
+            unreadNotificationsCount = await NotificationService.GetUnreadCountAsync();
+
+            loadStep = 3; // Fertig
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Load Error: {ex.Message}");
+            throw;
+        }
+    }
+
+    private async Task Reload()
+    {
+        isLoading = true;
+        hasError = false;
+        StateHasChanged();
+        await LoadDashboardData();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    // Helper Methods (identisch zu Student Dashboard für Konsistenz)
+    private string GetLoadStepText() => loadStep switch
+    {
+        1 => "Identität wird geprüft...",
+        2 => "API-Daten werden abgerufen...",
+        3 => "Fertig!",
+        _ => "Initialisierung..."
+    };
+
+    private void ToggleDebug() => showDebug = !showDebug;
+    private void ToggleClaims() => showAllClaims = !showAllClaims;
+
+    private async Task CopyObjectId()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", azureObjectId);
+        Snackbar.Add("Object ID kopiert", Severity.Info);
+    }
+
+    private string GetAzureObjectId(ClaimsPrincipal user) =>
+        user.FindFirst("oid")?.Value ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Nicht gefunden";
+
+    private string GetUserEmail(ClaimsPrincipal user) =>
+        user.FindFirst("preferred_username")?.Value ?? user.FindFirst(ClaimTypes.Email)?.Value ?? "Nicht gefunden";
+
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole("Teacher")) return "Teacher";
+        var roleClaim = user.Claims.FirstOrDefault(c => c.Type == "roles" || c.Type == "role")?.Value;
+        return roleClaim?.Contains("Teacher") == true ? "Teacher" : "Unbekannt";
+    }
+
+    private class ClaimInfo { public string Type { get; set; } = ""; public string Value { get; set; } = ""; }
 }

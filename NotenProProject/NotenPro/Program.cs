@@ -39,12 +39,22 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserApiService>();
 builder.Services.AddScoped<IStudentService, StudentApiService>();
 builder.Services.AddScoped<IGradeService, GradeApiService>();
 builder.Services.AddScoped<INotificationService, NotificationApiService>();
-builder.Services.AddScoped<IGradeService, GradeApiService>();
+
+// Teacher / Stammdaten
+builder.Services.AddScoped<ITeacherService, TeacherApiService>();
+builder.Services.AddScoped<ITestService, TestApiService>();
+builder.Services.AddScoped<IClassService, ClassApiService>();
+builder.Services.AddScoped<IUserService, UserApiService>();
+builder.Services.AddScoped<ISubjectService, SubjectApiService>();
+builder.Services.AddScoped<IEarlyWarningService, EarlyWarningApiService>();
 
 //IPdf export
 builder.Services.AddScoped<IPdfExportService, PdfExportService>();
 
 //Admin Dash 
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardApiService>();
+
+
+
 
 await builder.Build().RunAsync();

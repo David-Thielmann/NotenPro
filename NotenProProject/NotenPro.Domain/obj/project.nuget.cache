@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "2Ej103oba54=",
+  "dgSpecHash": "CIxqG3PeNb4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\diese\\Desktop\\ITPP Code\\NotenPro\\NotenProProject\\NotenPro.Domain\\NotenPro.Domain.csproj",
+  "projectFilePath": "C:\\Users\\David\\Documents\\PROJEKT\\NotenPro\\NotenPro\\NotenProProject\\NotenPro.Domain\\NotenPro.Domain.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\diese\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\9.0.0\\microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512"
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\9.0.0\\microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512"
   ],
   "logs": []
 }

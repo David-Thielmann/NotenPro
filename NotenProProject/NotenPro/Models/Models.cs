@@ -98,7 +98,7 @@ namespace HTLKrems.GradeManagement.Models
         public string ClassName { get; set; } = string.Empty;
         public string TeacherId { get; set; } = string.Empty;
         public int MaxPoints { get; set; }
-        public TestType Type { get; set; }
+        public string Type { get; set; } = TestType.Test.ToString();
         public string? Description { get; set; }
     }
 
@@ -134,6 +134,7 @@ namespace HTLKrems.GradeManagement.Models
         public string ClassTeacherName { get; set; } = string.Empty;
         public int StudentCount { get; set; }
         public decimal AverageGrade { get; set; }
+        public string? TeacherName{ get; set; }
     }
 
     // ==================== SUBJECT MODELS ====================

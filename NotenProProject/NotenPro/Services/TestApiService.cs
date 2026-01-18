@@ -13,7 +13,8 @@ namespace HTLKrems.GradeManagement.Services
         }
 
         public async Task<List<Test>> GetMyTestsAsync()
-            => await _httpClient.GetFromJsonAsync<List<Test>>("api/tests/my") ?? new(); // TODO route
+            // API route is "api/tests/my-tests" ("api/tests/my" still works as legacy)
+            => await _httpClient.GetFromJsonAsync<List<Test>>("api/tests/my-tests") ?? new();
 
         public async Task<Test?> GetTestByIdAsync(string id)
             => await _httpClient.GetFromJsonAsync<Test>($"api/tests/{id}"); // TODO route

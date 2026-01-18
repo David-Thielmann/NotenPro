@@ -1,5 +1,7 @@
 @page "/teacher/warnings"
 @using Microsoft.AspNetCore.Authorization
+@using NotenPro.Shared.DTOs
+@using HTLKrems.GradeManagement.Models
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IGradeService GradeService
@@ -9,18 +11,16 @@
 <PageTitle>Frühwarnungen</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-6">
-    <MudText Typo="Typo.h4">Frühwarnungen</MudText>
+    <MudText Typo="Typo.h4" Style="font-weight: 600;">Frühwarnungen</MudText>
 </div>
 
-<!-- Info Alert -->
-<MudAlert Severity="Severity.Info" Class="mb-4">
-    Schüler mit einem Notendurchschnitt unter 3,5 werden automatisch zur Frühwarnung vorgeschlagen.
+<MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mb-4">
+    Schüler mit einem Notendurchschnitt von **über 3,5** (Richtung 5) werden hier vorgeschlagen.
 </MudAlert>
 
-<!-- Class Filter -->
 <MudCard Elevation="2" Class="mb-4">
     <MudCardContent>
-        <MudSelect T="string" Label="Klasse auswählen" @bind-Value="selectedClassId">
+        <MudSelect T="string" Label="Klasse filtern" @bind-Value="selectedClassId" Variant="Variant.Outlined">
             <MudSelectItem T="string" Value="@("")">Alle Klassen</MudSelectItem>
             @foreach (var cls in classes)
             {
@@ -30,75 +30,40 @@
     </MudCardContent>
 </MudCard>
 
-<!-- Students at Risk -->
-<MudCard Elevation="2" Class="mb-4">
-    <MudCardHeader>
-        <MudText Typo="Typo.h6">Schüler mit Leistungsabfall</MudText>
-    </MudCardHeader>
+<MudCard Elevation="2">
     <MudCardContent>
         @if (loading)
         {
-            <div class="d-flex justify-center pa-4">
+            <div class="d-flex justify-center pa-8">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
             </div>
         }
         else if (!FilteredStudentsAtRisk.Any())
         {
-            <MudAlert Severity="Severity.Success">
-                Keine Schüler mit Leistungsabfall gefunden. Alle Schüler haben einen Durchschnitt ≥ 3,5.
-            </MudAlert>
+            <MudAlert Severity="Severity.Success">Keine gefährdeten Schüler gefunden.</MudAlert>
         }
         else
         {
-            <MudTable Items="@FilteredStudentsAtRisk" Hover="true" Dense="false">
+            <MudTable Items="@FilteredStudentsAtRisk" Hover="true" Elevation="0">
                 <HeaderContent>
-                    <MudTh>Schüler</MudTh>
-                    <MudTh>Klasse</MudTh>
-                    <MudTh>Fach</MudTh>
+                    <MudTh>Schüler ID</MudTh>
                     <MudTh>Durchschnitt</MudTh>
-                    <MudTh>Anzahl Noten</MudTh>
-                    <MudTh>Status</MudTh>
+                    <MudTh>Noten</MudTh>
                     <MudTh>Aktion</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Schüler">@context.StudentName</MudTd>
-                    <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
-                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
-                    <MudTd DataLabel="Durchschnitt">
-                        <MudChip T="bool"
-                            Size="Size.Small" Color="@GetAverageColor(context.Average)">
+                    <MudTd>@context.StudentId</MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small" Color="@GetAverageColor(context.Average)">
                             @context.Average.ToString("F2")
                         </MudChip>
                     </MudTd>
-                    <MudTd DataLabel="Anzahl Noten">@context.GradeCount</MudTd>
-                    <MudTd DataLabel="Status">
-                        @if (context.WarningSent)
-                        {
-                            <MudChip T="bool"
-                                Size="Size.Small" Color="Color.Success">Gesendet</MudChip>
-                        }
-                        else
-                        {
-                            <MudChip T="bool"
-                                Size="Size.Small" Color="Color.Warning">Ausstehend</MudChip>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Aktion">
-                        @if (!context.WarningSent)
-                        {
-                            <MudButton Size="Size.Small" 
-                                       Variant="Variant.Filled" 
-                                       Color="Color.Warning"
-                                       OnClick="@(() => OpenWarningDialog(context))">
-                                Frühwarnung erstellen
-                            </MudButton>
-                        }
-                        else
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
-                                           Size="Size.Small"
-                                           OnClick="@(() => ViewWarning(context))" />
-                        }
+                    <MudTd>@context.GradeCount</MudTd>
+                    <MudTd>
+                        <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Warning"
+                                   OnClick="@(() => OpenWarningDialog(context))">
+                            Warnung senden
+                        </MudButton>
                     </MudTd>
                 </RowTemplate>
             </MudTable>
@@ -106,317 +71,75 @@
     </MudCardContent>
 </MudCard>
 
-<!-- Sent Warnings -->
-<MudCard Elevation="2">
-    <MudCardHeader>
-        <MudText Typo="Typo.h6">Gesendete Frühwarnungen</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        @if (!sentWarnings.Any())
-        {
-            <MudText Color="Color.Secondary">Keine Frühwarnungen versendet.</MudText>
-        }
-        else
-        {
-            <MudTable Items="@sentWarnings" Hover="true" Dense="true">
-                <HeaderContent>
-                    <MudTh>Datum</MudTh>
-                    <MudTh>Schüler</MudTh>
-                    <MudTh>Klasse</MudTh>
-                    <MudTh>Fach</MudTh>
-                    <MudTh>Durchschnitt</MudTh>
-                    <MudTh>Kommentar</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Datum">@context.SentDate.ToString("dd.MM.yyyy")</MudTd>
-                    <MudTd DataLabel="Schüler">@context.StudentName</MudTd>
-                    <MudTd DataLabel="Klasse">@context.ClassName</MudTd>
-                    <MudTd DataLabel="Fach">@context.Subject</MudTd>
-                    <MudTd DataLabel="Durchschnitt">@context.Average.ToString("F2")</MudTd>
-                    <MudTd DataLabel="Kommentar">@context.Comment</MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-    </MudCardContent>
-</MudCard>
-
-<!-- Warning Dialog -->
-@if (showWarningDialog)
-{
-    <div style="position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,0.5);" @onclick="CloseWarningDialog">
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 24px;" @onclick:stopPropagation="true">
-            <MudPaper Elevation="12" Class="pa-6" Style="width: 100%; max-width: 720px;">
-                <MudText Typo="Typo.h6" Class="mb-4">
-                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" />
-                    Frühwarnung erstellen
-                </MudText>
-                @if (selectedStudent != null)
-                {
-                    <MudGrid>
-                        <MudItem xs="12">
-                            <MudAlert Severity="Severity.Warning" Dense="true">
-                                <strong>@selectedStudent.StudentName</strong> (@selectedStudent.ClassName)<br />
-                                Fach: <strong>@selectedStudent.Subject</strong><br />
-                                Aktueller Durchschnitt: <strong>@selectedStudent.Average.ToString("F2")</strong>
-                            </MudAlert>
-                        </MudItem>
-                        <MudItem xs="12">
-                            <MudTextField @bind-Value="warningComment"
-                                          Label="Kommentar / Begründung"
-                                          Lines="5"
-                                          Variant="Variant.Outlined"
-                                          Placeholder="Bitte geben Sie einen Kommentar zur Frühwarnung ein..." />
-                        </MudItem>
-                        <MudItem xs="12">
-                            <MudCheckBox T="bool" @bind-Checked="notifyParents" Color="Color.Primary">
-                                Eltern per E-Mail benachrichtigen
-                            </MudCheckBox>
-                        </MudItem>
-                    </MudGrid>
-                }
-
-                <div class="d-flex justify-end gap-2 mt-6">
-                    <MudButton OnClick="CloseWarningDialog">Abbrechen</MudButton>
-                    <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">
-                        Frühwarnung senden
-                    </MudButton>
-                </div>
-            </MudPaper>
-        </div>
-    </div>
-}
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" />
-            Frühwarnung erstellen
-        </MudText>
-    </TitleContent>
+<MudDialog @bind-Visible="showWarningDialog" Options="new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true }">
+    <TitleContent><MudText Typo="Typo.h6">Frühwarnung senden</MudText></TitleContent>
     <DialogContent>
         @if (selectedStudent != null)
         {
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudAlert Severity="Severity.Warning" Dense="true">
-                        <strong>@selectedStudent.StudentName</strong> (@selectedStudent.ClassName)<br/>
-                        Fach: <strong>@selectedStudent.Subject</strong><br/>
-                        Aktueller Durchschnitt: <strong>@selectedStudent.Average.ToString("F2")</strong>
-                    </MudAlert>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudTextField @bind-Value="warningComment"
-                                  Label="Kommentar / Begründung"
-                                  Lines="5"
-                                  Variant="Variant.Outlined"
-                                  Placeholder="Bitte geben Sie einen Kommentar zur Frühwarnung ein..." />
-                </MudItem>
-                <MudItem xs="12">
-                    <MudCheckBox T="bool"
-                        @bind-Checked="notifyParents" Color="Color.Primary">
-                        Eltern per E-Mail benachrichtigen
-                    </MudCheckBox>
-                </MudItem>
-            </MudGrid>
+            <MudText>Sende Warnung für Student <b>@selectedStudent.StudentId</b></MudText>
+            <MudTextField @bind-Value="warningComment" Label="Grund" Lines="3" Variant="Variant.Outlined" Class="mt-4" />
         }
     </DialogContent>
-<DialogActions>
-    <MudButton OnClick="CloseWarningDialog">Abbrechen</MudButton>
-    <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">
-        Frühwarnung senden
-    </MudButton>
-</DialogActions>
+    <DialogActions>
+        <MudButton OnClick="() => showWarningDialog = false">Abbrechen</MudButton>
+        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SendWarning">Senden</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
     private List<Class> classes = new();
     private List<StudentAtRisk> studentsAtRisk = new();
-    private List<SentWarning> sentWarnings = new();
-    
     private string selectedClassId = "";
     private bool loading = true;
-    
     private bool showWarningDialog = false;
     private StudentAtRisk? selectedStudent;
     private string warningComment = "";
-    private bool notifyParents = true;
-    
-    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-    private IEnumerable<StudentAtRisk> FilteredStudentsAtRisk
-    {
-        get
-        {
-            var filtered = studentsAtRisk.AsEnumerable();
-            
-            if (!string.IsNullOrEmpty(selectedClassId))
-                filtered = filtered.Where(s => s.ClassId == selectedClassId);
-            
-            return filtered.OrderBy(s => s.Average);
-        }
+    // Hilfsklasse direkt hier definieren, um "Cannot resolve symbol" zu fixen
+    public class StudentAtRisk {
+        public string StudentId { get; set; } = "";
+        public string ClassId { get; set; } = "";
+        public decimal Average { get; set; }
+        public int GradeCount { get; set; }
     }
 
-    
+    private IEnumerable<StudentAtRisk> FilteredStudentsAtRisk => 
+        string.IsNullOrEmpty(selectedClassId) ? studentsAtRisk : studentsAtRisk.Where(s => s.ClassId == selectedClassId);
+
+    protected override async Task OnInitializedAsync() => await LoadData();
 
     private async Task LoadData()
     {
         loading = true;
-        
-        classes = await ClassService.GetClassesAsync();
-        
-        // Mock data for students at risk
-        studentsAtRisk = new List<StudentAtRisk>
-        {
-            new StudentAtRisk 
-            { 
-                StudentId = "s1", 
-                StudentName = "Anna Müller", 
-                ClassId = "c1",
-                ClassName = "1AHIF", 
-                Subject = "Mathematik",
-                Average = 4.2m, 
-                GradeCount = 5,
-                WarningSent = false
-            },
-            new StudentAtRisk 
-            { 
-                StudentId = "s2", 
-                StudentName = "Ben Schmidt", 
-                ClassId = "c1",
-                ClassName = "1AHIF", 
-                Subject = "Programmieren",
-                Average = 3.8m, 
-                GradeCount = 4,
-                WarningSent = false
-            },
-            new StudentAtRisk 
-            { 
-                StudentId = "s3", 
-                StudentName = "Clara Weber", 
-                ClassId = "c2",
-                ClassName = "2AHIF", 
-                Subject = "Englisch",
-                Average = 4.5m, 
-                GradeCount = 6,
-                WarningSent = true
-            }
-        };
-        
-        sentWarnings = new List<SentWarning>
-        {
-            new SentWarning
-            {
-                StudentName = "Clara Weber",
-                ClassName = "2AHIF",
-                Subject = "Englisch",
-                Average = 4.5m,
-                Comment = "Mehrfache ungenügende Noten bei Tests",
-                SentDate = DateTime.Now.AddDays(-5)
-            }
-        };
-        
-        loading = false;
+        try {
+            classes = await ClassService.GetClassesAsync() ?? new();
+            // Wir holen alle Noten. Da Grade kein StudentName hat, arbeiten wir nur mit IDs
+            var allGrades = await GradeService.GetGradesByTestAsync("") ?? new(); 
+            
+            studentsAtRisk = allGrades
+                .GroupBy(g => g.StudentId)
+                .Select(group => new StudentAtRisk {
+                    StudentId = group.Key,
+                    Average = group.Average(x => (decimal)x.GradeValue),
+                    GradeCount = group.Count(),
+                    ClassId = classes.FirstOrDefault()?.Id ?? "" // Vereinfachte Zuordnung
+                })
+                .Where(s => s.Average >= 3.5m)
+                .ToList();
+        } catch { Snackbar.Add("Fehler beim Laden", Severity.Error); }
+        finally { loading = false; }
     }
 
-    private void OpenWarningDialog(StudentAtRisk student)
-    {
+    private void OpenWarningDialog(StudentAtRisk student) {
         selectedStudent = student;
         warningComment = "";
-        notifyParents = true;
         showWarningDialog = true;
     }
 
-    private void CloseWarningDialog()
-    {
+    private async Task SendWarning() {
+        Snackbar.Add("Warnung wurde simuliert gesendet", Severity.Success);
         showWarningDialog = false;
-        selectedStudent = null;
     }
 
-    private async Task SendWarning()
-    {
-        if (selectedStudent == null) return;
-
-        if (string.IsNullOrWhiteSpace(warningComment))
-        {
-            Snackbar.Add("Bitte geben Sie einen Kommentar ein", Severity.Warning);
-            return;
-        }
-
-        // Mark as sent
-        selectedStudent.WarningSent = true;
-        
-        // Add to sent warnings
-        sentWarnings.Add(new SentWarning
-        {
-            StudentName = selectedStudent.StudentName,
-            ClassName = selectedStudent.ClassName,
-            Subject = selectedStudent.Subject,
-            Average = selectedStudent.Average,
-            Comment = warningComment,
-            SentDate = DateTime.Now
-        });
-
-        var message = notifyParents 
-            ? "Frühwarnung gesendet und Eltern benachrichtigt" 
-            : "Frühwarnung gesendet";
-        
-        Snackbar.Add(message, Severity.Success);
-        CloseWarningDialog();
-        StateHasChanged();
-    }
-
-    private void ViewWarning(StudentAtRisk student)
-    {
-        var warning = sentWarnings.FirstOrDefault(w => 
-            w.StudentName == student.StudentName && 
-            w.Subject == student.Subject);
-        
-        if (warning != null)
-        {
-            Snackbar.Add($"Gesendet am {warning.SentDate:dd.MM.yyyy}: {warning.Comment}", Severity.Info);
-        }
-    }
-
-    private Color GetAverageColor(decimal average)
-    {
-        return average switch
-        {
-            >= 4.5m => Color.Error,
-            >= 4.0m => Color.Warning,
-            >= 3.5m => Color.Info,
-            _ => Color.Success
-        };
-    }
-
-    private class StudentAtRisk
-    {
-        public string StudentId { get; set; } = string.Empty;
-        public string StudentName { get; set; } = string.Empty;
-        public string ClassId { get; set; } = string.Empty;
-        public string ClassName { get; set; } = string.Empty;
-        public string Subject { get; set; } = string.Empty;
-        public decimal Average { get; set; }
-        public int GradeCount { get; set; }
-        public bool WarningSent { get; set; }
-    }
-
-    private class SentWarning
-    {
-        public string StudentName { get; set; } = string.Empty;
-        public string ClassName { get; set; } = string.Empty;
-        public string Subject { get; set; } = string.Empty;
-        public decimal Average { get; set; }
-        public string Comment { get; set; } = string.Empty;
-        public DateTime SentDate { get; set; }
-    }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-        
-        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = auth.User;
-
-        if (!RoleHelper.HasRole(user, "Teacher"))
-        {
-            Nav.NavigateTo("/login", true);
-        }
-    }
+    private Color GetAverageColor(decimal average) => average >= 4.5m ? Color.Error : (average >= 3.8m ? Color.Warning : Color.Info);
 }

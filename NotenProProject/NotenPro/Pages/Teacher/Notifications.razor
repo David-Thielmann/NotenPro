@@ -1,0 +1,174 @@
+@page "/teacher/notifications"
+@using MudBlazor
+@inject INotificationService NotificationService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+
+<PageTitle>Benachrichtigungen</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-6">Benachrichtigungen</MudText>
+
+@if (isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (hasError)
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+        <MudText Typo="Typo.subtitle1">Benachrichtigungen konnten nicht geladen werden</MudText>
+        <MudText Typo="Typo.caption">@errorMessage</MudText>
+
+        <div class="d-flex gap-2 mt-3">
+            <MudButton Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="@Reload">
+                Erneut versuchen
+            </MudButton>
+        </div>
+    </MudAlert>
+}
+else
+{
+    @foreach (var notification in notifications)
+    {
+        if (notification is null)
+        {
+            continue;
+        }
+
+        <MudCard Elevation="2" Class="mb-3">
+            <MudCardContent>
+                <div class="d-flex align-center justify-space-between">
+                    <div class="d-flex align-center flex-grow-1">
+                        <MudIcon Icon="@GetNotificationIcon(notification.Type)"
+                                 Color="@GetNotificationColor(notification.Type)"
+                                 Class="mr-3" />
+                        <div class="flex-grow-1">
+                            <MudText Typo="Typo.subtitle1">@notification.Title</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@notification.Message</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                                @(notification.Timestamp == default
+                                    ? "-"
+                                    : notification.Timestamp.ToString("dd.MM.yyyy HH:mm"))
+                            </MudText>
+                        </div>
+                    </div>
+
+                    @if (!notification.IsRead && !string.IsNullOrWhiteSpace(notification.Id))
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Check"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => MarkAsRead(notification.Id))" />
+                    }
+                </div>
+            </MudCardContent>
+        </MudCard>
+    }
+
+    @if (notifications is null || !notifications.Any(n => n is not null))
+    {
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <div class="d-flex flex-column align-center py-8">
+                    <MudIcon Icon="@Icons.Material.Filled.Notifications" Size="Size.Large" Color="Color.Secondary" />
+                    <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mt-4">
+                        Keine Benachrichtigungen
+                    </MudText>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    }
+}
+
+@code {
+    private bool isLoading = true;
+    private bool hasError;
+    private string errorMessage = "";
+
+    private List<Notification> notifications = new();
+
+    protected override async Task OnInitializedAsync()
+        => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        isLoading = true;
+        hasError = false;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = auth.User;
+
+            // Teacher-UI wird auch von Admin verwendet.
+            if (!RoleHelper.HasRole(user, "Teacher") && !RoleHelper.HasRole(user, "Admin"))
+            {
+                Nav.NavigateTo("authentication/login", true);
+                return;
+            }
+
+            notifications = await NotificationService.GetMyNotificationsAsync() ?? new();
+
+            // Optional: Sortierung (neueste zuerst) ohne UI-Änderung
+            notifications = notifications
+                .Where(n => n is not null)
+                .OrderByDescending(n => n!.Timestamp)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = ex.InnerException?.Message ?? ex.Message;
+            Snackbar.Add($"Fehler: {errorMessage}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Task Reload()
+        => LoadAsync();
+
+    private async Task MarkAsRead(string id)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return;
+
+            await NotificationService.MarkAsReadAsync(id);
+
+            var item = notifications.FirstOrDefault(n => n.Id == id);
+            if (item != null)
+                item.IsRead = true;
+
+            Snackbar.Add("Als gelesen markiert", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private string GetNotificationIcon(NotificationType type) => type switch
+    {
+        NotificationType.Success => Icons.Material.Filled.CheckCircle,
+        NotificationType.Warning => Icons.Material.Filled.Warning,
+        NotificationType.Error => Icons.Material.Filled.Error,
+        _ => Icons.Material.Filled.Info
+    };
+
+    private Color GetNotificationColor(NotificationType type) => type switch
+    {
+        NotificationType.Success => Color.Success,
+        NotificationType.Warning => Color.Warning,
+        NotificationType.Error => Color.Error,
+        _ => Color.Info
+    };
+}

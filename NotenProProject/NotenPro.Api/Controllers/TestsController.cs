@@ -18,8 +18,10 @@ namespace NotenPro.Api.Controllers
             _dbContext = dbContext;
         }
 
-        // GET: api/Tests/my-tests
+        // GET: api/tests/my-tests  (new)
+        // GET: api/tests/my        (legacy client route)
         [HttpGet("my-tests")]
+        [HttpGet("my")]
         public async Task<ActionResult<List<TestDto>>> GetMyTests()
         {
             try
@@ -33,7 +35,7 @@ namespace NotenPro.Api.Controllers
                         Name = t.Name,
                         Date = t.Date,
                         // Konvertiert das Enum zum String für das DTO
-                        Type = t.Type.ToString(), 
+                        Type = t.Type.ToString(),
                         MaxPoints = t.MaxPoints,
                         ClassId = t.ClassId,
                         ClassName = t.Class != null ? t.Class.Name : "Unbekannt",
@@ -56,12 +58,11 @@ namespace NotenPro.Api.Controllers
         {
             if (request == null) return BadRequest();
 
-            try 
+            try
             {
                 // 1. TeacherId holen (WICHTIG: Das Entity verlangt das!)
-                // Wenn du ein Identity-System hast, nutzt man meist User.FindFirstValue
                 var teacherId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        
+
                 // Falls kein Teacher eingeloggt ist (Fallback für Tests, falls nötig)
                 if (string.IsNullOrEmpty(teacherId))
                 {
@@ -70,18 +71,19 @@ namespace NotenPro.Api.Controllers
 
                 // 2. ClassId Fallback (wie bisher)
                 var finalClassId = request.ClassId;
-                if (string.IsNullOrEmpty(finalClassId)) 
+                if (string.IsNullOrEmpty(finalClassId))
                 {
                     finalClassId = await _dbContext.Classes.Select(c => c.Id).FirstOrDefaultAsync();
                 }
 
                 // 3. Entity erstellen
-                var newTest = new TestEntity {
+                var newTest = new TestEntity
+                {
                     Id = Guid.NewGuid().ToString(),
                     Name = request.Name,
                     SubjectId = request.SubjectId,
-                    ClassId = finalClassId!, 
-                    TeacherId = teacherId!, // DIESE ZEILE HAT GEFEHLT!
+                    ClassId = finalClassId!,
+                    TeacherId = teacherId!,
                     Date = request.Date,
                     Type = Enum.TryParse<TestType>(request.Type, out var t) ? t : TestType.Test,
                     MaxPoints = request.MaxPoints,
@@ -94,9 +96,8 @@ namespace NotenPro.Api.Controllers
 
                 return Ok(new TestDto { Id = newTest.Id, Name = newTest.Name });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                // Logge den Fehler in die Konsole
                 Console.WriteLine($"Fehler beim Erstellen des Tests: {ex.Message}");
                 return StatusCode(500, $"Interner Fehler: {ex.Message}");
             }
